@@ -1,0 +1,26 @@
+{
+    "name": "rybakit/msgpack",
+    "description": "MessagePack in pure PHP.",
+    "keywords": ["msgpack", "messagepack", "pure", "streaming"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eugene Leonovich",
+            "email": "gen.work@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MessagePack\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MessagePack\\Tests\\": "tests/"
+        }
+    }
+}
