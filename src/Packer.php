@@ -8,7 +8,7 @@ class Packer
 {
     const FORCE_MAP = 1;
     const FORCE_ARR = 2;
-    const FORCE_BIN  = 4;
+    const FORCE_BIN = 4;
     const FORCE_UTF8 = 8;
 
     private $opts = 0;
@@ -30,13 +30,11 @@ class Packer
                 if (self::FORCE_MAP & $opts) {
                     return self::packMap($value, $opts);
                 }
-
-                $size = count($value);
-                if ($size && array_keys($value) !== range(0, $size - 1)) {
-                    return self::packMap($value, $opts);
+                if (array_values($value) === $value) {
+                    return self::packArray($value, $opts);
                 }
 
-                return self::packArray($value, $opts);
+                return self::packMap($value, $opts);
             case 'string':
                 if (self::FORCE_UTF8 & $opts) {
                     return self::packStr($value);
