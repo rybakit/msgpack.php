@@ -10,6 +10,7 @@ env:
   - PHP_RUNTIME='php:5.5-cli' PHP_COVERAGE=''
   - PHP_RUNTIME='php:5.6-cli' PHP_COVERAGE='--coverage-clover coverage.clover'
   - PHP_RUNTIME='php:7.0-cli' PHP_COVERAGE=''
+  - PHP_RUNTIME='diegomarangoni/hhvm' PHP_COVERAGE=''
 
 before_install:
   # https://github.com/travis-ci/travis-ci/issues/4778

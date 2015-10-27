@@ -6,6 +6,10 @@ fi
 
 RUN_CMDS=''
 
+if [[ $PHP_RUNTIME == php* ]]; then
+    RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install zip"
+fi
+
 if [[ ! -z "$PHP_COVERAGE" ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    git clone https://github.com/xdebug/xdebug.git /usr/src/php/ext/xdebug"
     RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install xdebug"
@@ -15,8 +19,7 @@ echo -e "
 FROM $PHP_RUNTIME
 
 RUN apt-get update && \\
-    apt-get install -y git zlib1g-dev && \\
-    docker-php-ext-install zip${RUN_CMDS} && \\
+    apt-get install -y git curl zlib1g-dev${RUN_CMDS} && \\
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \\
     composer global require 'phpunit/phpunit:^4.8|^5.0'
 
