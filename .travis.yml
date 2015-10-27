@@ -6,32 +6,25 @@ services:
   - docker
 
 env:
-  - PHP_VERSION=5.4
-  - PHP_VERSION=5.5
-  - PHP_VERSION=5.6
-  - PHP_VERSION=7.0
+  - PHP_RUNTIME=5.4 PHP_COVERAGE=''
+  - PHP_RUNTIME=5.5 PHP_COVERAGE=''
+  - PHP_RUNTIME=5.6 PHP_COVERAGE='--coverage-clover coverage.clover'
+  - PHP_RUNTIME=7.0 PHP_COVERAGE=''
 
 before_install:
   # https://github.com/travis-ci/travis-ci/issues/4778
   # https://github.com/zuazo/kitchen-in-travis-native/issues/1#issuecomment-142230889
   - sudo iptables -L DOCKER || (echo "DOCKER iptables chain missing"; sudo iptables -N DOCKER)
 
-  # https://github.com/docker/docker/issues/14634
-  # https://github.com/docker/docker/pull/15182
-  - sed -i -r "s/^(FROM\s+php:).*(-cli)$/\1$PHP_VERSION\2/g" Dockerfile
-
 install:
-  - docker build -t msgpack .
-
-before_script:
-  - if [[ $PHP_VERSION == 5.6 ]]; then COVERAGE="--coverage-clover coverage.clover"; else COVERAGE=""; fi
+  - ./dockerfile.sh | docker build -t msgpack -
 
 script:
-  - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack bash -c "composer install && phpunit $COVERAGE"
+  - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
 
 after_script:
   - >
-    if [[ ! -z "$COVERAGE" ]]; then
+    if [[ ! -z "$PHP_COVERAGE" ]]; then
       docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack bash -c "
         curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
         php ocular.phar code-coverage:upload --format=php-clover coverage.clover
