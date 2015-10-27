@@ -6,11 +6,11 @@ services:
   - docker
 
 env:
-  - PHP_RUNTIME='php:5.4-cli' PHP_COVERAGE=''
-  - PHP_RUNTIME='php:5.5-cli' PHP_COVERAGE=''
-  - PHP_RUNTIME='php:5.6-cli' PHP_COVERAGE='--coverage-clover coverage.clover'
-  - PHP_RUNTIME='php:7.0-cli' PHP_COVERAGE=''
-  - PHP_RUNTIME='diegomarangoni/hhvm' PHP_COVERAGE=''
+  - PHP_RUNTIME='php:5.4-cli'
+  - PHP_RUNTIME='php:5.5-cli'
+  - PHP_RUNTIME='php:5.6-cli' PHPUNIT_OPTS='--coverage-clover coverage.clover'
+  - PHP_RUNTIME='php:7.0-cli'
+  - PHP_RUNTIME='diegomarangoni/hhvm'
 
 before_install:
   # https://github.com/travis-ci/travis-ci/issues/4778
@@ -24,10 +24,9 @@ script:
   - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
 
 after_script:
-  - >
-    if [[ ! -z "$PHP_COVERAGE" ]]; then
-      docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack bash -c "
+  - docker run --rm --name queue -v $(pwd):/queue -w /queue queue bash -c "
+      if [[ -f coverage.clover ]]; then
         curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
         php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-      "
-    fi
+      fi
+    "
