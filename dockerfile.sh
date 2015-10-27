@@ -22,5 +22,5 @@ RUN apt-get update && \\
 
 ENV PATH ~/.composer/vendor/bin:\$PATH
 
-CMD ['if [[ ! -f composer.lock ]]; then composer install; fi && phpunit${PHP_COVERAGE:+ }$PHP_COVERAGE']
+CMD if [ ! -f composer.lock ]; then composer install; fi && ~/.composer/vendor/bin/phpunit${PHP_COVERAGE:+ }$PHP_COVERAGE
 "
