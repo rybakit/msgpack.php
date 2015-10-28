@@ -13,7 +13,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->unpacker = new Unpacker('');
+        $this->unpacker = new Unpacker();
     }
 
     /**

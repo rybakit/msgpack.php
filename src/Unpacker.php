@@ -12,9 +12,11 @@ class Unpacker
     private $offset = 0;
     private static $map;
 
-    public function __construct($buffer)
+    public function __construct($buffer = null)
     {
-        $this->append($buffer);
+        if (null !== $buffer) {
+            $this->append($buffer);
+        }
 
         self::$map = [
             // MP_BIN
