@@ -34,8 +34,7 @@ function run(Benchmark $benchmark)
 $size = 1000;
 $benchmark = 'p';
 
-$opts = array_slice($argv, 1);
-foreach ($opts as $opt) {
+foreach (array_slice($argv, 1) as $opt) {
     if ('--size=' === substr($opt, 0, 7)) {
         $size = (int) substr($opt, 7);
     } else if ('--benchmark=' === substr($opt, 0, 12)) {
