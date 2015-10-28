@@ -6,8 +6,6 @@ use MessagePack\Packer;
 
 class PackerTest extends \PHPUnit_Framework_TestCase
 {
-    use DataProvider;
-
     /**
      * @var Packer
      */
@@ -19,7 +17,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider providePackData
+     * @dataProvider MessagePack\Tests\DataProvider::providePackData
      */
     public function testPack($title, $raw, $packed)
     {

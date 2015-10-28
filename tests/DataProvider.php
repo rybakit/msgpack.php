@@ -4,9 +4,9 @@ namespace MessagePack\Tests;
 
 use MessagePack\Ext;
 
-trait DataProvider
+class DataProvider
 {
-    public function provideData()
+    public static function provideData()
     {
         return [
             ['nil', null, "\xc0"],
@@ -106,15 +106,15 @@ trait DataProvider
         ];
     }
 
-    public function providePackData()
+    public static function providePackData()
     {
-        return array_merge($this->provideData(), [
+        return array_merge(self::provideData(), [
         ]);
     }
 
-    public function provideUnpackData()
+    public static function provideUnpackData()
     {
-        return array_merge($this->provideData(), [
+        return array_merge(self::provideData(), [
             ['fix map', [], "\x80"],
             ['fix map', [0 => null], "\x81\xc2\xc0"],
             ['fix map', [1 => null], "\x81\xc3\xc0"],

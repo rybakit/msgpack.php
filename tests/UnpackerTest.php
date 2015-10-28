@@ -6,8 +6,6 @@ use MessagePack\Unpacker;
 
 class UnpackerTest extends \PHPUnit_Framework_TestCase
 {
-    use DataProvider;
-
     /**
      * @var Unpacker
      */
@@ -19,7 +17,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider provideUnpackData
+     * @dataProvider MessagePack\Tests\DataProvider::provideUnpackData
      */
     public function testUnpack($title, $raw, $packed)
     {
