@@ -14,7 +14,7 @@ $ composer require rybakit/msgpack
 
 ## Tests
 
-The easiest way to run tests is with Docker. First, build an image using [dockerfile.sh](dockerfile.sh) generator:
+The easiest way to run tests is with Docker. First, build an image using the [dockerfile.sh](dockerfile.sh) generator:
 
 ```sh
 $ ./dockerfile.sh | docker build -t msgpack -

@@ -10,7 +10,7 @@ if [[ $PHP_RUNTIME == php* ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install zip"
 fi
 
-if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--clover-[[:alpha:]] ]]; then
+if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    git clone https://github.com/xdebug/xdebug.git /usr/src/php/ext/xdebug"
     RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install xdebug"
 fi
@@ -23,7 +23,7 @@ RUN apt-get update && \\
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \\
     composer global require 'phpunit/phpunit:^4.8|^5.0'
 
-ENV PATH ~/.composer/vendor/bin:\$PATH
+ENV PATH=~/.composer/vendor/bin:\$PATH
 
-CMD if [ ! -f composer.lock ]; then composer install; fi && ~/.composer/vendor/bin/phpunit${PHPUNIT_OPTS:+ }$PHPUNIT_OPTS
+CMD if [ ! -f composer.lock ]; then composer install; fi && ~/.composer/vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
 "

@@ -8,7 +8,7 @@ services:
 env:
   - PHP_RUNTIME='php:5.4-cli'
   - PHP_RUNTIME='php:5.5-cli'
-  - PHP_RUNTIME='php:5.6-cli' PHPUNIT_OPTS='--coverage-clover coverage.clover'
+  - PHP_RUNTIME='php:5.6-cli' PHPUNIT_OPTS='--coverage-clover=coverage.clover'
   - PHP_RUNTIME='php:7.0-cli'
   - PHP_RUNTIME='diegomarangoni/hhvm'
 
@@ -21,12 +21,12 @@ install:
   - ./dockerfile.sh | docker build -t msgpack -
 
 script:
-  - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
+  - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack -e PHPUNIT_OPTS="$PHPUNIT_OPTS" msgpack
 
 after_script:
   - docker run --rm --name queue -v $(pwd):/queue -w /queue queue bash -c "
       if [[ -f coverage.clover ]]; then
         curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
-        php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+        php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
       fi
     "
