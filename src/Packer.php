@@ -91,7 +91,7 @@ class Packer
 
     private static function packDouble($num)
     {
-        return chr(0xcb).strrev(pack('d', $num));
+        return "\xcb".strrev(pack('d', $num));
     }
 
     private static function packInt($num)
@@ -218,7 +218,7 @@ class Packer
 
     private static function packNil()
     {
-        return chr(0xc0);
+        return "\xc0";
     }
 
     private static function packExt(Ext $ext)
