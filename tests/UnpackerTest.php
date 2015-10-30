@@ -25,6 +25,27 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($raw, $this->unpacker->unpack());
     }
 
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     */
+    public function testConstructorWithoutArgument()
+    {
+        (new Unpacker())->unpack();
+    }
+
+    public function testConstructorWithArgument()
+    {
+        $this->assertSame(true, (new Unpacker("\xc3"))->unpack());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     */
+    public function testFlush()
+    {
+        (new Unpacker("\xc3"))->flush()->unpack();
+    }
+
     public function testUnpackEmptyMapToArray()
     {
         $this->unpacker->append("\x80");
