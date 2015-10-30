@@ -12,39 +12,46 @@ if (function_exists('xdebug_break')) {
     exit(42);
 }
 
-function run(Benchmark $benchmark)
+function run(Benchmark $benchmark, $testName = null, $tableLen = 32)
 {
-    echo $benchmark->getTitle()."\n";
-    echo str_repeat('=', 28)."\n";
-    echo str_pad('Test', 19, ' ')."Time, sec\n";
-    echo str_repeat('-', 28)."\n";
+    echo str_repeat('=', $tableLen)."\n";
+    printf("Type: %s\n", $benchmark->getTitle());
+    printf("Size: %s\n", $benchmark->getSize());
+    echo str_repeat('=', $tableLen)."\n";
+
+    printf("Test %s Time, sec\n", str_repeat(' ', $tableLen - 15));
+    echo str_repeat('-', $tableLen)."\n";
 
     $totalTime = 0;
     foreach (DataProvider::provideData() as $set) {
+        if (null !== $testName && $set[0] !== $testName) {
+            continue;
+        }
+
+        echo $set[0];
+
         $totalTime += $time = $benchmark->measure($set[1], $set[2]);
+        $printTime = sprintf('%.4f', $time);
 
-        echo str_pad($set[0], 22, ' ');
-        printf("%.4f\n", $time);
+        printf(" %s %s\n",
+            str_repeat('.', $tableLen - strlen($set[0]) - strlen($printTime) - 2),
+            $printTime
+        );
     }
 
-    echo str_repeat('-', 28)."\n";
-    echo str_repeat(' ', 15).sprintf("Total: %.4f\n\n", $totalTime);
+    $summary = sprintf('Total: %.4f', $totalTime);
+
+    echo str_repeat('-', $tableLen)."\n";
+    echo str_repeat(' ', $tableLen - strlen($summary)).$summary."\n\n";
 }
 
-$size = 1000;
-$benchmark = 'p';
+$size = getenv('MP_BENCH_SIZE') ?: 1000;
+$bench = getenv('MP_BENCH_TYPE') ?: 'p';
+$test = getenv('MP_BENCH_TEST') ?: null;
 
-foreach (array_slice($argv, 1) as $opt) {
-    if ('--size=' === substr($opt, 0, 7)) {
-        $size = (int) substr($opt, 7);
-    } else if ('--benchmark=' === substr($opt, 0, 12)) {
-        $benchmark = substr($opt, 12);
-    }
-}
-
-if (!in_array($benchmark, ['p', 'u'], true)) {
-    echo "Invalid benchmark name, use 'p' or 'u'.\n";
+if (!in_array($bench, ['p', 'u'], true)) {
+    echo "Invalid benchmark type, use 'p' or 'u'.\n";
     exit(43);
 }
 
-run('p' === $benchmark ? new Packing($size) : new Unpacking($size));
+run('p' === $bench ? new Packing($size) : new Unpacking($size), $test);

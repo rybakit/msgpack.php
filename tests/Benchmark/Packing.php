@@ -26,6 +26,14 @@ class Packing implements Benchmark
     /**
      * {@inheritdoc}
      */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function measure($raw, $packed)
     {
         $totalTime = 0;

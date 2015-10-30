@@ -10,6 +10,11 @@ interface Benchmark
     public function getTitle();
 
     /**
+     * @return int
+     */
+    public function getSize();
+
+    /**
      * @param mixed  $raw
      * @param string $packed
      *
