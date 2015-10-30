@@ -75,4 +75,13 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame("\xc4\x01"."\x80", $this->packer->pack("\x80"));
     }
+
+    /**
+     * @expectedException \MessagePack\Exception\PackException
+     * @expectedExceptionMessage Unsupported type.
+     */
+    public function testPackUnsupportedType()
+    {
+        $this->packer->pack(tmpfile());
+    }
 }

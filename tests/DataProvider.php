@@ -98,7 +98,8 @@ class DataProvider
             ['fix map #2', ['abc' => 5], "\x81\xa3\x61\x62\x63\x05"],
             ['fix map #3', ["\x80" => 0xffff], "\x81\xc4\x01\x80\xcd\xff\xff"],
             ['16-bit map #1', array_fill(1, 16, 0x05), "\xde\x00\x10".array_reduce(range(1, 16), function ($r, $i) { return $r .= pack('C', $i)."\x05"; })],
-            ['16-bit map #2', array_fill(1, 6000, 0x05), "\xde\x17\x70".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 6000), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })],
+            ['16-bit map #2', array_fill(1, 65535, 0x05), "\xde\xff\xff".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })],
+            ['32-bit map', array_fill(1, 65536, 0x05), "\xdf\x00\x01\x00\x00".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })."\xce".pack('N', 65536)."\x05"],
             ['complex map', [1 => [[1 => 2, 3 => 4], [1 => null]], 2 => 1, 3 => [false, 'def'], 4 => [0x100000000 => 'a', 0xffffffff => 'b']], "\x84\x01\x92\x82\x01\x02\x03\x04\x81\x01\xc0\x02\x01\x03\x92\xc2\xa3\x64\x65\x66\x04\x82\xcf\x00\x00\x00\x01\x00\x00\x00\x00\xa1\x61\xce\xff\xff\xff\xff\xa1\x62"],
         ];
     }
