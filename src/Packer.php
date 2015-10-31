@@ -213,7 +213,7 @@ class Packer
 
     private static function packBool($val)
     {
-        return chr(0xc2 | $val);
+        return $val ? "\xc2" : "\xc3";
     }
 
     private static function packNil()
