@@ -25,13 +25,13 @@ class Packer
         switch ($type) {
             case 'array':
                 if (self::FORCE_ARR & $opts) {
-                    return self::packArray($value, $opts);
+                    return self::packArr($value, $opts);
                 }
                 if (self::FORCE_MAP & $opts) {
                     return self::packMap($value, $opts);
                 }
                 if (array_values($value) === $value) {
-                    return self::packArray($value, $opts);
+                    return self::packArr($value, $opts);
                 }
 
                 return self::packMap($value, $opts);
@@ -160,10 +160,10 @@ class Packer
         return self::packU32(0xc6, $len).$str;
     }
 
-    private static function packArray(array $array, $opts = 0)
+    private static function packArr(array $array, $opts = 0)
     {
         $size = count($array);
-        $data = self::packArrayHeader($size);
+        $data = self::packArrHeader($size);
 
         foreach ($array as $val) {
             $data .= self::pack($val, $opts);
@@ -172,7 +172,7 @@ class Packer
         return $data;
     }
 
-    private static function packArrayHeader($size)
+    private static function packArrHeader($size)
     {
         if ($size <= 0xf) {
             return self::packFix(0x90, $size);
