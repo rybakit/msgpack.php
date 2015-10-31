@@ -58,7 +58,7 @@ class Packer
             return self::packExt($value);
         }
 
-        throw new PackException('Unsupported type.');
+        throw new PackException($value, 'Unsupported type.');
     }
 
     private static function packFix($code, $num)
@@ -252,6 +252,6 @@ class Packer
             return pack('CNC', 0xc9, $len, $type).$data;
         }
 
-        throw new PackException('Extension data too big.');
+        throw new PackException($ext, 'Extension data too big.');
     }
 }

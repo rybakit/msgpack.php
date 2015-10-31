@@ -27,6 +27,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data (0 of 1).
      */
     public function testConstructorWithoutArgument()
     {
@@ -40,6 +41,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data (0 of 1).
      */
     public function testFlush()
     {
@@ -63,5 +65,14 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
         $this->unpacker->append($packed[1]);
         $this->unpacker->append(substr($packed, 2));
         $this->assertSame($raw, $this->unpacker->tryUnpack());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackException
+     * @expectedExceptionMessage Unknown code: 0xc1.
+     */
+    public function testUnknownCodeThrowsException()
+    {
+        $this->unpacker->append("\xc1")->unpack();
     }
 }

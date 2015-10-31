@@ -138,7 +138,7 @@ class Unpacker
             return true;
         }
         if (!isset(self::$map[$c])) {
-            throw new UnpackException();
+            throw new UnpackException(sprintf('Unknown code: 0x%x.', $c));
         }
 
         $func = self::$map[$c];
@@ -339,7 +339,7 @@ class Unpacker
     private function ensureLength($length)
     {
         if ($this->bufferLength - $this->offset < $length) {
-            throw new InsufficientDataException(sprintf('Expected: %d, actual: %d.', $length, $this->bufferLength - $this->offset));
+            throw new InsufficientDataException($length, $this->bufferLength - $this->offset);
         }
     }
 }
