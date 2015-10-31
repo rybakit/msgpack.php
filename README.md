@@ -14,6 +14,53 @@ $ composer require rybakit/msgpack
 ```
 
 
+## Usage
+
+### Packer
+
+```php
+use MessagePack\Packer;
+
+$packed = Packer::pack('foo');
+$packed = Packer::packArr([1, 2, 3]);
+$packed = Packer::packMap([1, 2, 3]);
+$packed = Packer::packInt(42);
+$packed = Packer::packFloat(4.2);
+$packed = Packer::packStr('foo');
+$packed = Packer::packBin("\xf0\xf1");
+$packed = Packer::packExt(new Ext(42, "\xf0\xf1"));
+$packed = Packer::packNil();
+
+$packed = Packer::packArr([1, 2, 3], [Packer::FORCE_STR => true, Packer::FORCE_MAP => true]);
+$packed = Packer::packArr([1, 2, 3], Packer::FORCE_STR | Packer::FORCE_MAP);
+$packed = Packer::packArr([1, 2, 3], assoc=false);
+```
+
+### Unpacker
+
+```php
+use MessagePack\Unpacker;
+
+$unpacker = new Unpacker($packed);
+$result = $unpacker->unpack();
+
+$result = Unpacker::unpack($packed);
+```
+
+#### Streaming unpacking
+
+```php
+use MessagePack\Unpacker;
+
+$unpacker = new Unpacker();
+$result = $unpacker->tryUnpack(); // []
+$unpacker->append("\xXX");
+$result = $unpacker->tryUnpack(); // []
+$unpacker->append("\xXX");
+$result = $unpacker->tryUnpack(); // ['a']
+```
+
+
 ## Tests
 
 The easiest way to run tests is with Docker. First, build an image using the [dockerfile.sh](dockerfile.sh) generator:

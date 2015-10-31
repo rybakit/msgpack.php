@@ -27,7 +27,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data (0 of 1).
+     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
      */
     public function testConstructorWithoutArgument()
     {
@@ -41,7 +41,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data (0 of 1).
+     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
      */
     public function testFlush()
     {
