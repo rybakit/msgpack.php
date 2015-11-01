@@ -12,15 +12,15 @@ if (function_exists('xdebug_break')) {
     exit(42);
 }
 
-function run(Benchmark $benchmark, $testName = null, $tableLen = 32)
+function run(Benchmark $benchmark, $testName = null, $tableWidth = 32)
 {
-    echo str_repeat('=', $tableLen)."\n";
+    echo str_repeat('=', $tableWidth)."\n";
     printf("Type: %s\n", $benchmark->getTitle());
     printf("Size: %s\n", $benchmark->getSize());
-    echo str_repeat('=', $tableLen)."\n";
+    echo str_repeat('=', $tableWidth)."\n";
 
-    printf("Test %s Time, sec\n", str_repeat(' ', $tableLen - 15));
-    echo str_repeat('-', $tableLen)."\n";
+    printf("Test %s Time, sec\n", str_repeat(' ', $tableWidth - 15));
+    echo str_repeat('-', $tableWidth)."\n";
 
     $totalTime = 0;
     foreach (DataProvider::provideData() as $set) {
@@ -34,15 +34,15 @@ function run(Benchmark $benchmark, $testName = null, $tableLen = 32)
         $printTime = sprintf('%.4f', $time);
 
         printf(" %s %s\n",
-            str_repeat('.', $tableLen - strlen($set[0]) - strlen($printTime) - 2),
+            str_repeat('.', $tableWidth - strlen($set[0]) - strlen($printTime) - 2),
             $printTime
         );
     }
 
     $summary = sprintf('Total: %.4f', $totalTime);
 
-    echo str_repeat('-', $tableLen)."\n";
-    echo str_repeat(' ', $tableLen - strlen($summary)).$summary."\n\n";
+    echo str_repeat('-', $tableWidth)."\n";
+    echo str_repeat(' ', $tableWidth - strlen($summary)).$summary."\n\n";
 }
 
 $size = getenv('MP_BENCH_SIZE') ?: 1000;
