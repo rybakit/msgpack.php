@@ -25,16 +25,16 @@ class Packer
         switch ($type) {
             case 'array':
                 if (self::FORCE_ARR & $opts) {
-                    return self::packArr($value, $opts);
+                    return $this->packArr($value, $opts);
                 }
                 if (self::FORCE_MAP & $opts) {
-                    return self::packMap($value, $opts);
+                    return $this->packMap($value, $opts);
                 }
                 if (array_values($value) === $value) {
-                    return self::packArr($value, $opts);
+                    return $this->packArr($value, $opts);
                 }
 
-                return self::packMap($value, $opts);
+                return $this->packMap($value, $opts);
             case 'string':
                 if (self::FORCE_UTF8 & $opts) {
                     return self::packStr($value);
@@ -59,6 +59,101 @@ class Packer
         }
 
         throw new PackException($value, 'Unsupported type.');
+    }
+
+    private function packArr(array $array, $opts = 0)
+    {
+        $size = count($array);
+        $data = self::packArrHeader($size);
+
+        foreach ($array as $val) {
+            $data .= $this->pack($val, $opts);
+        }
+
+        return $data;
+    }
+
+    private static function packArrHeader($size)
+    {
+        if ($size <= 0xf) {
+            return self::packFix(0x90, $size);
+        }
+
+        if ($size <= 0xffff) {
+            return self::packU16(0xdc, $size);
+        }
+
+        return self::packU32(0xdd, $size);
+    }
+
+    private function packMap(array $map, $opts = 0)
+    {
+        $size = count($map);
+        $data = self::packMapHeader($size);
+
+        foreach ($map as $key => $val) {
+            $data .= $this->pack($key, $opts);
+            $data .= $this->pack($val, $opts);
+        }
+
+        return $data;
+    }
+
+    private static function packMapHeader($size)
+    {
+        if ($size <= 0xf) {
+            return self::packFix(0x80, $size);
+        }
+
+        if ($size <= 0xffff) {
+            return self::packU16(0xde, $size);
+        }
+
+        return self::packU32(0xdf, $size);
+    }
+
+    private static function packBool($val)
+    {
+        return $val ? "\xc3" : "\xc2";
+    }
+
+    private static function packNil()
+    {
+        return "\xc0";
+    }
+
+    private static function packExt(Ext $ext)
+    {
+        $type = $ext->getType();
+        $data = $ext->getData();
+        $len = strlen($data);
+
+        if (1 === $len) {
+            return pack('CC', 0xd4, $type).$data;
+        }
+        if (2 === $len) {
+            return pack('CC', 0xd5, $type).$data;
+        }
+        if (4 === $len) {
+            return pack('CC', 0xd6, $type).$data;
+        }
+        if (8 === $len) {
+            return pack('CC', 0xd7, $type).$data;
+        }
+        if (16 === $len) {
+            return pack('CC', 0xd8, $type).$data;
+        }
+        if ($len <= 0xff) {
+            return pack('CCC', 0xc7, $len, $type).$data;
+        }
+        if ($len <= 0xffff) {
+            return pack('CnC', 0xc8, $len, $type).$data;
+        }
+        if ($len <= 0xffffffff) {
+            return pack('CNC', 0xc9, $len, $type).$data;
+        }
+
+        throw new PackException($ext, 'Extension data too big.');
     }
 
     private static function packFix($code, $num)
@@ -158,100 +253,5 @@ class Packer
         }
 
         return self::packU32(0xc6, $len).$str;
-    }
-
-    private static function packArr(array $array, $opts = 0)
-    {
-        $size = count($array);
-        $data = self::packArrHeader($size);
-
-        foreach ($array as $val) {
-            $data .= self::pack($val, $opts);
-        }
-
-        return $data;
-    }
-
-    private static function packArrHeader($size)
-    {
-        if ($size <= 0xf) {
-            return self::packFix(0x90, $size);
-        }
-
-        if ($size <= 0xffff) {
-            return self::packU16(0xdc, $size);
-        }
-
-        return self::packU32(0xdd, $size);
-    }
-
-    private function packMap(array $map, $opts = 0)
-    {
-        $size = count($map);
-        $data = self::packMapHeader($size);
-
-        foreach ($map as $key => $val) {
-            $data .= self::pack($key, $opts);
-            $data .= self::pack($val, $opts);
-        }
-
-        return $data;
-    }
-
-    private static function packMapHeader($size)
-    {
-        if ($size <= 0xf) {
-            return self::packFix(0x80, $size);
-        }
-
-        if ($size <= 0xffff) {
-            return self::packU16(0xde, $size);
-        }
-
-        return self::packU32(0xdf, $size);
-    }
-
-    private static function packBool($val)
-    {
-        return $val ? "\xc3" : "\xc2";
-    }
-
-    private static function packNil()
-    {
-        return "\xc0";
-    }
-
-    private static function packExt(Ext $ext)
-    {
-        $type = $ext->getType();
-        $data = $ext->getData();
-        $len = strlen($data);
-
-        if (1 === $len) {
-            return pack('CC', 0xd4, $type).$data;
-        }
-        if (2 === $len) {
-            return pack('CC', 0xd5, $type).$data;
-        }
-        if (4 === $len) {
-            return pack('CC', 0xd6, $type).$data;
-        }
-        if (8 === $len) {
-            return pack('CC', 0xd7, $type).$data;
-        }
-        if (16 === $len) {
-            return pack('CC', 0xd8, $type).$data;
-        }
-        if ($len <= 0xff) {
-            return pack('CCC', 0xc7, $len, $type).$data;
-        }
-        if ($len <= 0xffff) {
-            return pack('CnC', 0xc8, $len, $type).$data;
-        }
-        if ($len <= 0xffffffff) {
-            return pack('CNC', 0xc9, $len, $type).$data;
-        }
-
-        throw new PackException($ext, 'Extension data too big.');
     }
 }
