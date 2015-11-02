@@ -75,17 +75,17 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($raw, $this->unpacker->tryUnpack());
     }
 
-    public function testTryUnpackFlushesBuffer()
+    public function testTryUnpackTruncatesBuffer()
     {
-        $raw = ['foo', 42];
-        $packed = "\xa3\x66\x6f\x6f\x2a";
+        $this->unpacker->append("\xc3");
+        $this->assertSame(1, $this->unpacker->getBufferLength());
 
-        $this->unpacker->append($packed);
-        $this->assertSame(5, $this->unpacker->getBufferLength());
-
-        $this->assertSame($raw, $this->unpacker->tryUnpack());
+        $this->assertSame([true], $this->unpacker->tryUnpack());
 
         $this->assertSame(0, $this->unpacker->getBufferLength());
+
+        $this->unpacker->append("\xc3");
+        $this->assertTrue($this->unpacker->unpack());
     }
 
     /**

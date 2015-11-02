@@ -106,6 +106,7 @@ class Unpacker
         if ($this->offset) {
             $this->buffer = substr($this->buffer, $this->offset);
             $this->bufferLength = strlen($this->buffer);
+            $this->offset = 0;
         }
 
         return $data;
