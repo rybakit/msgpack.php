@@ -8,7 +8,6 @@ use MessagePack\Exception\UnpackException;
 class Unpacker
 {
     private $buffer;
-    private $bufferLength = 0;
     private $offset = 0;
     private static $map;
 
@@ -67,7 +66,6 @@ class Unpacker
     public function append($data)
     {
         $this->buffer .= $data;
-        $this->bufferLength += strlen($data);
 
         return $this;
     }
@@ -75,15 +73,9 @@ class Unpacker
     public function flush()
     {
         $this->buffer = '';
-        $this->bufferLength = 0;
         $this->offset = 0;
 
         return $this;
-    }
-
-    public function getBufferLength()
-    {
-        return $this->bufferLength;
     }
 
     /**
@@ -98,14 +90,13 @@ class Unpacker
             do {
                 $data[] = $this->unpack();
                 $offset = $this->offset;
-            } while ($this->offset < $this->bufferLength);
+            } while (isset($this->buffer[$this->offset]));
         } catch (InsufficientDataException $e) {
             $this->offset = $offset;
         }
 
         if ($this->offset) {
-            $this->buffer = substr($this->buffer, $this->offset);
-            $this->bufferLength = strlen($this->buffer);
+            $this->buffer = (string) substr($this->buffer, $this->offset);
             $this->offset = 0;
         }
 
@@ -349,8 +340,8 @@ class Unpacker
 
     private function ensureLength($length)
     {
-        if ($this->bufferLength - $this->offset < $length) {
-            throw new InsufficientDataException($length, $this->bufferLength - $this->offset);
+        if (!isset($this->buffer[$length - 1])) {
+            throw new InsufficientDataException($length, strlen($this->buffer) - $this->offset);
         }
     }
 }
