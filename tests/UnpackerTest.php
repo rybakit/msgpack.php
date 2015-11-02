@@ -39,13 +39,19 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(true, (new Unpacker("\xc3"))->unpack());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
-     */
     public function testFlush()
     {
-        (new Unpacker("\xc3"))->flush()->unpack();
+        $this->unpacker->append("\x80");
+        $this->assertSame(1, $this->unpacker->getBufferLength());
+        $this->unpacker->flush();
+        $this->assertSame(0, $this->unpacker->getBufferLength());
+    }
+
+    public function getBufferLength()
+    {
+        $this->assertSame(0, $this->unpacker->getBufferLength());
+        $this->unpacker->append("\x80");
+        $this->assertSame(1, $this->unpacker->getBufferLength());
     }
 
     public function testUnpackEmptyMapToArray()
@@ -54,17 +60,32 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame([], $this->unpacker->unpack());
     }
 
-    public function testUnpackStream()
+    public function testTryUnpack()
     {
         $raw = ['foo', 42];
-        $packed = hex2bin('a3666f6f2a');
+        $packed = "\xa3\x66\x6f\x6f\x2a";
 
         $this->unpacker->append($packed[0]);
         $this->assertSame([], $this->unpacker->tryUnpack());
 
         $this->unpacker->append($packed[1]);
+        $this->assertSame([], $this->unpacker->tryUnpack());
+
         $this->unpacker->append(substr($packed, 2));
         $this->assertSame($raw, $this->unpacker->tryUnpack());
+    }
+
+    public function testTryUnpackFlushesBuffer()
+    {
+        $raw = ['foo', 42];
+        $packed = "\xa3\x66\x6f\x6f\x2a";
+
+        $this->unpacker->append($packed);
+        $this->assertSame(5, $this->unpacker->getBufferLength());
+
+        $this->assertSame($raw, $this->unpacker->tryUnpack());
+
+        $this->assertSame(0, $this->unpacker->getBufferLength());
     }
 
     /**

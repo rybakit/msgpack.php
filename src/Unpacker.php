@@ -81,6 +81,11 @@ class Unpacker
         return $this;
     }
 
+    public function getBufferLength()
+    {
+        return $this->bufferLength;
+    }
+
     /**
      * @return array
      */
@@ -96,6 +101,11 @@ class Unpacker
             } while ($this->offset < $this->bufferLength);
         } catch (InsufficientDataException $e) {
             $this->offset = $offset;
+        }
+
+        if ($this->offset) {
+            $this->buffer = substr($this->buffer, $this->offset);
+            $this->bufferLength = strlen($this->buffer);
         }
 
         return $data;
