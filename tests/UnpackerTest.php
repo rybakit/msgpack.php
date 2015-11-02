@@ -70,12 +70,11 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($raw, $this->unpacker->tryUnpack());
     }
 
-    public function testTryUnpackFlushesBuffer()
+    public function testTryUnpackTruncatesBuffer()
     {
-        $packed = "\xa3\x66\x6f\x6f\x2a";
+        $this->unpacker->append("\xc3");
 
-        $this->unpacker->append($packed);
-        $this->unpacker->tryUnpack();
+        $this->assertSame([true], $this->unpacker->tryUnpack());
 
         try {
             $this->unpacker->unpack();
@@ -85,7 +84,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $this->fail('Buffer was not flushed.');
+        $this->fail('Buffer was not truncated.');
     }
 
     /**

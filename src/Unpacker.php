@@ -96,7 +96,7 @@ class Unpacker
         }
 
         if ($this->offset) {
-            $this->buffer = substr($this->buffer, $this->offset);
+            $this->buffer = (string) substr($this->buffer, $this->offset);
             $this->offset = 0;
         }
 
