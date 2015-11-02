@@ -2,6 +2,7 @@
 
 namespace MessagePack\Tests;
 
+use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Unpacker;
 
 class UnpackerTest extends \PHPUnit_Framework_TestCase
@@ -39,19 +40,13 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(true, (new Unpacker("\xc3"))->unpack());
     }
 
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
+     */
     public function testFlush()
     {
-        $this->unpacker->append("\x80");
-        $this->assertSame(1, $this->unpacker->getBufferLength());
-        $this->unpacker->flush();
-        $this->assertSame(0, $this->unpacker->getBufferLength());
-    }
-
-    public function getBufferLength()
-    {
-        $this->assertSame(0, $this->unpacker->getBufferLength());
-        $this->unpacker->append("\x80");
-        $this->assertSame(1, $this->unpacker->getBufferLength());
+        $this->unpacker->append("\xc3")->flush()->unpack();
     }
 
     public function testUnpackEmptyMapToArray()
@@ -77,15 +72,20 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
 
     public function testTryUnpackFlushesBuffer()
     {
-        $raw = ['foo', 42];
         $packed = "\xa3\x66\x6f\x6f\x2a";
 
         $this->unpacker->append($packed);
-        $this->assertSame(5, $this->unpacker->getBufferLength());
+        $this->unpacker->tryUnpack();
 
-        $this->assertSame($raw, $this->unpacker->tryUnpack());
+        try {
+            $this->unpacker->unpack();
+        } catch (InsufficientDataException $e) {
+            $this->assertSame('Not enough data to unpack: need 1, have 0.', $e->getMessage());
 
-        $this->assertSame(0, $this->unpacker->getBufferLength());
+            return;
+        }
+
+        $this->fail('Buffer was not flushed.');
     }
 
     /**
