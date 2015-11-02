@@ -26,7 +26,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider MessagePack\Tests\DataProvider::providePackData
+     * @dataProvider MessagePack\Tests\DataProvider::provideData
      */
     public function testPack($title, $raw, $packed)
     {
