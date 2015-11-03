@@ -11,17 +11,17 @@
 
 namespace MessagePack\Tests\Benchmark;
 
-use MessagePack\Unpacker;
+use MessagePack\BufferUnpacker;
 
 class Unpacking implements Benchmark
 {
     private $size;
     private $unpacker;
 
-    public function __construct($size, Unpacker $unpacker = null)
+    public function __construct($size, BufferUnpacker $unpacker = null)
     {
         $this->size = $size;
-        $this->unpacker = new Unpacker();
+        $this->unpacker = new BufferUnpacker();
     }
 
     /**
@@ -48,7 +48,7 @@ class Unpacking implements Benchmark
         $totalTime = 0;
 
         for ($i = $this->size; $i; $i--) {
-            $this->unpacker->flush()->append($packed);
+            $this->unpacker->reset($packed);
 
             $time = microtime(true);
             $this->unpacker->unpack();

@@ -11,19 +11,19 @@
 
 namespace MessagePack\Tests;
 
+use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
-use MessagePack\Unpacker;
 
-class UnpackerTest extends \PHPUnit_Framework_TestCase
+class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Unpacker
+     * @var BufferUnpacker
      */
     private $unpacker;
 
     protected function setUp()
     {
-        $this->unpacker = new Unpacker();
+        $this->unpacker = new BufferUnpacker();
     }
 
     /**
@@ -39,23 +39,25 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
      * @expectedException \MessagePack\Exception\InsufficientDataException
      * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
      */
-    public function testConstructorWithoutArgument()
+    public function testUnpackEmtyBuffer()
     {
-        (new Unpacker())->unpack();
-    }
-
-    public function testConstructorWithArgument()
-    {
-        $this->assertSame(true, (new Unpacker("\xc3"))->unpack());
+        (new BufferUnpacker())->unpack();
     }
 
     /**
      * @expectedException \MessagePack\Exception\InsufficientDataException
      * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
      */
-    public function testFlush()
+    public function testReset()
     {
-        $this->unpacker->append("\xc3")->flush()->unpack();
+        $this->unpacker->append("\xc3")->reset()->unpack();
+    }
+
+    public function testResetWithBuffer()
+    {
+        $this->unpacker->append("\xc2")->reset("\xc3");
+
+        $this->assertTrue($this->unpacker->unpack());
     }
 
     public function testUnpackEmptyMapToArray()
