@@ -18,7 +18,11 @@ trait Unpacking
      */
     public function testUnpack($title, $raw, $packed)
     {
-        $this->assertEquals($raw, $this->unpack($packed));
+        $isOrHasObject = is_object($raw) || is_array($raw);
+
+        $isOrHasObject
+            ? $this->assertEquals($raw, $this->unpack($packed))
+            : $this->assertSame($raw, $this->unpack($packed));
     }
 
     /**

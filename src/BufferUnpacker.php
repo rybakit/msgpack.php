@@ -205,7 +205,7 @@ class BufferUnpacker
         // If a number is bigger than 2^63, it will be interpreted as a float.
         // @link http://php.net/manual/en/language.types.integer.php#language.types.integer.overflow
 
-        return $value > 0 ? $value : sprintf('%u', $value);
+        return $value < 0 ? sprintf('%u', $value) : $value;
     }
 
     private function unpackI8()

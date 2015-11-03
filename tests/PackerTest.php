@@ -30,7 +30,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
      */
     public function testPack($title, $raw, $packed)
     {
-        $this->assertEquals($packed, $this->packer->pack($raw));
+        $this->assertSame($packed, $this->packer->pack($raw));
     }
 
     public function testPackArrayToMessagePackArray()
