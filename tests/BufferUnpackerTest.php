@@ -46,8 +46,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
     public function testTryUnpack()
     {
-        $raw = ['foo', 42];
-        $packed = "\xa3\x66\x6f\x6f\x2a";
+        $foo = [1, 2];
+        $bar = 'bar';
+        $packed = "\x92\x01\x02\xa3\x62\x61\x72";
 
         $this->unpacker->append($packed[0]);
         $this->assertSame([], $this->unpacker->tryUnpack());
@@ -55,8 +56,27 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->unpacker->append($packed[1]);
         $this->assertSame([], $this->unpacker->tryUnpack());
 
-        $this->unpacker->append(substr($packed, 2));
-        $this->assertSame($raw, $this->unpacker->tryUnpack());
+        $this->unpacker->append($packed[2]);
+        $this->assertSame([$foo], $this->unpacker->tryUnpack());
+
+        $this->unpacker->append($packed[3]);
+        $this->assertSame([], $this->unpacker->tryUnpack());
+
+        $this->unpacker->append($packed[4].$packed[5]);
+        $this->assertSame([], $this->unpacker->tryUnpack());
+
+        $this->unpacker->append($packed[6]);
+        $this->assertSame([$bar], $this->unpacker->tryUnpack());
+    }
+
+    public function testTryUnpackReturnsAllUnpackedData()
+    {
+        $foo = [1, 2];
+        $bar = 'bar';
+        $packed = "\x92\x01\x02\xa3\x62\x61\x72";
+
+        $this->unpacker->append($packed);
+        $this->assertSame([$foo, $bar], $this->unpacker->tryUnpack());
     }
 
     public function testTryUnpackTruncatesBuffer()

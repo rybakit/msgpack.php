@@ -345,7 +345,7 @@ class BufferUnpacker
 
     private function ensureLength($length)
     {
-        if (!isset($this->buffer[$length - 1])) {
+        if (!isset($this->buffer[$this->offset + $length - 1])) {
             throw new InsufficientDataException($length, strlen($this->buffer) - $this->offset);
         }
     }
