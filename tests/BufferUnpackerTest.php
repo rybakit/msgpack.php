@@ -16,6 +16,8 @@ use MessagePack\Exception\InsufficientDataException;
 
 class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 {
+    use Unpacking;
+
     /**
      * @var BufferUnpacker
      */
@@ -24,24 +26,6 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->unpacker = new BufferUnpacker();
-    }
-
-    /**
-     * @dataProvider MessagePack\Tests\DataProvider::provideUnpackData
-     */
-    public function testUnpack($title, $raw, $packed)
-    {
-        $this->unpacker->append($packed);
-        $this->assertEquals($raw, $this->unpacker->unpack());
-    }
-
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
-     */
-    public function testUnpackEmtyBuffer()
-    {
-        (new BufferUnpacker())->unpack();
     }
 
     /**
@@ -58,12 +42,6 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->unpacker->append("\xc2")->reset("\xc3");
 
         $this->assertTrue($this->unpacker->unpack());
-    }
-
-    public function testUnpackEmptyMapToArray()
-    {
-        $this->unpacker->append("\x80");
-        $this->assertSame([], $this->unpacker->unpack());
     }
 
     public function testTryUnpack()
@@ -98,12 +76,8 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->fail('Buffer was not truncated.');
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\UnpackException
-     * @expectedExceptionMessage Unknown code: 0xc1.
-     */
-    public function testUnknownCodeThrowsException()
+    protected function unpack($packed)
     {
-        $this->unpacker->append("\xc1")->unpack();
+        return $this->unpacker->reset($packed)->unpack();
     }
 }
