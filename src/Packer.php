@@ -250,7 +250,7 @@ class Packer
         return self::packU32(0xdb, $len).$str;
     }
 
-    private function packBin($str)
+    private static function packBin($str)
     {
         $len = strlen($str);
 
