@@ -14,6 +14,65 @@ $ composer require rybakit/msgpack
 ```
 
 
+## Usage
+
+### Packer
+
+```php
+use MessagePack\Packer;
+
+$packer = new Packer();
+
+...
+
+$packed = $packer->pack($value);
+```
+
+
+### Unpacker
+
+```php
+use MessagePack\Unpacker;
+
+$unpacker = new Unpacker();
+
+...
+
+$unpacked = $unpacker->unpack($data);
+```
+
+### BufferUnpacker
+
+```php
+use MessagePack\BufferUnpacker;
+
+$unpacker = new BufferUnpacker();
+
+...
+
+$unpacker->append($data);
+$unpacked = $unpacker->unpack($data);
+
+...
+
+$unpacker->reset($data);
+$unpackedBlocks = $unpacker->tryUnpack();
+```
+
+### Extensions
+
+```php
+use MessagePack\Packer;
+use MessagePack\Unpacker;
+
+$packerd = (new Packer())->pack(new Ext(42, "\xaa"));
+$ext = (new Unpacker())->unpack($packed);
+
+$extType = $ext->getType(); // 42
+$extData = $ext->getData(); // "\xaa"
+```
+
+
 ## Tests
 
 The easiest way to run tests is with Docker. First, build an image using the [dockerfile.sh](dockerfile.sh) generator:
