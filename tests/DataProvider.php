@@ -10,7 +10,7 @@
  */
 
 /*
- * Most of the test data are borrowed from
+ * Most of the test data in this file are borrowed from
  * https://github.com/vsergeev/u-msgpack-python/blob/master/test_umsgpack.py
  */
 
@@ -104,16 +104,16 @@ class DataProvider
             ['fix array #1', [], "\x90"],
             ['fix array #2', [5, 'abc', true], "\x93\x05\xa3\x61\x62\x63\xc3"],
             ['16-bit array #1', array_fill(0, 16, 0x05), "\xdc\x00\x10".str_repeat("\x05", 16)],
-            ['16-bit array #2', array_fill(0, 65535, 0x05), "\xdc\xff\xff".str_repeat("\x05", 65535)],
-            ['32-bit array', array_fill(0, 65536, 0x05), "\xdd\x00\x01\x00\x00".str_repeat("\x05", 65536)],
+            ['16-bit array #2', array_fill(0, 65535, 0x05), "\xdc\xff\xff".str_repeat("\x05", 65535), true],
+            ['32-bit array', array_fill(0, 65536, 0x05), "\xdd\x00\x01\x00\x00".str_repeat("\x05", 65536), true],
             ['complex array', [true, 0x01, new Ext(3, 'foo'), 0xff, [1 => false, 2 => 'abc'], "\x80", [1, 2, 3], 'abc'], "\x98\xc3\x01\xc7\x03\x03\x66\x6f\x6f\xcc\xff\x82\x01\xc2\x02\xa3\x61\x62\x63\xc4\x01\x80\x93\x01\x02\x03\xa3\x61\x62\x63"],
 
             ['fix map #1', [1 => true, 2 => 'abc', 3 => "\x80", 4 => null], "\x84\x01\xc3\x02\xa3\x61\x62\x63\x03\xc4\x01\x80\x04\xc0"],
             ['fix map #2', ['abc' => 5], "\x81\xa3\x61\x62\x63\x05"],
             ['fix map #3', ["\x80" => 0xffff], "\x81\xc4\x01\x80\xcd\xff\xff"],
             ['16-bit map #1', array_fill(1, 16, 0x05), "\xde\x00\x10".array_reduce(range(1, 16), function ($r, $i) { return $r .= pack('C', $i)."\x05"; })],
-            ['16-bit map #2', array_fill(1, 65535, 0x05), "\xde\xff\xff".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })],
-            ['32-bit map', array_fill(1, 65536, 0x05), "\xdf\x00\x01\x00\x00".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })."\xce".pack('N', 65536)."\x05"],
+            ['16-bit map #2', array_fill(1, 65535, 0x05), "\xde\xff\xff".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; }), true],
+            ['32-bit map', array_fill(1, 65536, 0x05), "\xdf\x00\x01\x00\x00".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })."\xce".pack('N', 65536)."\x05", true],
             ['complex map', [1 => [[1 => 2, 3 => 4], [1 => null]], 2 => 1, 3 => [false, 'def'], 4 => [0x100000000 => 'a', 0xffffffff => 'b']], "\x84\x01\x92\x82\x01\x02\x03\x04\x81\x01\xc0\x02\x01\x03\x92\xc2\xa3\x64\x65\x66\x04\x82\xcf\x00\x00\x00\x01\x00\x00\x00\x00\xa1\x61\xce\xff\xff\xff\xff\xa1\x62"],
         ];
     }

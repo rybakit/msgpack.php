@@ -21,7 +21,7 @@ if (function_exists('xdebug_break')) {
     exit(42);
 }
 
-function run(Benchmark $benchmark, $testName = null, $tableWidth = 32)
+function run(Benchmark $benchmark, $testName = null, $skipSlow = null, $tableWidth = 32)
 {
     echo str_repeat('=', $tableWidth)."\n";
     printf("Type: %s\n", $benchmark->getTitle());
@@ -33,11 +33,16 @@ function run(Benchmark $benchmark, $testName = null, $tableWidth = 32)
 
     $totalTime = 0;
     foreach (DataProvider::provideData() as $set) {
-        if (null !== $testName && $set[0] !== $testName) {
+        if ($testName && $set[0] !== $testName) {
             continue;
         }
 
         echo $set[0];
+
+        if ($skipSlow && !empty($set[3])) {
+            printf(" %s S\n", str_repeat('.', $tableWidth - strlen($set[0]) - 3));
+            continue;
+        }
 
         $totalTime += $time = $benchmark->measure($set[1], $set[2]);
         $printTime = sprintf('%.4f', $time);
@@ -56,11 +61,12 @@ function run(Benchmark $benchmark, $testName = null, $tableWidth = 32)
 
 $size = getenv('MP_BENCH_SIZE') ?: 1000;
 $bench = getenv('MP_BENCH_TYPE') ?: 'p';
-$test = getenv('MP_BENCH_TEST') ?: null;
+$test = getenv('MP_BENCH_TEST');
+$skipSlow = !in_array(getenv('MP_BENCH_SKIP_SLOW'), ['0', 'false', 'off', ''], true);
 
 if (!in_array($bench, ['p', 'u'], true)) {
     echo "Invalid benchmark type, use 'p' or 'u'.\n";
     exit(43);
 }
 
-run('p' === $bench ? new Packing($size) : new Unpacking($size), $test);
+run('p' === $bench ? new Packing($size) : new Unpacking($size), $test, $skipSlow);
