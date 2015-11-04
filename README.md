@@ -62,9 +62,9 @@ $unpackedBlocks = $unpacker->tryUnpack();
 ### Extensions
 
 ```php
+use MessagePack\Ext;
 use MessagePack\Packer;
 use MessagePack\Unpacker;
-use MessagePack\new Ext;
 
 $packerd = (new Packer())->pack(new Ext(42, "\xaa"));
 $ext = (new Unpacker())->unpack($packed);
