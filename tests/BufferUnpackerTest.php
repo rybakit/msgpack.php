@@ -70,7 +70,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
     public function testUnpackBigintAsString()
     {
-        $unpacker = new BufferUnpacker(['bigint_mode' => BufferUnpacker::BIGINT_AS_STR]);
+        $unpacker = new BufferUnpacker([
+            BufferUnpacker::BIGINT_MODE => BufferUnpacker::BIGINT_MODE_STR,
+        ]);
 
         $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
@@ -82,7 +84,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnpackBigintAsGmp()
     {
-        $unpacker = new BufferUnpacker(['bigint_mode' => BufferUnpacker::BIGINT_AS_GMP]);
+        $unpacker = new BufferUnpacker([
+            BufferUnpacker::BIGINT_MODE => BufferUnpacker::BIGINT_MODE_GMP,
+        ]);
 
         $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
         $bigint = $unpacker->unpack();
