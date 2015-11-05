@@ -15,9 +15,9 @@ class Unpacker
 {
     private $bufferUnpacker;
 
-    public function __construct()
+    public function __construct(BufferUnpacker $bufferUnpacker = null)
     {
-        $this->bufferUnpacker = new BufferUnpacker();
+        $this->bufferUnpacker = $bufferUnpacker ?: new BufferUnpacker();
     }
 
     public function unpack($data)

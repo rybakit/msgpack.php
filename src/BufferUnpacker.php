@@ -12,16 +12,42 @@
 namespace MessagePack;
 
 use MessagePack\Exception\InsufficientDataException;
+use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\UnpackException;
 
 class BufferUnpacker
 {
+    const BIGINT_MODE = 'bigint_mode';
+
+    const BIGINT_MODE_STR = 1;
+    const BIGINT_MODE_GMP = 2;
+
+    /**
+     * @var string
+     */
     private $buffer;
+
+    /**
+     * @var int
+     */
     private $offset = 0;
+
+    /**
+     * @var array
+     */
+    private $options = [self::BIGINT_MODE => 0];
+
     private static $map;
 
-    public function __construct()
+    /**
+     * @param array|null $options
+     */
+    public function __construct(array $options = null)
     {
+        if ($options) {
+            $this->options = $options + $this->options;
+        }
+
         self::$map = [
             // MP_BIN
             0xc4 => function () { return $this->unpackStr($this->unpackU8()); },
@@ -205,7 +231,7 @@ class BufferUnpacker
         // If a number is bigger than 2^63, it will be interpreted as a float.
         // @link http://php.net/manual/en/language.types.integer.php#language.types.integer.overflow
 
-        return $value < 0 ? sprintf('%u', $value) : $value;
+        return ($value < 0) ? $this->handleBigInt($value) : $value;
     }
 
     private function unpackI8()
@@ -348,5 +374,18 @@ class BufferUnpacker
         if (!isset($this->buffer[$this->offset + $length - 1])) {
             throw new InsufficientDataException($length, strlen($this->buffer) - $this->offset);
         }
+    }
+
+    private function handleBigInt($value)
+    {
+        if (self::BIGINT_MODE_STR === $this->options[self::BIGINT_MODE]) {
+            return sprintf('%u', $value);
+        }
+
+        if (self::BIGINT_MODE_GMP === $this->options[self::BIGINT_MODE]) {
+            return gmp_init(sprintf('%u', $value));
+        }
+
+        throw new IntegerOverflowException($value);
     }
 }

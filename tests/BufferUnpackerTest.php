@@ -16,8 +16,6 @@ use MessagePack\Exception\InsufficientDataException;
 
 class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 {
-    use Unpacking;
-
     /**
      * @var BufferUnpacker
      */
@@ -26,6 +24,76 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->unpacker = new BufferUnpacker();
+    }
+
+    /**
+     * @dataProvider MessagePack\Tests\DataProvider::provideUnpackData
+     */
+    public function testUnpack($title, $raw, $packed)
+    {
+        $this->unpacker->reset($packed);
+        $isOrHasObject = is_object($raw) || is_array($raw);
+
+        $isOrHasObject
+            ? $this->assertEquals($raw, $this->unpacker->unpack())
+            : $this->assertSame($raw, $this->unpacker->unpack());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
+     */
+    public function testUnpackEmptyBuffer()
+    {
+        $this->unpacker->unpack();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackException
+     * @expectedExceptionMessage Unknown code: 0xc1.
+     */
+    public function testUnknownCodeThrowsException()
+    {
+        $this->unpacker->reset("\xc1")->unpack();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\IntegerOverflowException
+     * @expectedExceptionMessage The value is too large: 18446744073709551615.
+     */
+    public function testUnpackBigintThrowsException()
+    {
+        $this->unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
+
+        $this->unpacker->unpack();
+    }
+
+    public function testUnpackBigintAsString()
+    {
+        $unpacker = new BufferUnpacker(['bigint_mode' => BufferUnpacker::BIGINT_AS_STR]);
+
+        $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
+
+        $this->assertSame('18446744073709551615', $unpacker->unpack());
+    }
+
+    /**
+     * @requires extension gmp
+     */
+    public function testUnpackBigintAsGmp()
+    {
+        $unpacker = new BufferUnpacker(['bigint_mode' => BufferUnpacker::BIGINT_AS_GMP]);
+
+        $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
+        $bigint = $unpacker->unpack();
+
+        if (PHP_VERSION_ID < 50600) {
+            $this->assertInternalType('resource', $bigint);
+        } else {
+            $this->assertInstanceOf('GMP', $bigint);
+        }
+
+        $this->assertSame('18446744073709551615', gmp_strval($bigint));
     }
 
     /**
@@ -94,10 +162,5 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->fail('Buffer was not truncated.');
-    }
-
-    protected function unpack($packed)
-    {
-        return $this->unpacker->reset($packed)->unpack();
     }
 }

@@ -15,20 +15,31 @@ use MessagePack\Unpacker;
 
 class UnpackerTest extends \PHPUnit_Framework_TestCase
 {
-    use Unpacking;
-
     /**
      * @var Unpacker
      */
     private $unpacker;
 
+    /**
+     * @var \MessagePack\BufferUnpacker|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $bufferUnpacker;
+
     protected function setUp()
     {
-        $this->unpacker = new Unpacker();
+        $this->bufferUnpacker = $this->getMock('MessagePack\BufferUnpacker');
+        $this->unpacker = new Unpacker($this->bufferUnpacker);
     }
 
-    protected function unpack($packed)
+    public function testUnpack()
     {
-        return $this->unpacker->unpack($packed);
+        $this->bufferUnpacker->expects($this->once())->method('reset')
+            ->with('foo')
+            ->willReturn($this->bufferUnpacker);
+
+        $this->bufferUnpacker->expects($this->once())->method('unpack')
+            ->willReturn('bar');
+
+        $this->assertSame('bar', $this->unpacker->unpack('foo'));
     }
 }
