@@ -13,7 +13,7 @@ namespace MessagePack\Tests\Benchmark;
 
 use MessagePack\BufferUnpacker;
 
-class Unpacking implements Benchmark
+class PureUnpacking implements Benchmark
 {
     private $size;
     private $unpacker;

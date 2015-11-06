@@ -13,7 +13,7 @@ namespace MessagePack\Tests\Benchmark;
 
 use MessagePack\Packer;
 
-class Packing implements Benchmark
+class PurePacking implements Benchmark
 {
     private $size;
     private $packer;

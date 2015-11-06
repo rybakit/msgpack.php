@@ -10,8 +10,7 @@
  */
 
 use MessagePack\Tests\Benchmark\Benchmark;
-use MessagePack\Tests\Benchmark\Packing;
-use MessagePack\Tests\Benchmark\Unpacking;
+use MessagePack\Tests\Benchmark\BenchmarkFactory;
 use MessagePack\Tests\DataProvider;
 
 require __DIR__.'/../vendor/autoload.php';
@@ -59,14 +58,9 @@ function run(Benchmark $benchmark, $testName = null, $skipSlow = null, $tableWid
     echo str_repeat(' ', $tableWidth - strlen($summary)).$summary."\n\n";
 }
 
+$target = getenv('MP_BENCH_TARGET') ?: BenchmarkFactory::PURE_U;
 $size = getenv('MP_BENCH_SIZE') ?: 1000;
-$bench = getenv('MP_BENCH_TYPE') ?: 'p';
 $test = getenv('MP_BENCH_TEST');
 $skipSlow = !in_array(getenv('MP_BENCH_SKIP_SLOW'), ['0', 'false', 'off', ''], true);
 
-if (!in_array($bench, ['p', 'u'], true)) {
-    echo "Invalid benchmark type, use 'p' or 'u'.\n";
-    exit(43);
-}
-
-run('p' === $bench ? new Packing($size) : new Unpacking($size), $test, $skipSlow);
+run(BenchmarkFactory::create($target, $size), $test, $skipSlow);
