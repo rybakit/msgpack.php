@@ -59,7 +59,7 @@ function run(Benchmark $benchmark, $testName = null, $skipSlow = null, $tableWid
 }
 
 $target = getenv('MP_BENCH_TARGET') ?: BenchmarkFactory::PURE_U;
-$size = getenv('MP_BENCH_SIZE') ?: 1000;
+$size = getenv('MP_BENCH_SIZE') ?: 100000;
 $test = getenv('MP_BENCH_TEST');
 $skipSlow = !in_array(getenv('MP_BENCH_SKIP_SLOW'), ['0', 'false', 'off', ''], true);
 
