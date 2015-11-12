@@ -13,7 +13,7 @@ namespace MessagePack\Tests\Perf\Writer;
 
 class TableWriter implements Writer
 {
-    const  DEFAULT_WIDTH = 34;
+    const DEFAULT_WIDTH = 34;
 
     private $width;
 
