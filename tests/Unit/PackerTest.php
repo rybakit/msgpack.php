@@ -77,12 +77,12 @@ class PackerTest extends \PHPUnit_Framework_TestCase
 
     public function testPackStringToMessagePackBin()
     {
-        $this->assertSame("\xc4\x01" . "\x80", $this->packer->pack("\x80", Packer::FORCE_BIN));
+        $this->assertSame("\xc4\x01"."\x80", $this->packer->pack("\x80", Packer::FORCE_BIN));
     }
 
     public function testPackStringToMessagePackBinAuto()
     {
-        $this->assertSame("\xc4\x01" . "\x80", $this->packer->pack("\x80"));
+        $this->assertSame("\xc4\x01"."\x80", $this->packer->pack("\x80"));
     }
 
     /**
