@@ -9,23 +9,22 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\Tests\Exception;
+namespace MessagePack\Tests\Unit\Exception;
 
-use MessagePack\Exception\PackException;
+use MessagePack\Exception\IntegerOverflowException;
 
-class PackExceptionTest extends \PHPUnit_Framework_TestCase
+class IntegerOverflowExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
-        $value = (object) ['foo' => 'bar'];
-        $errorMessage = 'Error message';
+        $value = -1;
         $errorCode = 42;
         $prevException = new \Exception();
 
-        $exception = new PackException($value, $errorMessage, $errorCode, $prevException);
+        $exception = new IntegerOverflowException($value, $errorCode, $prevException);
 
         $this->assertSame($value, $exception->getValue());
-        $this->assertSame($errorMessage, $exception->getMessage());
+        $this->assertSame('The value is too large: 18446744073709551615.', $exception->getMessage());
         $this->assertSame($errorCode, $exception->getCode());
         $this->assertSame($prevException, $exception->getPrevious());
     }

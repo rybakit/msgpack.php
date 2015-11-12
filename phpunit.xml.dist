@@ -21,7 +21,7 @@
 
     <testsuites>
         <testsuite name="MessagePack Test Suite">
-            <directory>tests</directory>
+            <directory>tests/Unit</directory>
         </testsuite>
     </testsuites>
 

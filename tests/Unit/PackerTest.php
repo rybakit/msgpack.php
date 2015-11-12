@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\Tests;
+namespace MessagePack\Tests\Unit;
 
 use MessagePack\Packer;
 
@@ -77,12 +77,12 @@ class PackerTest extends \PHPUnit_Framework_TestCase
 
     public function testPackStringToMessagePackBin()
     {
-        $this->assertSame("\xc4\x01"."\x80", $this->packer->pack("\x80", Packer::FORCE_BIN));
+        $this->assertSame("\xc4\x01" . "\x80", $this->packer->pack("\x80", Packer::FORCE_BIN));
     }
 
     public function testPackStringToMessagePackBinAuto()
     {
-        $this->assertSame("\xc4\x01"."\x80", $this->packer->pack("\x80"));
+        $this->assertSame("\xc4\x01" . "\x80", $this->packer->pack("\x80"));
     }
 
     /**
@@ -94,3 +94,28 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         $this->packer->pack(tmpfile());
     }
 }
+
+/*
+    public function testPackExtThrowsException()
+    {
+        $ext = $this->getMockBuilder('MessagePack\Ext')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $ext->expects($this->once())->method('getType')->willReturn(42);
+        $ext->expects($this->once())->method('getData')->willReturn(str_repeat('x', 0xffffffff + 1));
+
+        $this->packer->pack($ext);
+    }
+
+}
+
+namespace MessagePack;
+
+use MessagePack\Tests\PackerTest;
+
+function strlen($string)
+{
+    return 0xffffffff + 1;
+}
+*/
