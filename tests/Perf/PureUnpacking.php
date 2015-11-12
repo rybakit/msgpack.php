@@ -9,15 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\Tests\Benchmark;
+namespace MessagePack\Tests\Perf;
 
-class PeclUnpacking implements Benchmark
+use MessagePack\BufferUnpacker;
+
+class PureUnpacking implements Benchmark
 {
     private $size;
+    private $unpacker;
 
-    public function __construct($size)
+    public function __construct($size, BufferUnpacker $unpacker = null)
     {
         $this->size = $size;
+        $this->unpacker = new BufferUnpacker();
     }
 
     /**
@@ -25,7 +29,7 @@ class PeclUnpacking implements Benchmark
      */
     public function getTitle()
     {
-        return 'msgpack_unpack';
+        return get_class($this->unpacker);
     }
 
     /**
@@ -41,13 +45,13 @@ class PeclUnpacking implements Benchmark
      */
     public function measure($raw, $packed)
     {
-        assert($raw === msgpack_unpack($packed));
-
         $totalTime = 0;
 
         for ($i = $this->size; $i; $i--) {
+            $this->unpacker->reset($packed);
+
             $time = microtime(true);
-            msgpack_unpack($packed);
+            $this->unpacker->unpack();
             $totalTime += microtime(true) - $time;
         }
 
