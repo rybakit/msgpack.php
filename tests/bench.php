@@ -25,7 +25,7 @@ if (function_exists('xdebug_break')) {
 $target = getenv('MP_BENCH_TARGET') ?: BenchmarkFactory::PURE_U;
 $size = getenv('MP_BENCH_SIZE') ?: 100000;
 $tests = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
-$asJson = getenv('MP_BENCH_AS_JSON');
+$asJson = in_array(getenv('MP_BENCH_AS_JSON'), ['1', 'true', 'on'], true);
 
 $runner = new Runner(DataProvider::provideData(), $asJson ? new JsonWriter() : null);
 
