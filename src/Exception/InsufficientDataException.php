@@ -11,7 +11,7 @@
 
 namespace MessagePack\Exception;
 
-class InsufficientDataException extends UnpackException
+class InsufficientDataException extends UnpackingFailedException
 {
     public function __construct($expectedLength, $actualLength, $code = null, \Exception $previous = null)
     {

@@ -11,6 +11,6 @@
 
 namespace MessagePack\Exception;
 
-class UnpackException extends \RuntimeException
+class UnpackingFailedException extends \RuntimeException
 {
 }

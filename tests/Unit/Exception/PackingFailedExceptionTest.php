@@ -11,9 +11,9 @@
 
 namespace MessagePack\Tests\Unit\Exception;
 
-use MessagePack\Exception\PackException;
+use MessagePack\Exception\PackingFailedException;
 
-class PackExceptionTest extends \PHPUnit_Framework_TestCase
+class PackingFailedExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
@@ -22,7 +22,7 @@ class PackExceptionTest extends \PHPUnit_Framework_TestCase
         $errorCode = 42;
         $prevException = new \Exception();
 
-        $exception = new PackException($value, $errorMessage, $errorCode, $prevException);
+        $exception = new PackingFailedException($value, $errorMessage, $errorCode, $prevException);
 
         $this->assertSame($value, $exception->getValue());
         $this->assertSame($errorMessage, $exception->getMessage());

@@ -86,7 +86,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\PackException
+     * @expectedException \MessagePack\Exception\PackingFailedException
      * @expectedExceptionMessage Unsupported type.
      */
     public function testPackUnsupportedType()

@@ -11,7 +11,7 @@
 
 namespace MessagePack\Exception;
 
-class PackException extends \RuntimeException
+class PackingFailedException extends \RuntimeException
 {
     private $value;
 

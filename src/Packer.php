@@ -11,7 +11,7 @@
 
 namespace MessagePack;
 
-use MessagePack\Exception\PackException;
+use MessagePack\Exception\PackingFailedException;
 
 class Packer
 {
@@ -67,7 +67,7 @@ class Packer
             return self::packExt($value);
         }
 
-        throw new PackException($value, 'Unsupported type.');
+        throw new PackingFailedException($value, 'Unsupported type.');
     }
 
     private function packArr(array $array, $opts = 0)
@@ -162,7 +162,7 @@ class Packer
             return pack('CNC', 0xc9, $len, $type).$data;
         }
 
-        throw new PackException($ext, 'Extension data too big.');
+        throw new PackingFailedException($ext, 'Extension data too big.');
     }
 
     private static function packFix($code, $num)

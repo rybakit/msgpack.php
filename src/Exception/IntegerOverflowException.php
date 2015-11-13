@@ -11,7 +11,7 @@
 
 namespace MessagePack\Exception;
 
-class IntegerOverflowException extends UnpackException
+class IntegerOverflowException extends UnpackingFailedException
 {
     private $value;
 

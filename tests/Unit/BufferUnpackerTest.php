@@ -49,7 +49,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackException
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
      * @expectedExceptionMessage Unknown code: 0xc1.
      */
     public function testUnknownCodeThrowsException()

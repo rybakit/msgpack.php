@@ -13,7 +13,7 @@ namespace MessagePack;
 
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
-use MessagePack\Exception\UnpackException;
+use MessagePack\Exception\UnpackingFailedException;
 
 class BufferUnpacker
 {
@@ -171,7 +171,7 @@ class BufferUnpacker
             return true;
         }
         if (!isset(self::$map[$c])) {
-            throw new UnpackException(sprintf('Unknown code: 0x%x.', $c));
+            throw new UnpackingFailedException(sprintf('Unknown code: 0x%x.', $c));
         }
 
         $func = self::$map[$c];
