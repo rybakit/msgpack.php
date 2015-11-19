@@ -88,6 +88,28 @@ Then run unit tests:
 $ docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
 ```
 
+#### Performance
+
+To check the performance run:
+
+```sh
+$ php tests/bench.php
+```
+
+You may also change default settings by defining the following environment variables:
+
+ * `MP_BENCH_TARGET` (pure_p, pure_u, pecl_p, pecl_u)
+ * `MP_BENCH_SIZE`
+ * `MP_BENCH_CYCLES`
+ * `MP_BENCH_TESTS`
+
+For example:
+
+```sh
+$ MP_BENCH_TARGET=pure_p MP_BENCH_SIZE=1000000 MP_BENCH_CYCLES=1 MP_BENCH_TESTS='complex array' \
+  php tests/bench.php
+```
+
 
 ## License
 
