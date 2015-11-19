@@ -11,35 +11,42 @@
 
 namespace MessagePack\Tests\Perf\Writer;
 
+use MessagePack\Tests\Perf\Test;
+use MessagePack\Tests\Perf\ValueAccumulator;
+
 class TableWriter implements Writer
 {
-    const DEFAULT_WIDTH = 34;
+    const DEFAULT_WIDTH = 32;
 
     private $width;
+    private $accumulator;
 
     public function __construct($width = null)
     {
         $this->width = $width ?: self:: DEFAULT_WIDTH;
+        $this->accumulator = new ValueAccumulator();
     }
 
-    public function init($target, $size)
+    public function open($target, array $benchmarkInfo)
     {
-        echo str_repeat('=', $this->width)."\n";
-        printf("Target: %s\n", $target);
-        printf("Size: %s\n", $size);
+        $this->accumulator->set(0);
+
+        echo "\nTarget: $target\n";
+        foreach ($benchmarkInfo as $title => $value) {
+            echo "$title: $value\n";
+        }
+        echo "\n";
+
         echo str_repeat('=', $this->width)."\n";
 
         printf("Test %s Time, sec\n", str_repeat(' ', $this->width - 15));
         echo str_repeat('-', $this->width)."\n";
     }
 
-    public function addSkipped($test)
+    public function writeResult(Test $test, $time)
     {
-        printf("%s %s S\n", $test, str_repeat('.', $this->width - strlen($test) - 3));
-    }
+        $this->accumulator->add($time);
 
-    public function addMeasurement($test, $time)
-    {
         $printTime = sprintf('%.4f', $time);
 
         printf("%s %s %s\n",
@@ -49,9 +56,19 @@ class TableWriter implements Writer
         );
     }
 
-    public function finalize($totalTime)
+    public function writeSkipped(Test $test)
     {
-        $summary = sprintf('Total: %.4f', $totalTime);
+        printf("%s %s S\n", $test, str_repeat('.', $this->width - strlen($test) - 3));
+    }
+
+    public function writeFailed(Test $test, \Exception $e)
+    {
+        printf("%s %s F\n", $test, str_repeat('.', $this->width - strlen($test) - 3));
+    }
+
+    public function close()
+    {
+        $summary = sprintf('Total: %.4f', $this->accumulator->get());
 
         echo str_repeat('-', $this->width)."\n";
         echo str_repeat(' ', $this->width - strlen($summary)).$summary."\n\n";

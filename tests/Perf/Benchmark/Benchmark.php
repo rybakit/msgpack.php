@@ -9,16 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\Tests\Perf\Filter;
+namespace MessagePack\Tests\Perf\Benchmark;
 
+use MessagePack\Tests\Perf\Target\Target;
 use MessagePack\Tests\Perf\Test;
 
-interface Filter
+interface Benchmark
 {
     /**
+     * @param Target $target
      * @param Test $test
      *
-     * @return bool
+     * @return double
      */
-    public function isAccepted(Test $test);
+    public function benchmark(Target $target, Test $test);
+
+    /**
+     * @return array
+     */
+    public function getInfo();
 }

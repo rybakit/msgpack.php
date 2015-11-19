@@ -11,10 +11,13 @@
 
 namespace MessagePack\Tests\Perf\Writer;
 
+use MessagePack\Tests\Perf\Test;
+
 interface Writer
 {
-    public function init($target, $size);
-    public function addSkipped($test);
-    public function addMeasurement($test, $time);
-    public function finalize($totalTime);
+    public function open($target, array $info);
+    public function writeResult(Test $test, $time);
+    public function writeSkipped(Test $test);
+    public function writeFailed(Test $test, \Exception $e);
+    public function close();
 }

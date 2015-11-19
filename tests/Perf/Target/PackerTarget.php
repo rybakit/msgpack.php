@@ -9,25 +9,24 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\Tests\Perf;
+namespace MessagePack\Tests\Perf\Target;
 
 use MessagePack\Packer;
+use MessagePack\Tests\Perf\Test;
 
-class PurePacking implements Benchmark
+class PackerTarget implements Target
 {
-    private $size;
     private $packer;
 
-    public function __construct($size, Packer $packer = null)
+    public function __construct(Packer $packer = null)
     {
-        $this->size = $size;
         $this->packer = $packer ?: new Packer();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTitle()
+    public function getName()
     {
         return get_class($this->packer);
     }
@@ -35,24 +34,18 @@ class PurePacking implements Benchmark
     /**
      * {@inheritdoc}
      */
-    public function getSize()
+    public function ensureSanity(Test $test)
     {
-        return $this->size;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function measure($raw, $packed)
+    public function measure(Test $test)
     {
-        $totalTime = 0;
+        $time = microtime(true);
+        $this->packer->pack($test->getRaw());
 
-        for ($i = $this->size; $i; $i--) {
-            $time = microtime(true);
-            $this->packer->pack($raw);
-            $totalTime += microtime(true) - $time;
-        }
-
-        return $totalTime;
+        return microtime(true) - $time;
     }
 }

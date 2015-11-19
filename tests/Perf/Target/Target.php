@@ -9,25 +9,28 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\Tests\Perf;
+namespace MessagePack\Tests\Perf\Target;
 
-interface Benchmark
+use MessagePack\Tests\Perf\Test;
+
+interface Target
 {
     /**
      * @return string
      */
-    public function getTitle();
+    public function getName();
 
     /**
-     * @return int
+     * @param Test $test
+     *
+     * @throws \Exception
      */
-    public function getSize();
+    public function ensureSanity(Test $test);
 
     /**
-     * @param mixed  $raw
-     * @param string $packed
+     * @param Test $test
      *
      * @return float
      */
-    public function measure($raw, $packed);
+    public function measure(Test $test);
 }

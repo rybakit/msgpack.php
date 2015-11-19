@@ -11,7 +11,8 @@
 
 namespace MessagePack\Tests\Perf;
 
-use MessagePack\Tests\Perf\Filter\Filter;
+use MessagePack\Tests\Perf\Benchmark\Benchmark;
+use MessagePack\Tests\Perf\Target\Target;
 use MessagePack\Tests\Perf\Writer\TableWriter;
 use MessagePack\Tests\Perf\Writer\Writer;
 
@@ -20,56 +21,54 @@ class Runner
     /**
      * @var array
      */
-    private $data;
+    private $testData;
 
-    /**
-     * @var Writer
-     */
     private $writer;
 
-    /**
-     * @var Filter[]
-     */
-    private $filters;
-
-    public function __construct(array $data, Writer $writer = null)
+    public function __construct(array $testData, Writer $writer = null)
     {
-        $this->data = $data;
+        $this->testData = $testData;
         $this->writer = $writer ?: new TableWriter();
     }
 
-    public function addFilter(Filter $filter)
+    /**
+     * @param Benchmark $benchmark
+     * @param \MessagePack\Tests\Perf\Target\Target[] $targets
+     *
+     * @return array
+     */
+    public function run(Benchmark $benchmark, array $targets)
     {
-        $this->filters[] = $filter;
-    }
+        $result = [];
 
-    public function run(Benchmark $benchmark)
-    {
-        $this->writer->init($benchmark->getTitle(), $benchmark->getSize());
-
-        $totalTime = 0;
-
-        foreach ($this->data as $set) {
-            if ($this->isSkipped($set[0])) {
-                $this->writer->addSkipped($set[0]);
-                continue;
-            }
-
-            $totalTime += $time = $benchmark->measure($set[1], $set[2]);
-            $this->writer->addMeasurement($set[0], $time);
+        foreach ($targets as $target) {
+            $result[$target->getName()] = $this->runTarget($benchmark, $target);
         }
 
-        $this->writer->finalize($totalTime);
+        return $result;
     }
 
-    private function isSkipped($test)
+    private function runTarget(Benchmark $benchmark, Target $target)
     {
-        foreach ($this->filters as $filter) {
-            if (!$filter->isAccepted($test)) {
-                return true;
+        $this->writer->open($target->getName(), $benchmark->getInfo());
+
+        $stats = [];
+
+        foreach ($this->testData as $row) {
+            $test = new Test($row[0], $row[1], $row[2]);
+
+            try {
+                $stats[$test->getName()] = $time = $benchmark->benchmark($target, $test);
+                $this->writer->writeResult($test, $time);
+            } catch (TestSkippedException $e) {
+                $this->writer->writeSkipped($test);
+            } catch (\Exception $e) {
+                $this->writer->writeFailed($test, $e);
             }
         }
 
-        return false;
+        $this->writer->close();
+
+        return $stats;
     }
 }

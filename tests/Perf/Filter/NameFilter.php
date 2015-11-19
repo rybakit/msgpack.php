@@ -11,22 +11,24 @@
 
 namespace MessagePack\Tests\Perf\Filter;
 
-class ListFilter implements Filter
+use MessagePack\Tests\Perf\Test;
+
+class NameFilter implements Filter
 {
     private $whitelist = [];
     private $blacklist = [];
 
-    public function __construct(array $items)
+    public function __construct(array $names)
     {
-        foreach ($items as $item) {
-            $item = trim($item);
+        foreach ($names as $name) {
+            $name = trim($name);
 
-            if ('-' !== $item[0]) {
-                $this->whitelist[] = $item;
+            if ('-' !== $name[0]) {
+                $this->whitelist[] = $name;
                 continue;
             }
 
-            $this->blacklist[] = substr($item, 1);
+            $this->blacklist[] = substr($name, 1);
         }
     }
 
@@ -36,13 +38,13 @@ class ListFilter implements Filter
         $this->blacklist = [];
     }
 
-    public function isAccepted($item)
+    public function isAccepted(Test $test)
     {
-        if (in_array($item, $this->blacklist, true)) {
+        if (in_array($test->getName(), $this->blacklist, true)) {
             return false;
         }
 
-        if ($this->whitelist && !in_array($item, $this->whitelist, true)) {
+        if ($this->whitelist && !in_array($test->getName(), $this->whitelist, true)) {
             return false;
         }
 
