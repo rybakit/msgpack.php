@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\TestBenchmark;
 use MessagePack\Tests\Perf\Filter\NameFilter;
@@ -25,12 +26,16 @@ if (function_exists('xdebug_break')) {
 
 $target = getenv('MP_BENCH_TARGET') ?: TargetFactory::PURE_U;
 $size = getenv('MP_BENCH_SIZE') ?: 100000;
+$cycles = getenv('MP_BENCH_CYCLES') ?: 3;
 $tests = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
 //$asJson = in_array(strtolower(getenv('MP_BENCH_AS_JSON')), ['1', 'true', 'on'], true);
 
 $target = TargetFactory::create($target);
 $benchmark = new TestBenchmark($size);
 
+if ($cycles) {
+    $benchmark = new AverageableBenchmark($benchmark, $cycles);
+}
 if ($tests) {
     $benchmark = new FilterableBenchmark($benchmark, new NameFilter(explode(',', $tests)));
 }
