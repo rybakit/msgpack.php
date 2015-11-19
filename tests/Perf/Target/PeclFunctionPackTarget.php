@@ -38,8 +38,10 @@ class PeclFunctionPackTarget implements Target
      */
     public function measure(Test $test)
     {
+        $raw = $test->getRaw();
+
         $time = microtime(true);
-        msgpack_pack($test->getRaw());
+        msgpack_pack($raw);
 
         return microtime(true) - $time;
     }

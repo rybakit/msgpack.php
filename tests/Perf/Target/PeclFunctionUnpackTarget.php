@@ -38,8 +38,10 @@ class PeclFunctionUnpackTarget implements Target
      */
     public function measure(Test $test)
     {
+        $packed = $test->getPacked();
+
         $time = microtime(true);
-        msgpack_unpack($test->getPacked());
+        msgpack_unpack($packed);
 
         return microtime(true) - $time;
     }

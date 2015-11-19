@@ -43,8 +43,10 @@ class PackerTarget implements Target
      */
     public function measure(Test $test)
     {
+        $raw = $test->getRaw();
+
         $time = microtime(true);
-        $this->packer->pack($test->getRaw());
+        $this->packer->pack($raw);
 
         return microtime(true) - $time;
     }
