@@ -19,6 +19,7 @@ class BufferUnpacker
 {
     const BIGINT_MODE = 'bigint_mode';
 
+    const BIGINT_MODE_EXCEPTION = 0;
     const BIGINT_MODE_STR = 1;
     const BIGINT_MODE_GMP = 2;
 
@@ -35,9 +36,9 @@ class BufferUnpacker
     /**
      * @var array
      */
-    private $options = [self::BIGINT_MODE => 0];
-
-    private static $map;
+    private $options = [
+        self::BIGINT_MODE => self::BIGINT_MODE_EXCEPTION,
+    ];
 
     /**
      * @param array|null $options
@@ -47,51 +48,6 @@ class BufferUnpacker
         if ($options) {
             $this->options = $options + $this->options;
         }
-
-        self::$map = [
-            // MP_BIN
-            0xc4 => function () { return $this->unpackStr($this->unpackU8()); },
-            0xc5 => function () { return $this->unpackStr($this->unpackU16()); },
-            0xc6 => function () { return $this->unpackStr($this->unpackU32()); },
-
-            0xca => [$this, 'unpackFloat'],
-            0xcb => [$this, 'unpackDouble'],
-
-            // MP_UINT
-            0xcc => [$this, 'unpackU8'],
-            0xcd => [$this, 'unpackU16'],
-            0xce => [$this, 'unpackU32'],
-            0xcf => [$this, 'unpackU64'],
-
-            // MP_INT
-            0xd0 => [$this, 'unpackI8'],
-            0xd1 => [$this, 'unpackI16'],
-            0xd2 => [$this, 'unpackI32'],
-            0xd3 => [$this, 'unpackI64'],
-
-            // MP_STR
-            0xd9 => function () { return $this->unpackStr($this->unpackU8()); },
-            0xda => function () { return $this->unpackStr($this->unpackU16()); },
-            0xdb => function () { return $this->unpackStr($this->unpackU32()); },
-
-            // MP_ARRAY
-            0xdc => function () { return $this->unpackArr($this->unpackU16()); },
-            0xdd => function () { return $this->unpackArr($this->unpackU32()); },
-
-            // MP_MAP
-            0xde => function () { return $this->unpackMap($this->unpackU16()); },
-            0xdf => function () { return $this->unpackMap($this->unpackU32()); },
-
-            // MP_EXT
-            0xd4 => function () { return $this->unpackExt(1); },
-            0xd5 => function () { return $this->unpackExt(2); },
-            0xd6 => function () { return $this->unpackExt(4); },
-            0xd7 => function () { return $this->unpackExt(8); },
-            0xd8 => function () { return $this->unpackExt(16); },
-            0xc7 => function () { return $this->unpackExt($this->unpackU8()); },
-            0xc8 => function () { return $this->unpackExt($this->unpackU16()); },
-            0xc9 => function () { return $this->unpackExt($this->unpackU32()); },
-        ];
     }
 
     public function append($data)
@@ -161,22 +117,57 @@ class BufferUnpacker
         if ($c >= 0xe0) {
             return $c - 256;
         }
-        if ($c === 0xc0) {
-            return null;
-        }
-        if ($c === 0xc2) {
-            return false;
-        }
-        if ($c === 0xc3) {
-            return true;
-        }
-        if (!isset(self::$map[$c])) {
-            throw new UnpackingFailedException(sprintf('Unknown code: 0x%x.', $c));
+
+        switch ($c) {
+            case 0xc0: return null;
+            case 0xc2: return false;
+            case 0xc3: return true;
+
+            // MP_BIN
+            case 0xc4: return $this->unpackStr($this->unpackU8());
+            case 0xc5: return $this->unpackStr($this->unpackU16());
+            case 0xc6: return $this->unpackStr($this->unpackU32());
+
+            case 0xca: return $this->unpackFloat();
+            case 0xcb: return $this->unpackDouble();
+
+            // MP_UINT
+            case 0xcc: return $this->unpackU8();
+            case 0xcd: return $this->unpackU16();
+            case 0xce: return $this->unpackU32();
+            case 0xcf: return $this->unpackU64();
+
+            // MP_INT
+            case 0xd0: return $this->unpackI8();
+            case 0xd1: return $this->unpackI16();
+            case 0xd2: return $this->unpackI32();
+            case 0xd3: return $this->unpackI64();
+
+            // MP_STR
+            case 0xd9: return $this->unpackStr($this->unpackU8());
+            case 0xda: return $this->unpackStr($this->unpackU16());
+            case 0xdb: return $this->unpackStr($this->unpackU32());
+
+            // MP_ARRAY
+            case 0xdc: return $this->unpackArr($this->unpackU16());
+            case 0xdd: return $this->unpackArr($this->unpackU32());
+
+            // MP_MAP
+            case 0xde: return $this->unpackMap($this->unpackU16());
+            case 0xdf: return $this->unpackMap($this->unpackU32());
+
+            // MP_EXT
+            case 0xd4: return $this->unpackExt(1);
+            case 0xd5: return $this->unpackExt(2);
+            case 0xd6: return $this->unpackExt(4);
+            case 0xd7: return $this->unpackExt(8);
+            case 0xd8: return $this->unpackExt(16);
+            case 0xc7: return $this->unpackExt($this->unpackU8());
+            case 0xc8: return $this->unpackExt($this->unpackU16());
+            case 0xc9: return $this->unpackExt($this->unpackU32());
         }
 
-        $func = self::$map[$c];
-
-        return $func();
+        throw new UnpackingFailedException(sprintf('Unknown code: 0x%x.', $c));
     }
 
     private function unpackU8()
