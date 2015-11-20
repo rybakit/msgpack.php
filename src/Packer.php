@@ -129,21 +129,14 @@ class Packer
         $data = $ext->getData();
         $len = strlen($data);
 
-        if (1 === $len) {
-            return pack('CC', 0xd4, $type).$data;
+        switch ($len) {
+            case 1: return pack('CC', 0xd4, $type).$data;
+            case 2: return pack('CC', 0xd5, $type).$data;
+            case 4: return pack('CC', 0xd6, $type).$data;
+            case 8: return pack('CC', 0xd7, $type).$data;
+            case 16: return pack('CC', 0xd8, $type).$data;
         }
-        if (2 === $len) {
-            return pack('CC', 0xd5, $type).$data;
-        }
-        if (4 === $len) {
-            return pack('CC', 0xd6, $type).$data;
-        }
-        if (8 === $len) {
-            return pack('CC', 0xd7, $type).$data;
-        }
-        if (16 === $len) {
-            return pack('CC', 0xd8, $type).$data;
-        }
+
         if ($len <= 0xff) {
             return pack('CCC', 0xc7, $len, $type).$data;
         }
