@@ -58,12 +58,14 @@ class Packer
         if ($size <= 0xf) {
             return chr(0x90 | $size);
         }
-
         if ($size <= 0xffff) {
             return pack('Cn', 0xdc, $size);
         }
+        if ($size <= 0xffffffff) {
+            return pack('CN', 0xdd, $size);
+        }
 
-        return pack('CN', 0xdd, $size);
+        throw new PackingFailedException($size, 'The array is too big.');
     }
 
     public function packMap(array $map)
@@ -84,12 +86,14 @@ class Packer
         if ($size <= 0xf) {
             return chr(0x80 | $size);
         }
-
         if ($size <= 0xffff) {
             return pack('Cn', 0xde, $size);
         }
+        if ($size <= 0xffffffff) {
+            return pack('CN', 0xdf, $size);
+        }
 
-        return pack('CN', 0xdf, $size);
+        throw new PackingFailedException($size, 'The map is too big.');
     }
 
     public function packStr($str)
@@ -105,8 +109,11 @@ class Packer
         if ($len <= 0xffff) {
             return pack('Cn', 0xda, $len).$str;
         }
+        if ($len <= 0xffffffff) {
+            return pack('CN', 0xdb, $len).$str;
+        }
 
-        return pack('CN', 0xdb, $len).$str;
+        throw new PackingFailedException($str, 'The string is too big.');
     }
 
     public function packBin($str)
@@ -119,8 +126,11 @@ class Packer
         if ($len <= 0xffff) {
             return pack('Cn', 0xc5, $len).$str;
         }
+        if ($len <= 0xffffffff) {
+            return pack('CN', 0xc6, $len).$str;
+        }
 
-        return pack('CN', 0xc6, $len).$str;
+        throw new PackingFailedException($str, 'The binary string is too big.');
     }
 
     public function packExt(Ext $ext)
@@ -147,7 +157,7 @@ class Packer
             return pack('CNC', 0xc9, $len, $type).$data;
         }
 
-        throw new PackingFailedException($ext, 'Extension data too big.');
+        throw new PackingFailedException($ext, 'The extension data is too big.');
     }
 
     public function packNil()
