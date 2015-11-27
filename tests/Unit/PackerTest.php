@@ -41,29 +41,91 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     {
         $this->packer->pack(tmpfile());
     }
-}
 
-/*
+    /**
+     * @runInSeparateProcess
+     * @expectedException \MessagePack\Exception\PackingFailedException
+     * @expectedExceptionMessage The array is too big.
+     */
+    public function testPackArrThrowsException()
+    {
+        eval('namespace MessagePack;
+            function count(array $arr) {
+                return 0xffffffff + 1;
+            }
+        ');
+
+        $this->packer->pack([4, 2]);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @expectedException \MessagePack\Exception\PackingFailedException
+     * @expectedExceptionMessage The map is too big.
+     */
+    public function testPackMapThrowsException()
+    {
+        eval('namespace MessagePack;
+            function count(array $map) {
+                return 0xffffffff + 1;
+            }
+        ');
+
+        $this->packer->pack(['foo' => 'bar']);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @expectedException \MessagePack\Exception\PackingFailedException
+     * @expectedExceptionMessage The string is too big.
+     */
+    public function testPackStrThrowsException()
+    {
+        eval('namespace MessagePack;
+            function strlen($str) {
+                return 0xffffffff + 1;
+            }
+        ');
+
+        $this->packer->pack('foobar');
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @expectedException \MessagePack\Exception\PackingFailedException
+     * @expectedExceptionMessage The binary string is too big.
+     */
+    public function testPackBinThrowsException()
+    {
+        eval('namespace MessagePack;
+            function strlen($str) {
+                return 0xffffffff + 1;
+            }
+        ');
+
+        $this->packer->pack("\x80");
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @expectedException \MessagePack\Exception\PackingFailedException
+     * @expectedExceptionMessage The extension data is too big.
+     */
     public function testPackExtThrowsException()
     {
         $ext = $this->getMockBuilder('MessagePack\Ext')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $ext->expects($this->once())->method('getType')->willReturn(42);
-        $ext->expects($this->once())->method('getData')->willReturn(str_repeat('x', 0xffffffff + 1));
+        $ext->expects($this->once())->method('getType');
+        $ext->expects($this->once())->method('getData');
+
+        eval('namespace MessagePack;
+            function strlen($str) {
+                return 0xffffffff + 1;
+            }
+        ');
 
         $this->packer->pack($ext);
     }
-
 }
-
-namespace MessagePack;
-
-use MessagePack\Tests\PackerTest;
-
-function strlen($string)
-{
-    return 0xffffffff + 1;
-}
-*/
