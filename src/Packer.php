@@ -58,7 +58,6 @@ class Packer
         if ($size <= 0xf) {
             return chr(0x90 | $size);
         }
-
         if ($size <= 0xffff) {
             return pack('Cn', 0xdc, $size);
         }
@@ -84,7 +83,6 @@ class Packer
         if ($size <= 0xf) {
             return chr(0x80 | $size);
         }
-
         if ($size <= 0xffff) {
             return pack('Cn', 0xde, $size);
         }
