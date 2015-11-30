@@ -17,7 +17,7 @@ class IntegerOverflowException extends UnpackingFailedException
 
     public function __construct($value, $code = null, \Exception $previous = null)
     {
-        $message = sprintf('The value is too large: %u.', $value);
+        $message = sprintf('The value is too big: %u.', $value);
 
         parent::__construct($message, $code, $previous);
 

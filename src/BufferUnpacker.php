@@ -17,16 +17,19 @@ use MessagePack\Exception\UnpackingFailedException;
 
 class BufferUnpacker
 {
-    const BIGINT_MODE = 'bigint_mode';
+    const BIGINT_AS_EXCEPTION = 0;
+    const BIGINT_AS_STR = 1;
+    const BIGINT_AS_GMP = 2;
 
-    const BIGINT_MODE_EXCEPTION = 0;
-    const BIGINT_MODE_STR = 1;
-    const BIGINT_MODE_GMP = 2;
+    /**
+     * @var int
+     */
+    private $bigIntMode = self::BIGINT_AS_EXCEPTION;
 
     /**
      * @var string
      */
-    private $buffer;
+    private $buffer = '';
 
     /**
      * @var int
@@ -34,22 +37,46 @@ class BufferUnpacker
     private $offset = 0;
 
     /**
-     * @var array
+     * @param int|null $bigIntMode
      */
-    private $options = [
-        self::BIGINT_MODE => self::BIGINT_MODE_EXCEPTION,
-    ];
-
-    /**
-     * @param array|null $options
-     */
-    public function __construct(array $options = null)
+    public function __construct($bigIntMode = null)
     {
-        if ($options) {
-            $this->options = $options + $this->options;
+        if (null !== $bigIntMode) {
+            $this->bigIntMode = $bigIntMode;
         }
     }
 
+    /**
+     * @param int $bigIntMode
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setBigIntMode($bigIntMode)
+    {
+        if (!in_array($bigIntMode, [
+            self::BIGINT_AS_EXCEPTION,
+            self::BIGINT_AS_STR,
+            self::BIGINT_AS_GMP,
+        ], true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid bigint mode: %s.', $bigIntMode));
+        }
+
+        $this->bigIntMode = $bigIntMode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBigIntMode()
+    {
+        return $this->bigIntMode;
+    }
+
+    /**
+     * @param string $data
+     *
+     * @return $this
+     */
     public function append($data)
     {
         $this->buffer .= $data;
@@ -57,6 +84,11 @@ class BufferUnpacker
         return $this;
     }
 
+    /**
+     * @param string|null $buffer
+     *
+     * @return $this
+     */
     public function reset($buffer = null)
     {
         $this->buffer = (string) $buffer;
@@ -90,6 +122,11 @@ class BufferUnpacker
         return $data;
     }
 
+    /**
+     * @return mixed
+     *
+     * @throws UnpackingFailedException
+     */
     public function unpack()
     {
         $this->ensureLength(1);
@@ -369,11 +406,10 @@ class BufferUnpacker
 
     private function handleBigInt($value)
     {
-        if (self::BIGINT_MODE_STR === $this->options[self::BIGINT_MODE]) {
+        if (self::BIGINT_AS_STR === $this->bigIntMode) {
             return sprintf('%u', $value);
         }
-
-        if (self::BIGINT_MODE_GMP === $this->options[self::BIGINT_MODE]) {
+        if (self::BIGINT_AS_GMP === $this->bigIntMode) {
             return gmp_init(sprintf('%u', $value));
         }
 

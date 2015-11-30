@@ -59,21 +59,18 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MessagePack\Exception\IntegerOverflowException
-     * @expectedExceptionMessage The value is too large: 18446744073709551615.
+     * @expectedExceptionMessage The value is too big: 18446744073709551615.
      */
-    public function testUnpackBigintThrowsException()
+    public function testUnpackBigIntThrowsException()
     {
         $this->unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
         $this->unpacker->unpack();
     }
 
-    public function testUnpackBigintAsString()
+    public function testUnpackBigIntAsString()
     {
-        $unpacker = new BufferUnpacker([
-            BufferUnpacker::BIGINT_MODE => BufferUnpacker::BIGINT_MODE_STR,
-        ]);
-
+        $unpacker = new BufferUnpacker(BufferUnpacker::BIGINT_AS_STR);
         $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
         $this->assertSame('18446744073709551615', $unpacker->unpack());
@@ -82,12 +79,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @requires extension gmp
      */
-    public function testUnpackBigintAsGmp()
+    public function testUnpackBigIntAsGmp()
     {
-        $unpacker = new BufferUnpacker([
-            BufferUnpacker::BIGINT_MODE => BufferUnpacker::BIGINT_MODE_GMP,
-        ]);
-
+        $unpacker = new BufferUnpacker(BufferUnpacker::BIGINT_AS_GMP);
         $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
         $bigint = $unpacker->unpack();
 
@@ -166,5 +160,22 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->fail('Buffer was not truncated.');
+    }
+
+    public function testSetGetBigIntMode()
+    {
+        $this->assertSame(BufferUnpacker::BIGINT_AS_EXCEPTION, $this->unpacker->getBigIntMode());
+
+        $this->unpacker->setBigIntMode(BufferUnpacker::BIGINT_AS_STR);
+        $this->assertSame(BufferUnpacker::BIGINT_AS_STR, $this->unpacker->getBigIntMode());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid bigint mode: 42.
+     */
+    public function testSetBigIntModeThrowsException()
+    {
+        $this->unpacker->setBigIntMode(42);
     }
 }
