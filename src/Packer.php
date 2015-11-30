@@ -143,11 +143,8 @@ class Packer
         if ($len <= 0xffff) {
             return pack('CnC', 0xc8, $len, $type).$data;
         }
-        if ($len <= 0xffffffff) {
-            return pack('CNC', 0xc9, $len, $type).$data;
-        }
 
-        throw new PackingFailedException($ext, 'Extension data too big.');
+        return pack('CNC', 0xc9, $len, $type).$data;
     }
 
     public function packNil()

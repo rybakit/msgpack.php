@@ -42,28 +42,3 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         $this->packer->pack(tmpfile());
     }
 }
-
-/*
-    public function testPackExtThrowsException()
-    {
-        $ext = $this->getMockBuilder('MessagePack\Ext')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $ext->expects($this->once())->method('getType')->willReturn(42);
-        $ext->expects($this->once())->method('getData')->willReturn(str_repeat('x', 0xffffffff + 1));
-
-        $this->packer->pack($ext);
-    }
-
-}
-
-namespace MessagePack;
-
-use MessagePack\Tests\PackerTest;
-
-function strlen($string)
-{
-    return 0xffffffff + 1;
-}
-*/
