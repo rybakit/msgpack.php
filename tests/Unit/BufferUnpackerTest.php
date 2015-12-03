@@ -178,4 +178,23 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     {
         $this->unpacker->setBigIntMode(42);
     }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessage Illegal offset type
+     */
+    public function testBadKeyTypeThrowsWarning()
+    {
+        $this->unpacker->reset("\x81\x82\x00\x01\x01\x02\x00"); // [[1, 2] => 0]
+
+        $this->unpacker->unpack();
+    }
+
+    public function testBadKeyTypeIsIgnored()
+    {
+        $this->unpacker->reset("\x82\x82\x00\x01\x01\x02\x00\x04\x02"); // [[1, 2] => 0, 4 => 2]
+        $raw = @$this->unpacker->unpack();
+
+        $this->assertSame([4 => 2], $raw);
+    }
 }

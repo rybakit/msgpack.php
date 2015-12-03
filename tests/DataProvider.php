@@ -129,9 +129,6 @@ class DataProvider
             ['fix map #3', [1 => null], "\x81\xc3\xc0"],
 
             ['64-bit uint #3', 0, "\xcf"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
-
-//            ['map with tuple keys', [["foo", false, 3] => true, [3e6, -5] => 'def'], "\x82\x92\xcb\x41\x46\xe3\x60\x00\x00\x00\x00\xfb\xa3\x64\x65\x66\x93\xa3\x66\x6f\x6f\xc2\x03\xc3"],
-//            ['map with complex tuple keys', [['foo', [1, 2, 3], 3] => -5], "\x81\x93\xa3\x66\x6f\x6f\x93\x01\x02\x03\x03\xfb"]
         ]);
     }
 }
