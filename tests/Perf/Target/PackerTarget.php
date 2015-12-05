@@ -34,20 +34,23 @@ class PackerTarget implements Target
     /**
      * {@inheritdoc}
      */
-    public function ensureSanity(Test $test)
+    public function sanitize(Test $test)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function measure(Test $test)
+    public function perform(Test $test)
     {
-        $raw = $test->getRaw();
+        $this->packer->pack($test->getRaw());
+    }
 
-        $time = microtime(true);
-        $this->packer->pack($raw);
-
-        return microtime(true) - $time;
+    /**
+     * {@inheritdoc}
+     */
+    public function calibrate(Test $test)
+    {
+        $test->getRaw();
     }
 }

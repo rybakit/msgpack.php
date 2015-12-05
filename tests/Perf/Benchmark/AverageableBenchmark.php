@@ -32,6 +32,9 @@ class AverageableBenchmark implements Benchmark
         $this->cycles = $cycles ?: 3;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function benchmark(Target $target, Test $test)
     {
         $sumTime = 0;
@@ -43,6 +46,9 @@ class AverageableBenchmark implements Benchmark
         return $sumTime / $this->cycles;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getInfo()
     {
         return ['Cycles' => $this->cycles] + $this->benchmark->getInfo();

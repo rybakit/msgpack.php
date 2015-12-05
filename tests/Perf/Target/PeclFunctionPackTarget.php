@@ -26,7 +26,7 @@ class PeclFunctionPackTarget implements Target
     /**
      * {@inheritdoc}
      */
-    public function ensureSanity(Test $test)
+    public function sanitize(Test $test)
     {
         if ($test->getPacked() !== msgpack_pack($test->getRaw())) {
             throw new \UnexpectedValueException('$packed !== msgpack_pack($raw)');
@@ -36,13 +36,16 @@ class PeclFunctionPackTarget implements Target
     /**
      * {@inheritdoc}
      */
-    public function measure(Test $test)
+    public function perform(Test $test)
     {
-        $raw = $test->getRaw();
+        msgpack_pack($test->getRaw());
+    }
 
-        $time = microtime(true);
-        msgpack_pack($raw);
-
-        return microtime(true) - $time;
+    /**
+     * {@inheritdoc}
+     */
+    public function calibrate(Test $test)
+    {
+        $test->getRaw();
     }
 }

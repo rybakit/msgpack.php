@@ -34,20 +34,24 @@ class BufferUnpackerTarget implements Target
     /**
      * {@inheritdoc}
      */
-    public function ensureSanity(Test $test)
+    public function sanitize(Test $test)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function measure(Test $test)
+    public function perform(Test $test)
     {
         $this->unpacker->reset($test->getPacked());
-
-        $time = microtime(true);
         $this->unpacker->unpack();
+    }
 
-        return microtime(true) - $time;
+    /**
+     * {@inheritdoc}
+     */
+    public function calibrate(Test $test)
+    {
+        $test->getPacked();
     }
 }

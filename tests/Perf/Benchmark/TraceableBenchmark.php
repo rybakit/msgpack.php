@@ -32,6 +32,9 @@ class TraceableBenchmark implements Benchmark
         $this->trace = $trace;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function benchmark(Target $target, Test $test)
     {
         $time = $this->benchmark->benchmark($target, $test);
@@ -42,6 +45,9 @@ class TraceableBenchmark implements Benchmark
         return $time;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getInfo()
     {
         return $this->benchmark->getInfo();
