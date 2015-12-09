@@ -25,12 +25,15 @@ interface Target
      *
      * @throws \Exception
      */
-    public function ensureSanity(Test $test);
+    public function sanitize(Test $test);
 
     /**
      * @param Test $test
-     *
-     * @return float
      */
-    public function measure(Test $test);
+    public function perform(Test $test);
+
+    /**
+     * @param Test $test
+     */
+    public function calibrate(Test $test);
 }

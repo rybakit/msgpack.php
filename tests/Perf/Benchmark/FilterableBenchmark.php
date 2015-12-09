@@ -34,6 +34,9 @@ class FilterableBenchmark implements Benchmark
         $this->filter = $filter;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function benchmark(Target $target, Test $test)
     {
         if (!$this->filter->isAccepted($test)) {
@@ -43,6 +46,9 @@ class FilterableBenchmark implements Benchmark
         return $this->benchmark->benchmark($target, $test);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getInfo()
     {
         return ['Filter' => get_class($this->filter)] + $this->benchmark->getInfo();

@@ -26,7 +26,7 @@ class PeclFunctionUnpackTarget implements Target
     /**
      * {@inheritdoc}
      */
-    public function ensureSanity(Test $test)
+    public function sanitize(Test $test)
     {
         if ($test->getRaw() !== msgpack_unpack($test->getPacked())) {
             throw new \UnexpectedValueException('$raw !== msgpack_unpack($packed)');
@@ -36,13 +36,16 @@ class PeclFunctionUnpackTarget implements Target
     /**
      * {@inheritdoc}
      */
-    public function measure(Test $test)
+    public function perform(Test $test)
     {
-        $packed = $test->getPacked();
+        msgpack_unpack($test->getPacked());
+    }
 
-        $time = microtime(true);
-        msgpack_unpack($packed);
-
-        return microtime(true) - $time;
+    /**
+     * {@inheritdoc}
+     */
+    public function calibrate(Test $test)
+    {
+        $test->getPacked();
     }
 }
