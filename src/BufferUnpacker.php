@@ -37,6 +37,11 @@ class BufferUnpacker
     private $offset = 0;
 
     /**
+     * @var ExtDataTransformer[]
+     */
+    private $transformers = [];
+
+    /**
      * @param int|null $bigIntMode
      */
     public function __construct($bigIntMode = null)
@@ -44,6 +49,11 @@ class BufferUnpacker
         if (null !== $bigIntMode) {
             $this->bigIntMode = $bigIntMode;
         }
+    }
+
+    public function registerTransformer(ExtDataTransformer $transformer)
+    {
+        $this->transformers[$transformer->getType()] = $transformer;
     }
 
     /**
@@ -392,6 +402,11 @@ class BufferUnpacker
 
         $type = $this->unpackI8();
         $data = substr($this->buffer, $this->offset, $length);
+
+        if (isset($this->transformers[$type])) {
+            return $this->transformers[$type]->unpack($this->unpack());
+        }
+
         $this->offset += $length;
 
         return new Ext($type, $data);

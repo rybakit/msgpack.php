@@ -15,6 +15,16 @@ use MessagePack\Exception\PackingFailedException;
 
 class Packer
 {
+    /**
+     * @var ExtDataTransformer[]
+     */
+    private $transformers = [];
+
+    public function registerTransformer(ExtDataTransformer $transformer)
+    {
+        $this->transformers[$transformer->getType()] = $transformer;
+    }
+
     public function pack($value)
     {
         $type = gettype($value);
@@ -36,6 +46,14 @@ class Packer
 
         if ($value instanceof Ext) {
             return $this->packExt($value);
+        }
+
+        foreach ($this->transformers as $type => $transformer) {
+            if ($transformer->supports($value)) {
+                $ext = new Ext($type, $this->pack($transformer->transform($value)));
+
+                return $this->packExt($ext);
+            }
         }
 
         throw new PackingFailedException($value, 'Unsupported type.');
