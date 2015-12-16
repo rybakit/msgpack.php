@@ -197,4 +197,13 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame([4 => 2], $raw);
     }
+
+    public function testSetGetTransformers()
+    {
+        $coll = $this->getMock('MessagePack\TypeTransformer\Collection');
+
+        $this->assertNull($this->unpacker->getTransformers());
+        $this->unpacker->setTransformers($coll);
+        $this->assertSame($coll, $this->unpacker->getTransformers());
+    }
 }

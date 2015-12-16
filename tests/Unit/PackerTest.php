@@ -46,28 +46,17 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     public function provideUnsupportedValues()
     {
         return [
-            tmpfile(),
-            new \stdClass(),
+            [tmpfile()],
+            [new \stdClass()],
         ];
     }
 
-    public function testPackCustomType()
+    public function testSetGetTransformers()
     {
-        $obj = new \stdClass();
+        $coll = $this->getMock('MessagePack\TypeTransformer\Collection');
 
-        $transformer = $this->getMock('MessagePack\ExtDataTransformer');
-        $transformer->expects($this->once())->method('supports')
-            ->with($obj)
-            ->willReturn(true);
-
-        $transformer->expects($this->once())->method('getType')
-            ->willReturn(5);
-
-        $transformer->expects($this->once())->method('transform')
-            ->willReturn(1);
-
-        $this->packer->registerTransformer($transformer);
-
-        $this->assertSame("\xd4\x05\x01", $this->packer->pack($obj));
+        $this->assertNull($this->packer->getTransformers());
+        $this->packer->setTransformers($coll);
+        $this->assertSame($coll, $this->packer->getTransformers());
     }
 }
