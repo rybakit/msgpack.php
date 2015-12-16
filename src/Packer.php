@@ -12,17 +12,29 @@
 namespace MessagePack;
 
 use MessagePack\Exception\PackingFailedException;
+use MessagePack\TypeTransformer\Collection;
 
 class Packer
 {
     /**
-     * @var ExtDataTransformer[]
+     * @var Collection
      */
-    private $transformers = [];
+    private $transformers;
 
-    public function registerTransformer(ExtDataTransformer $transformer)
+    /**
+     * @param Collection|null $transformers
+     */
+    public function setTransformers(Collection $transformers = null)
     {
-        $this->transformers[$transformer->getType()] = $transformer;
+        $this->transformers = $transformers;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getTransformers()
+    {
+        return $this->transformers;
     }
 
     public function pack($value)
@@ -48,12 +60,10 @@ class Packer
             return $this->packExt($value);
         }
 
-        foreach ($this->transformers as $type => $transformer) {
-            if ($transformer->supports($value)) {
-                $ext = new Ext($type, $this->pack($transformer->transform($value)));
+        if ($this->transformers && $transformer = $this->transformers->match($value)) {
+            $ext = new Ext($transformer->getId(), $this->pack($transformer->transform($value)));
 
-                return $this->packExt($ext);
-            }
+            return $this->packExt($ext);
         }
 
         throw new PackingFailedException($value, 'Unsupported type.');
