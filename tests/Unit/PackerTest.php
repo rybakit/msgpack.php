@@ -15,6 +15,8 @@ use MessagePack\Packer;
 
 class PackerTest extends \PHPUnit_Framework_TestCase
 {
+    use TransformerUtils;
+
     /**
      * @var Packer
      */
@@ -58,5 +60,19 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($this->packer->getTransformers());
         $this->packer->setTransformers($coll);
         $this->assertSame($coll, $this->packer->getTransformers());
+    }
+
+    public function testPackCustomType()
+    {
+        $obj = new \stdClass();
+
+        $transformer = $this->getTransformerMock(5);
+        $transformer->expects($this->once())->method('transform')->willReturn(1);
+
+        $coll = $this->getTransformerCollectionMock([$transformer]);
+        $coll->expects($this->once())->method('match')->with($obj);
+        $this->packer->setTransformers($coll);
+
+        $this->assertSame("\xd4\x05\x01", $this->packer->pack($obj));
     }
 }

@@ -16,6 +16,8 @@ use MessagePack\Exception\InsufficientDataException;
 
 class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 {
+    use TransformerUtils;
+
     /**
      * @var BufferUnpacker
      */
@@ -200,10 +202,24 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
     public function testSetGetTransformers()
     {
-        $coll = $this->getMock('MessagePack\TypeTransformer\Collection');
+        $coll = $this->getTransformerCollectionMock();
 
         $this->assertNull($this->unpacker->getTransformers());
         $this->unpacker->setTransformers($coll);
         $this->assertSame($coll, $this->unpacker->getTransformers());
+    }
+
+    public function testUnpackCustomType()
+    {
+        $obj = new \stdClass();
+
+        $transformer = $this->getTransformerMock(5);
+        $transformer->expects($this->once())->method('reverseTransform')->willReturn($obj);
+
+        $coll = $this->getTransformerCollectionMock([$transformer]);
+        $coll->expects($this->once())->method('find')->with(5);
+        $this->unpacker->setTransformers($coll);
+
+        $this->assertSame($obj, $this->unpacker->reset("\xd4\x05\x01")->unpack());
     }
 }
