@@ -1,5 +1,9 @@
 # msgpack.php
 
+msgpack.php is a fast and lightweight library written in pure PHP (compatible with PHP 5.4+ and HHVM).
+It's fully compliant with  the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md).
+In particular, it supports the new binary, UTF-8 string, and application-defined ext types.
+
 [![Build Status](https://travis-ci.org/rybakit/msgpack.php.svg?branch=master)](https://travis-ci.org/rybakit/msgpack.php)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rybakit/msgpack.php/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rybakit/msgpack.php/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/rybakit/msgpack.php/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/rybakit/msgpack.php/?branch=master)
@@ -29,18 +33,6 @@ $packed = $packer->pack($value);
 ```
 
 
-### Unpacker
-
-```php
-use MessagePack\Unpacker;
-
-$unpacker = new Unpacker();
-
-...
-
-$unpacked = $unpacker->unpack($data);
-```
-
 ### BufferUnpacker
 
 ```php
@@ -58,6 +50,32 @@ $unpacked = $unpacker->unpack($data);
 $unpacker->reset($data);
 $unpackedBlocks = $unpacker->tryUnpack();
 ```
+
+
+### Unpacker
+
+```php
+use MessagePack\Unpacker;
+
+$unpacker = new Unpacker();
+
+...
+
+$unpacked = $unpacker->unpack($data);
+```
+
+
+### Big Integers
+
+```php
+use MessagePack\BufferUnpacker;
+
+$unpacker = new BufferUnpacker();
+$unpacker->setBigIntMode(BufferUnpacker::BIGINT_AS_STRING);
+// $unpacker->setBigIntMode(BufferUnpacker::BIGINT_AS_GMP);
+// $unpacker->setBigIntMode(BufferUnpacker::BIGINT_AS_EXCEPTION); //default
+```
+
 
 ### Extensions
 
