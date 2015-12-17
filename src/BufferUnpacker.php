@@ -14,6 +14,7 @@ namespace MessagePack;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\UnpackingFailedException;
+use MessagePack\TypeTransformer\Collection;
 
 class BufferUnpacker
 {
@@ -37,6 +38,11 @@ class BufferUnpacker
     private $offset = 0;
 
     /**
+     * @var Collection
+     */
+    private $transformers;
+
+    /**
      * @param int|null $bigIntMode
      */
     public function __construct($bigIntMode = null)
@@ -44,6 +50,22 @@ class BufferUnpacker
         if (null !== $bigIntMode) {
             $this->bigIntMode = $bigIntMode;
         }
+    }
+
+    /**
+     * @param Collection|null $transformers
+     */
+    public function setTransformers(Collection $transformers = null)
+    {
+        $this->transformers = $transformers;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getTransformers()
+    {
+        return $this->transformers;
     }
 
     /**
@@ -392,6 +414,11 @@ class BufferUnpacker
 
         $type = $this->unpackI8();
         $data = substr($this->buffer, $this->offset, $length);
+
+        if ($this->transformers && $transformer = $this->transformers->find($type)) {
+            return $transformer->reverseTransform($this->unpack());
+        }
+
         $this->offset += $length;
 
         return new Ext($type, $data);
