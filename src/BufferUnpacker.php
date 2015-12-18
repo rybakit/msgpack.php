@@ -61,7 +61,7 @@ class BufferUnpacker
     }
 
     /**
-     * @return Collection
+     * @return Collection|null
      */
     public function getTransformers()
     {

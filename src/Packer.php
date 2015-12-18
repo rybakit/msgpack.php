@@ -30,7 +30,7 @@ class Packer
     }
 
     /**
-     * @return Collection
+     * @return Collection|null
      */
     public function getTransformers()
     {
