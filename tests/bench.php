@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
+use MessagePack\Tests\DataProvider;
 use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\LoopBenchmark;
 use MessagePack\Tests\Perf\Filter\NameFilter;
 use MessagePack\Tests\Perf\Runner;
-use MessagePack\Tests\DataProvider;
 use MessagePack\Tests\Perf\Target\TargetFactory;
 
 require __DIR__.'/../vendor/autoload.php';
 
-if (function_exists('xdebug_break')) {
-    echo "The benchmark must be run with Xdebug extension disabled.\n";
+if (extension_loaded('xdebug')) {
+    echo "The benchmark must be run with xdebug extension disabled.\n";
     exit(42);
 }
 
@@ -41,4 +41,6 @@ if ($tests) {
 }
 
 $runner = new Runner(DataProvider::provideData());
+
+gc_disable();
 $runner->run($benchmark, [$target]);
