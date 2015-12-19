@@ -14,16 +14,16 @@ namespace MessagePack\Tests\Perf\Benchmark;
 use MessagePack\Tests\Perf\Test;
 use MessagePack\Tests\Perf\Target\Target;
 
-class LoopBenchmark implements Benchmark
+class TimeBenchmark implements Benchmark
 {
     /**
-     * @var int
+     * @var float
      */
-    private $iterations;
+    private $totalTime;
 
-    public function __construct($iterations)
+    public function __construct($totalTime)
     {
-        $this->iterations = $iterations;
+        $this->totalTime = $totalTime;
     }
 
     /**
@@ -33,10 +33,12 @@ class LoopBenchmark implements Benchmark
     {
         $target->sanitize($test);
 
-        $overheadTime = $this->measureOverhead($target, $test);
-        $performTime = $this->measurePerform($target, $test);
+        $iterations = $this->measurePerform($target, $test);
+        $overheadTime = $this->measureOverhead($target, $test, $iterations);
 
-        return $performTime - $overheadTime;
+        $extraIterations = round($overheadTime * $iterations / $this->totalTime);
+
+        return $iterations + $extraIterations;
     }
 
     /**
@@ -44,25 +46,27 @@ class LoopBenchmark implements Benchmark
      */
     public function getInfo()
     {
-        return ['Iterations' => $this->iterations];
+        return ['Time per test' => $this->totalTime];
     }
 
     private function measurePerform(Target $target, Test $test)
     {
-        $time = microtime(true);
+        $iterations = 0;
+        $maxTime = microtime(true) + $this->totalTime;
 
-        for ($i = $this->iterations; $i; $i--) {
+        while (microtime(true) <= $maxTime) {
             $target->perform($test);
+            ++$iterations;
         }
 
-        return microtime(true) - $time;
+        return $iterations;
     }
 
-    private function measureOverhead(Target $target, Test $test)
+    private function measureOverhead(Target $target, Test $test, $iterations)
     {
         $time = microtime(true);
 
-        for ($i = $this->iterations; $i; $i--) {
+        for ($i = $iterations; $i; $i--) {
             $target->calibrate($test);
         }
 

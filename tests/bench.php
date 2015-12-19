@@ -12,7 +12,7 @@
 use MessagePack\Tests\DataProvider;
 use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
-use MessagePack\Tests\Perf\Benchmark\LoopBenchmark;
+use MessagePack\Tests\Perf\Benchmark\IterationBenchmark;
 use MessagePack\Tests\Perf\Filter\NameFilter;
 use MessagePack\Tests\Perf\Runner;
 use MessagePack\Tests\Perf\Target\TargetFactory;
@@ -31,7 +31,7 @@ $tests = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit m
 //$asJson = in_array(strtolower(getenv('MP_BENCH_AS_JSON')), ['1', 'true', 'on'], true);
 
 $target = TargetFactory::create($target);
-$benchmark = new LoopBenchmark($size);
+$benchmark = new IterationBenchmark($size);
 
 if ($cycles) {
     $benchmark = new AverageableBenchmark($benchmark, $cycles);

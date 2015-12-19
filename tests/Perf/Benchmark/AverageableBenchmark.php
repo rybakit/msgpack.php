@@ -37,13 +37,13 @@ class AverageableBenchmark implements Benchmark
      */
     public function benchmark(Target $target, Test $test)
     {
-        $sumTime = 0;
+        $sum = 0;
 
         for ($i = $this->cycles; $i; $i--) {
-            $sumTime += $this->benchmark->benchmark($target, $test);
+            $sum += $this->benchmark->benchmark($target, $test);
         }
 
-        return $sumTime / $this->cycles;
+        return $sum / $this->cycles;
     }
 
     /**

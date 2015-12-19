@@ -37,12 +37,12 @@ class TraceableBenchmark implements Benchmark
      */
     public function benchmark(Target $target, Test $test)
     {
-        $time = $this->benchmark->benchmark($target, $test);
+        $result = $this->benchmark->benchmark($target, $test);
 
         $trace = $this->trace;
-        $trace($time, $test);
+        $trace($result, $test);
 
-        return $time;
+        return $result;
     }
 
     /**

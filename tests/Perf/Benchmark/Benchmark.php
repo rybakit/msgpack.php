@@ -20,7 +20,7 @@ interface Benchmark
      * @param Target $target
      * @param Test $test
      *
-     * @return double
+     * @return int|float
      */
     public function benchmark(Target $target, Test $test);
 
