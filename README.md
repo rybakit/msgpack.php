@@ -65,7 +65,7 @@ To do this, use the `packMap` method:
 $mpMap = $packer->packMap([1, 2]); // {0: 1, 1: 2}
 ```
 
-Here are a list of all low-level packer methods:
+Here is a list of all low-level packer methods:
 
 ```php
 $packer->packNil();                   // MP nil
