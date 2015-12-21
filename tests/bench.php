@@ -13,9 +13,13 @@ use MessagePack\Tests\DataProvider;
 use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\IterationBenchmark;
+use MessagePack\Tests\Perf\Benchmark\TimeBenchmark;
 use MessagePack\Tests\Perf\Filter\NameFilter;
 use MessagePack\Tests\Perf\Runner;
-use MessagePack\Tests\Perf\Target\TargetFactory;
+use MessagePack\Tests\Perf\Target\BufferUnpackerTarget;
+use MessagePack\Tests\Perf\Target\PackerTarget;
+use MessagePack\Tests\Perf\Target\PeclFunctionPackTarget;
+use MessagePack\Tests\Perf\Target\PeclFunctionUnpackTarget;
 
 require __DIR__.'/../vendor/autoload.php';
 
@@ -24,24 +28,35 @@ if (extension_loaded('xdebug')) {
     exit(42);
 }
 
-$target = getenv('MP_BENCH_TARGET') ?: TargetFactory::PURE_U;
-$size = getenv('MP_BENCH_SIZE') ?: 100000;
+$targetNames = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_u';
 $cycles = getenv('MP_BENCH_CYCLES') ?: 3;
-$tests = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
+$testNames = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
 //$asJson = in_array(strtolower(getenv('MP_BENCH_AS_JSON')), ['1', 'true', 'on'], true);
 
-$target = TargetFactory::create($target);
-$benchmark = new IterationBenchmark($size);
-//$benchmark = new \MessagePack\Tests\Perf\Benchmark\TimeBenchmark(1);
+$benchmark = getenv('MP_BENCH_TIME')
+    ? new TimeBenchmark(getenv('MP_BENCH_TIME'))
+    : new IterationBenchmark(getenv('MP_BENCH_SIZE') ?: 100000);
 
 if ($cycles) {
     $benchmark = new AverageableBenchmark($benchmark, $cycles);
 }
-if ($tests) {
-    $benchmark = new FilterableBenchmark($benchmark, new NameFilter(explode(',', $tests)));
+if ($testNames) {
+    $benchmark = new FilterableBenchmark($benchmark, new NameFilter(explode(',', $testNames)));
+}
+
+$targetFactories = [
+    'pecl_p' => function () { return new PeclFunctionPackTarget(); },
+    'pecl_u' => function () { return new PeclFunctionUnpackTarget(); },
+    'pure_p' => function () { return new PackerTarget(); },
+    'pure_u' => function () { return new BufferUnpackerTarget(); },
+];
+
+$targets = [];
+foreach (explode(',', $targetNames) as $targetName) {
+    $targets[] = $targetFactories[trim($targetName)]();
 }
 
 $runner = new Runner(DataProvider::provideData());
 
 gc_disable();
-$runner->run($benchmark, [$target]);
+$runner->run($benchmark, $targets);
