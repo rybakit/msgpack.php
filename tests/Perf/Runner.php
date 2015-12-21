@@ -23,6 +23,9 @@ class Runner
      */
     private $testData;
 
+    /**
+     * @var Writer
+     */
     private $writer;
 
     public function __construct(array $testData, Writer $writer = null)
@@ -33,42 +36,33 @@ class Runner
 
     /**
      * @param Benchmark $benchmark
-     * @param \MessagePack\Tests\Perf\Target\Target[] $targets
+     * @param Target[] $targets
      *
      * @return array
      */
     public function run(Benchmark $benchmark, array $targets)
     {
+        $this->writer->open($benchmark->getInfo(), $targets);
+
         $result = [];
-
-        foreach ($targets as $target) {
-            $result[$target->getName()] = $this->runTarget($benchmark, $target);
-        }
-
-        return $result;
-    }
-
-    private function runTarget(Benchmark $benchmark, Target $target)
-    {
-        $this->writer->open($target->getName(), $benchmark->getInfo());
-
-        $stats = [];
-
         foreach ($this->testData as $row) {
             $test = new Test($row[0], $row[1], $row[2]);
 
-            try {
-                $stats[$test->getName()] = $time = $benchmark->benchmark($target, $test);
-                $this->writer->writeResult($test, $time);
-            } catch (TestSkippedException $e) {
-                $this->writer->writeSkipped($test);
-            } catch (\Exception $e) {
-                $this->writer->writeFailed($test, $e);
+            $stats = [];
+            foreach ($targets as $target) {
+                try {
+                    $stats[$target->getName()] = $benchmark->benchmark($target, $test);
+                } catch (\Exception $e) {
+                    $stats[$target->getName()] = $e;
+                }
             }
+
+            $result[$test->getName()] = $stats;
+            $this->writer->write($test, $stats);
         }
 
         $this->writer->close();
 
-        return $stats;
+        return $result;
     }
 }

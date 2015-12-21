@@ -12,65 +12,113 @@
 namespace MessagePack\Tests\Perf\Writer;
 
 use MessagePack\Tests\Perf\Test;
-use MessagePack\Tests\Perf\ValueAccumulator;
+use MessagePack\Tests\Perf\TestSkippedException;
 
 class TableWriter implements Writer
 {
-    const DEFAULT_WIDTH = 32;
+    const FIRST_COLUMN_WIDTH = 20;
 
     private $width;
-    private $accumulator;
+    private $widths = [];
+    private $summary = [
+        'total' => [],
+        'skipped' => [],
+        'failed' => [],
+    ];
 
-    public function __construct($width = null)
+    public function open(array $benchmarkInfo, array $targets)
     {
-        $this->width = $width ?: self:: DEFAULT_WIDTH;
-        $this->accumulator = new ValueAccumulator();
-    }
+        $this->widths = [self::FIRST_COLUMN_WIDTH];
 
-    public function open($target, array $benchmarkInfo)
-    {
-        $this->accumulator->set(0);
+        $cells = ['Test/Target'];
+        foreach ($targets as $target) {
+            $targetName = $target->getName();
+            $this->widths[] = strlen($targetName) + 1;
+            $cells[] = $targetName;
 
-        echo "\nTarget: $target\n";
+            $this->summary['total'][$targetName] = 0;
+            $this->summary['skipped'][$targetName] = 0;
+            $this->summary['failed'][$targetName] = 0;
+        }
+
+        $this->width = array_sum($this->widths);
+
         foreach ($benchmarkInfo as $title => $value) {
             echo "$title: $value\n";
         }
         echo "\n";
 
         echo str_repeat('=', $this->width)."\n";
-
-        printf("Test %s Time, sec\n", str_repeat(' ', $this->width - 15));
+        $this->writeRow($cells);
         echo str_repeat('-', $this->width)."\n";
     }
 
-    public function writeResult(Test $test, $time)
+    public function write(Test $test, array $stats)
     {
-        $this->accumulator->add($time);
+        $cells = [$test];
 
-        $printTime = sprintf('%.4f', $time);
+        foreach ($stats as $targetName => $result) {
+            if ($result instanceof \Exception) {
+                if ($result instanceof TestSkippedException) {
+                    $this->summary['skipped'][$targetName]++;
+                    $cells[] = 'S';
+                } else {
+                    $this->summary['failed'][$targetName]++;
+                    $cells[] = 'F';
+                }
 
-        printf("%s %s %s\n",
-            $test,
-            str_repeat('.', $this->width - strlen($test) - strlen($printTime) - 2),
-            $printTime
-        );
-    }
+                continue;
+            }
 
-    public function writeSkipped(Test $test)
-    {
-        printf("%s %s S\n", $test, str_repeat('.', $this->width - strlen($test) - 3));
-    }
+            $this->summary['total'][$targetName] += $result;
 
-    public function writeFailed(Test $test, \Exception $e)
-    {
-        printf("%s %s F\n", $test, str_repeat('.', $this->width - strlen($test) - 3));
+            $cells[] = sprintf('%.4f', $result);
+        }
+
+        $this->writeRow($cells, '.');
     }
 
     public function close()
     {
-        $summary = sprintf('Total: %.4f', $this->accumulator->get());
+        echo str_repeat('=', $this->width)."\n";
 
-        echo str_repeat('-', $this->width)."\n";
-        echo str_repeat(' ', $this->width - strlen($summary)).$summary."\n\n";
+        $this->writeSummary('Total', 'total', function ($value) {
+            return sprintf('%.4f', $value);
+        });
+
+        $this->writeSummary('Skipped', 'skipped');
+        $this->writeSummary('Failed', 'failed');
+    }
+
+    private function writeSummary($title, $name, \Closure $formatter = null)
+    {
+        $cells = [$title];
+
+        foreach ($this->summary[$name] as $value) {
+            $cells[] = $formatter ? $formatter($value) : $value;
+        }
+
+        $this->writeRow($cells);
+    }
+
+    private function writeRow(array $cells, $padChar = ' ')
+    {
+        $title = array_shift($cells);
+
+        echo $title;
+        $paddingLen = $this->widths[0] - strlen($title);
+
+        if ($this->widths[0] > 0) {
+            echo str_repeat($padChar, $paddingLen);
+        }
+
+        $i = 1;
+        foreach ($cells as $name => $value) {
+            echo str_repeat($padChar, $this->widths[$i] - strlen($value) - 1).' ';
+            echo $value;
+            $i++;
+        }
+
+        echo "\n";
     }
 }

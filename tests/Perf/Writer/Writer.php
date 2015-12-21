@@ -15,9 +15,7 @@ use MessagePack\Tests\Perf\Test;
 
 interface Writer
 {
-    public function open($target, array $info);
-    public function writeResult(Test $test, $time);
-    public function writeSkipped(Test $test);
-    public function writeFailed(Test $test, \Exception $e);
+    public function open(array $info, array $targets);
+    public function write(Test $test, array $stats);
     public function close();
 }

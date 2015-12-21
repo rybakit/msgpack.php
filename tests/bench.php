@@ -32,6 +32,7 @@ $tests = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit m
 
 $target = TargetFactory::create($target);
 $benchmark = new IterationBenchmark($size);
+//$benchmark = new \MessagePack\Tests\Perf\Benchmark\TimeBenchmark(1);
 
 if ($cycles) {
     $benchmark = new AverageableBenchmark($benchmark, $cycles);
