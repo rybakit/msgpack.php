@@ -28,6 +28,8 @@ if (extension_loaded('xdebug')) {
     exit(42);
 }
 
+set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
+
 $targetNames = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_u';
 $cycles = getenv('MP_BENCH_CYCLES') ?: 3;
 $testNames = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
