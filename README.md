@@ -269,7 +269,7 @@ $ php tests/bench.php
 You may also change default settings by defining the following environment variables:
 
  * `MP_BENCH_TARGET` (pure_p, pure_u, pecl_p, pecl_u)
- * `MP_BENCH_SIZE`
+ * `MP_BENCH_SIZE`/`MP_BENCH_TIME`
  * `MP_BENCH_CYCLES`
  * `MP_BENCH_TESTS`
 
@@ -278,8 +278,8 @@ For example:
 ```sh
 $ export MP_BENCH_TARGET=pure_p
 $ export MP_BENCH_SIZE=1000000
-$ export MP_BENCH_CYCLES=1
-$ export MP_BENCH_TESTS='complex array'
+$ export MP_BENCH_CYCLES=2
+$ export MP_BENCH_TESTS='complex array, complex map'
 $ php tests/bench.php
 ```
 
