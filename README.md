@@ -268,7 +268,7 @@ $ php tests/bench.php
 
 You may also change default settings by defining the following environment variables:
 
- * `MP_BENCH_TARGET` (pure_p, pure_u, pecl_p, pecl_u)
+ * `MP_BENCH_TARGETS` (pure_p, pure_u, pecl_p, pecl_u)
  * `MP_BENCH_SIZE`/`MP_BENCH_TIME`
  * `MP_BENCH_CYCLES`
  * `MP_BENCH_TESTS`
