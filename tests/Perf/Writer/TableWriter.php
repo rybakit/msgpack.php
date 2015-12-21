@@ -11,6 +11,7 @@
 
 namespace MessagePack\Tests\Perf\Writer;
 
+use MessagePack\Tests\Perf\Target\Target;
 use MessagePack\Tests\Perf\Test;
 use MessagePack\Tests\Perf\TestSkippedException;
 
@@ -26,6 +27,10 @@ class TableWriter implements Writer
         'failed' => [],
     ];
 
+    /**
+     * @param array $benchmarkInfo
+     * @param Target[] $targets
+     */
     public function open(array $benchmarkInfo, array $targets)
     {
         $this->widths = [self::FIRST_COLUMN_WIDTH];
@@ -33,7 +38,7 @@ class TableWriter implements Writer
         $cells = ['Test/Target'];
         foreach ($targets as $target) {
             $targetName = $target->getName();
-            $this->widths[] = strlen($targetName) + 1;
+            $this->widths[] = strlen($targetName) + 2;
             $cells[] = $targetName;
 
             $this->summary['total'][$targetName] = 0;
@@ -108,13 +113,14 @@ class TableWriter implements Writer
         echo $title;
         $paddingLen = $this->widths[0] - strlen($title);
 
-        if ($this->widths[0] > 0) {
-            echo str_repeat($padChar, $paddingLen);
+        if ($this->widths[0] > 1) {
+            echo ' '.str_repeat($padChar, $paddingLen - 1);
         }
 
         $i = 1;
         foreach ($cells as $name => $value) {
-            echo str_repeat($padChar, $this->widths[$i] - strlen($value) - 1).' ';
+            echo (1 === $i) ? $padChar : ' ';
+            echo str_repeat($padChar, $this->widths[$i] - strlen($value) - 2).' ';
             echo $value;
             $i++;
         }
