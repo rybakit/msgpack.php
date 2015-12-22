@@ -10,12 +10,12 @@ A pure PHP implementation of the MessagePack serialization format.
 ## Features
 
  * Fully compliant with the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md),
-   including bin, str and ext types
+   including **bin**, **str** and **ext** types
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unsigned-64-bit-integers)
  * Supports [object serialization](#custom-types)
  * Works with PHP 5.4-7.0 and HHVM
- * Fully tested
+ * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
  * [Relatively fast](#performance)
 
 
