@@ -130,13 +130,13 @@ the library will throw a `IntegerOverflowException`.
 You can change this default behavior to unpack `uint64` integer to a string:
 
 ```php
-$unpacker->setBigIntMode(BufferUnpacker::BIGINT_AS_STRING);
+$unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_STRING);
 ```
 
 Or to a `Gmp` number (make sure that [gmp](http://php.net/manual/en/book.gmp.php) extension is enabled):
 
 ```php
-$unpacker->setBigIntMode(BufferUnpacker::BIGINT_AS_GMP);
+$unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_GMP);
 ```
 
 

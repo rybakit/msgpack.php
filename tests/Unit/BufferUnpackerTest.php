@@ -63,16 +63,16 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
      * @expectedException \MessagePack\Exception\IntegerOverflowException
      * @expectedExceptionMessage The value is too big: 18446744073709551615.
      */
-    public function testUnpackBigIntThrowsException()
+    public function testUnpackUint64ThrowsException()
     {
         $this->unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
         $this->unpacker->unpack();
     }
 
-    public function testUnpackBigIntAsString()
+    public function testUnpackUint64AsString()
     {
-        $unpacker = new BufferUnpacker(BufferUnpacker::BIGINT_AS_STR);
+        $unpacker = new BufferUnpacker(BufferUnpacker::INT_AS_STR);
         $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
         $this->assertSame('18446744073709551615', $unpacker->unpack());
@@ -81,19 +81,19 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @requires extension gmp
      */
-    public function testUnpackBigIntAsGmp()
+    public function testUnpackUint64AsGmp()
     {
-        $unpacker = new BufferUnpacker(BufferUnpacker::BIGINT_AS_GMP);
+        $unpacker = new BufferUnpacker(BufferUnpacker::INT_AS_GMP);
         $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
-        $bigint = $unpacker->unpack();
+        $uint64 = $unpacker->unpack();
 
         if (PHP_VERSION_ID < 50600) {
-            $this->assertInternalType('resource', $bigint);
+            $this->assertInternalType('resource', $uint64);
         } else {
-            $this->assertInstanceOf('GMP', $bigint);
+            $this->assertInstanceOf('GMP', $uint64);
         }
 
-        $this->assertSame('18446744073709551615', gmp_strval($bigint));
+        $this->assertSame('18446744073709551615', gmp_strval($uint64));
     }
 
     /**
@@ -164,21 +164,21 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->fail('Buffer was not truncated.');
     }
 
-    public function testSetGetBigIntMode()
+    public function testSetGetIntOverflowMode()
     {
-        $this->assertSame(BufferUnpacker::BIGINT_AS_EXCEPTION, $this->unpacker->getBigIntMode());
+        $this->assertSame(BufferUnpacker::INT_AS_EXCEPTION, $this->unpacker->getIntOverflowMode());
 
-        $this->unpacker->setBigIntMode(BufferUnpacker::BIGINT_AS_STR);
-        $this->assertSame(BufferUnpacker::BIGINT_AS_STR, $this->unpacker->getBigIntMode());
+        $this->unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_STR);
+        $this->assertSame(BufferUnpacker::INT_AS_STR, $this->unpacker->getIntOverflowMode());
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid bigint mode: 42.
+     * @expectedExceptionMessage Invalid integer overflow mode: 42.
      */
-    public function testSetBigIntModeThrowsException()
+    public function testSetIntOverflowModeThrowsException()
     {
-        $this->unpacker->setBigIntMode(42);
+        $this->unpacker->setIntOverflowMode(42);
     }
 
     /**

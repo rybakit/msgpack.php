@@ -18,14 +18,14 @@ use MessagePack\TypeTransformer\Collection;
 
 class BufferUnpacker
 {
-    const BIGINT_AS_EXCEPTION = 0;
-    const BIGINT_AS_STR = 1;
-    const BIGINT_AS_GMP = 2;
+    const INT_AS_EXCEPTION = 0;
+    const INT_AS_STR = 1;
+    const INT_AS_GMP = 2;
 
     /**
      * @var int
      */
-    private $bigIntMode = self::BIGINT_AS_EXCEPTION;
+    private $intOverflowMode = self::INT_AS_EXCEPTION;
 
     /**
      * @var string
@@ -43,12 +43,12 @@ class BufferUnpacker
     private $transformers;
 
     /**
-     * @param int|null $bigIntMode
+     * @param int|null $intOverflowMode
      */
-    public function __construct($bigIntMode = null)
+    public function __construct($intOverflowMode = null)
     {
-        if (null !== $bigIntMode) {
-            $this->bigIntMode = $bigIntMode;
+        if (null !== $intOverflowMode) {
+            $this->intOverflowMode = $intOverflowMode;
         }
     }
 
@@ -69,29 +69,29 @@ class BufferUnpacker
     }
 
     /**
-     * @param int $bigIntMode
+     * @param int $intOverflowMode
      *
      * @throws \InvalidArgumentException
      */
-    public function setBigIntMode($bigIntMode)
+    public function setIntOverflowMode($intOverflowMode)
     {
-        if (!in_array($bigIntMode, [
-            self::BIGINT_AS_EXCEPTION,
-            self::BIGINT_AS_STR,
-            self::BIGINT_AS_GMP,
+        if (!in_array($intOverflowMode, [
+            self::INT_AS_EXCEPTION,
+            self::INT_AS_STR,
+            self::INT_AS_GMP,
         ], true)) {
-            throw new \InvalidArgumentException(sprintf('Invalid bigint mode: %s.', $bigIntMode));
+            throw new \InvalidArgumentException(sprintf('Invalid integer overflow mode: %s.', $intOverflowMode));
         }
 
-        $this->bigIntMode = $bigIntMode;
+        $this->intOverflowMode = $intOverflowMode;
     }
 
     /**
      * @return int
      */
-    public function getBigIntMode()
+    public function getIntOverflowMode()
     {
-        return $this->bigIntMode;
+        return $this->intOverflowMode;
     }
 
     /**
@@ -281,7 +281,7 @@ class BufferUnpacker
         // If a number is bigger than 2^63, it will be interpreted as a float.
         // @link http://php.net/manual/en/language.types.integer.php#language.types.integer.overflow
 
-        return ($value < 0) ? $this->handleBigInt($value) : $value;
+        return ($value < 0) ? $this->handleIntOverflow($value) : $value;
     }
 
     private function unpackI8()
@@ -418,12 +418,12 @@ class BufferUnpacker
         }
     }
 
-    private function handleBigInt($value)
+    private function handleIntOverflow($value)
     {
-        if (self::BIGINT_AS_STR === $this->bigIntMode) {
+        if (self::INT_AS_STR === $this->intOverflowMode) {
             return sprintf('%u', $value);
         }
-        if (self::BIGINT_AS_GMP === $this->bigIntMode) {
+        if (self::INT_AS_GMP === $this->intOverflowMode) {
             return gmp_init(sprintf('%u', $value));
         }
 
