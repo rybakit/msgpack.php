@@ -284,8 +284,6 @@ $ php tests/bench.php
 This command will output something like:
 
 ```sh
-$ php tests/bench.php
-
 Filter: MessagePack\Tests\Perf\Filter\NameFilter
 Cycles: 3
 Iterations: 100000
