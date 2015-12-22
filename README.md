@@ -19,6 +19,21 @@ A pure PHP implementation of the MessagePack serialization format.
  * [Relatively fast](#performance)
 
 
+## Table of contents
+
+ * [Installation](#installation)
+ * [Usage](#usage)
+   * [Packing](#packing)
+   * [Unpacking](#unpacking)
+     * [Unsigned 64-bit Integers](#unsigned-64-bit-integers)
+ * [Extensions](#extensions)
+ * [Custom Types](#custom-types)
+ * [Exceptions](#exceptions)
+ * [Tests](#tests)
+    * [Performance](#performance)
+ * [License](#license)
+
+
 ## Installation
 
 The recommended way to install the library is through [Composer](http://getcomposer.org):
