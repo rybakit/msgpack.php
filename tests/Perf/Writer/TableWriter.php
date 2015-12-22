@@ -19,13 +19,25 @@ class TableWriter implements Writer
 {
     const FIRST_COLUMN_WIDTH = 20;
 
+    const STATUS_SKIPPED = 'S';
+    const STATUS_FAILED = 'F';
+    const STATUS_IGNORED = 'I';
+
+    private $ignoreIncomplete = true;
     private $width;
     private $widths = [];
+
     private $summary = [
         'total' => [],
         'skipped' => [],
         'failed' => [],
+        'ingored' => [],
     ];
+
+    public function __construct($ignoreIncomplete = null)
+    {
+        $this->ignoreIncomplete = null === $ignoreIncomplete ? true : $ignoreIncomplete;
+    }
 
     /**
      * @param array $benchmarkInfo
@@ -44,6 +56,7 @@ class TableWriter implements Writer
             $this->summary['total'][$targetName] = 0;
             $this->summary['skipped'][$targetName] = 0;
             $this->summary['failed'][$targetName] = 0;
+            $this->summary['ignored'][$targetName] = 0;
         }
 
         $this->width = array_sum($this->widths);
@@ -61,23 +74,38 @@ class TableWriter implements Writer
     public function write(Test $test, array $stats)
     {
         $cells = [$test];
+        $isIncomplete = false;
 
         foreach ($stats as $targetName => $result) {
-            if ($result instanceof \Exception) {
-                if ($result instanceof TestSkippedException) {
-                    $this->summary['skipped'][$targetName]++;
-                    $cells[] = 'S';
-                } else {
-                    $this->summary['failed'][$targetName]++;
-                    $cells[] = 'F';
-                }
-
+            if (!$result instanceof \Exception) {
+                $this->summary['total'][$targetName] += $result;
+                $cells[$targetName] = sprintf('%.4f', $result);
                 continue;
             }
 
-            $this->summary['total'][$targetName] += $result;
+            $isIncomplete = true;
 
-            $cells[] = sprintf('%.4f', $result);
+            if ($result instanceof TestSkippedException) {
+                $this->summary['skipped'][$targetName]++;
+                $cells[$targetName] = self::STATUS_SKIPPED;
+            } else {
+                $this->summary['failed'][$targetName]++;
+                $cells[$targetName] = self::STATUS_FAILED;
+            }
+        }
+
+        if ($this->ignoreIncomplete && $isIncomplete) {
+            foreach ($stats as $targetName => $result) {
+                $value = $cells[$targetName];
+
+                if (self::STATUS_SKIPPED === $value || self::STATUS_FAILED === $value) {
+                    continue;
+                }
+
+                $cells[$targetName] = self::STATUS_IGNORED;
+                $this->summary['total'][$targetName] -= $result;
+                $this->summary['ignored'][$targetName]++;
+            }
         }
 
         $this->writeRow($cells, '.');
@@ -93,6 +121,7 @@ class TableWriter implements Writer
 
         $this->writeSummary('Skipped', 'skipped');
         $this->writeSummary('Failed', 'failed');
+        $this->writeSummary('Ignored', 'ignored');
     }
 
     private function writeSummary($title, $name, \Closure $formatter = null)
