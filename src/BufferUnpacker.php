@@ -166,7 +166,7 @@ class BufferUnpacker
         }
         // fixarray
         if ($c >= 0x90 && $c <= 0x9f) {
-            return $this->unpackArr($c & 0xf);
+            return $this->unpackArray($c & 0xf);
         }
         // fixmap
         if ($c >= 0x80 && $c <= 0x8f) {
@@ -208,8 +208,8 @@ class BufferUnpacker
             case 0xdb: return $this->unpackStr($this->unpackU32());
 
             // MP_ARRAY
-            case 0xdc: return $this->unpackArr($this->unpackU16());
-            case 0xdd: return $this->unpackArr($this->unpackU32());
+            case 0xdc: return $this->unpackArray($this->unpackU16());
+            case 0xdd: return $this->unpackArray($this->unpackU32());
 
             // MP_MAP
             case 0xde: return $this->unpackMap($this->unpackU16());
@@ -370,7 +370,7 @@ class BufferUnpacker
         return $str;
     }
 
-    private function unpackArr($size)
+    private function unpackArray($size)
     {
         $array = [];
 
@@ -380,19 +380,6 @@ class BufferUnpacker
 
         return $array;
     }
-
-    /*
-    private function unpackArrSpl($size)
-    {
-        $array = new \SplFixedArray($size);
-
-        for ($i = 0; $i < $size; $i++) {
-            $array[$i] = $this->unpack();
-        }
-
-        return $array;
-    }
-    */
 
     private function unpackMap($size)
     {

@@ -43,7 +43,7 @@ class Packer
 
         switch ($type) {
             case 'array':
-                return array_values($value) === $value ? $this->packArr($value) : $this->packMap($value);
+                return array_values($value) === $value ? $this->packArray($value) : $this->packMap($value);
             case 'string':
                 return preg_match('//u', $value) ? $this->packStr($value) : $this->packBin($value);
             case 'integer':
@@ -69,10 +69,10 @@ class Packer
         throw new PackingFailedException($value, 'Unsupported type.');
     }
 
-    public function packArr(array $array)
+    public function packArray(array $array)
     {
         $size = count($array);
-        $data = self::packArrHeader($size);
+        $data = self::packArrayHeader($size);
 
         foreach ($array as $val) {
             $data .= $this->pack($val);
@@ -81,7 +81,7 @@ class Packer
         return $data;
     }
 
-    private static function packArrHeader($size)
+    private static function packArrayHeader($size)
     {
         if ($size <= 0xf) {
             return chr(0x90 | $size);

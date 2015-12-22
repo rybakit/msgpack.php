@@ -70,7 +70,7 @@ Here is a list of all low-level packer methods:
 ```php
 $packer->packNil();                   // MP nil
 $packer->packBool(true);              // MP bool
-$packer->packArr([1, 2]);             // MP array
+$packer->packArray([1, 2]);           // MP array
 $packer->packMap([1, 2]);             // MP pap
 $packer->packExt(new Ext(1, "\xaa")); // MP ext
 $packer->packDouble(4.2);             // MP float
