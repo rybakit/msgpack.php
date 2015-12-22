@@ -125,7 +125,7 @@ $unpackedBlocks = $unpacker->tryUnpack();
 ```
 
 To save some keystrokes, the library ships with a syntax sugar class `Unpacker`, which
-is no more than a tiny wrapper around `BufferUnpacker` with a single method `unpack()`:
+is no more than a tiny wrapper around `BufferUnpacker` with a single method `unpack`:
 
 ```php
 use MessagePack\Unpacker;
@@ -480,7 +480,7 @@ Failed                                 0                           0            
 Ignored                               16                          16             0               7
 ```
 
-> Note, that this is not a fair comparison as the msgpack extension (5.2+, 2.0) doesn't
+> Note, that this is not a fair comparison as the msgpack extension (0.5.2+, 2.0) doesn't
 support **ext**, **bin** and utf-8 **str** types.
 
 
