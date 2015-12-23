@@ -287,7 +287,7 @@ This command will output something like:
 
 ```sh
 Filter: MessagePack\Tests\Perf\Filter\NameFilter
-Cycles: 3
+Rounds: 3
 Iterations: 100000
 
 ====================================================================
@@ -376,16 +376,16 @@ Ignored                                0                           0
 You may change default benchmark settings by defining the following environment variables:
 
  * `MP_BENCH_TARGETS` (pure_p, pure_u, pecl_p, pecl_u)
- * `MP_BENCH_SIZE`/`MP_BENCH_TIME`
- * `MP_BENCH_CYCLES`
+ * `MP_BENCH_ITERATIONS`/`MP_BENCH_DURATION`
+ * `MP_BENCH_ROUNDS`
  * `MP_BENCH_TESTS`
 
 For example:
 
 ```sh
 $ export MP_BENCH_TARGET=pure_p
-$ export MP_BENCH_SIZE=1000000
-$ export MP_BENCH_CYCLES=2
+$ export MP_BENCH_ITERATIONS=1000000
+$ export MP_BENCH_ROUNDS=5
 $ export MP_BENCH_TESTS='complex array, complex map'
 $ php tests/bench.php
 ```
@@ -396,7 +396,7 @@ Another example, benchmarking both the library and [msgpack pecl extension](http
 $ MP_BENCH_TARGETS=pure_p,pure_u,pecl_p,pecl_u php tests/bench.php
 
 Filter: MessagePack\Tests\Perf\Filter\NameFilter
-Cycles: 3
+Rounds: 3
 Iterations: 100000
 
 ==================================================================================================

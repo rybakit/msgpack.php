@@ -24,12 +24,12 @@ class AverageableBenchmark implements Benchmark
     /**
      * @var int
      */
-    private $cycles;
+    private $rounds;
 
-    public function __construct(Benchmark $benchmark, $cycles = null)
+    public function __construct(Benchmark $benchmark, $rounds = null)
     {
         $this->benchmark = $benchmark;
-        $this->cycles = $cycles ?: 3;
+        $this->rounds = $rounds ?: 3;
     }
 
     /**
@@ -39,11 +39,11 @@ class AverageableBenchmark implements Benchmark
     {
         $sum = 0;
 
-        for ($i = $this->cycles; $i; $i--) {
+        for ($i = $this->rounds; $i; $i--) {
             $sum += $this->benchmark->benchmark($target, $test);
         }
 
-        return $sum / $this->cycles;
+        return $sum / $this->rounds;
     }
 
     /**
@@ -51,6 +51,6 @@ class AverageableBenchmark implements Benchmark
      */
     public function getInfo()
     {
-        return ['Cycles' => $this->cycles] + $this->benchmark->getInfo();
+        return ['Rounds' => $this->rounds] + $this->benchmark->getInfo();
     }
 }

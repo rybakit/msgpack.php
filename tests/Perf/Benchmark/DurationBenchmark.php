@@ -14,16 +14,16 @@ namespace MessagePack\Tests\Perf\Benchmark;
 use MessagePack\Tests\Perf\Test;
 use MessagePack\Tests\Perf\Target\Target;
 
-class TimeBenchmark implements Benchmark
+class DurationBenchmark implements Benchmark
 {
     /**
      * @var float
      */
-    private $totalTime;
+    private $duration;
 
-    public function __construct($totalTime)
+    public function __construct($duration)
     {
-        $this->totalTime = $totalTime;
+        $this->duration = $duration;
     }
 
     /**
@@ -36,7 +36,7 @@ class TimeBenchmark implements Benchmark
         $iterations = $this->measurePerform($target, $test);
         $overheadTime = $this->measureOverhead($target, $test, $iterations);
 
-        $extraIterations = round($overheadTime * $iterations / $this->totalTime);
+        $extraIterations = round($overheadTime * $iterations / $this->duration);
 
         return $iterations + $extraIterations;
     }
@@ -46,15 +46,15 @@ class TimeBenchmark implements Benchmark
      */
     public function getInfo()
     {
-        return ['Time per test' => $this->totalTime];
+        return ['Duration' => $this->duration];
     }
 
     private function measurePerform(Target $target, Test $test)
     {
         $iterations = 0;
-        $maxTime = microtime(true) + $this->totalTime;
+        $time = microtime(true) + $this->duration;
 
-        while (microtime(true) <= $maxTime) {
+        while (microtime(true) <= $time) {
             $target->perform($test);
             ++$iterations;
         }

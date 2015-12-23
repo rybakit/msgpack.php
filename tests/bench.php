@@ -11,9 +11,9 @@
 
 use MessagePack\Tests\DataProvider;
 use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
+use MessagePack\Tests\Perf\Benchmark\DurationBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\IterationBenchmark;
-use MessagePack\Tests\Perf\Benchmark\TimeBenchmark;
 use MessagePack\Tests\Perf\Filter\NameFilter;
 use MessagePack\Tests\Perf\Runner;
 use MessagePack\Tests\Perf\Target\BufferUnpackerTarget;
@@ -31,16 +31,15 @@ if (extension_loaded('xdebug')) {
 set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
 
 $targetNames = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_u';
-$cycles = getenv('MP_BENCH_CYCLES') ?: 3;
+$rounds = getenv('MP_BENCH_ROUNDS') ?: 3;
 $testNames = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
-//$asJson = in_array(strtolower(getenv('MP_BENCH_AS_JSON')), ['1', 'true', 'on'], true);
 
-$benchmark = getenv('MP_BENCH_TIME')
-    ? new TimeBenchmark(getenv('MP_BENCH_TIME'))
-    : new IterationBenchmark(getenv('MP_BENCH_SIZE') ?: 100000);
+$benchmark = getenv('MP_BENCH_DURATION')
+    ? new DurationBenchmark(getenv('MP_BENCH_DURATION'))
+    : new IterationBenchmark(getenv('MP_BENCH_ITERATIONS') ?: 100000);
 
-if ($cycles) {
-    $benchmark = new AverageableBenchmark($benchmark, $cycles);
+if ($rounds) {
+    $benchmark = new AverageableBenchmark($benchmark, $rounds);
 }
 if ($testNames) {
     $benchmark = new FilterableBenchmark($benchmark, new NameFilter(explode(',', $testNames)));
