@@ -181,6 +181,8 @@ To do this, you need to create a transformer, that converts your type to a type,
 For example, the code below shows how to add `DateTime` object support:
 
 ```php
+use MessagePack\TypeTransformer\TypeTransformer;
+
 class DateTimeTransformer implements TypeTransformer
 {
     private $id;
@@ -226,7 +228,7 @@ $coll = new Collection([new DateTimeTransformer(5)]);
 $packer->setTransformers($coll);
 $unpacker->setTransformers($coll);
 
-$packed = $packer->pack(['foo' => new \DateTime(), 'bar' => 'baz']);
+$packed = $packer->pack(['foo' => new DateTime(), 'bar' => 'baz']);
 $raw = $unpacker->reset($packed)->unpack());
 ```
 
