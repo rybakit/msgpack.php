@@ -68,8 +68,8 @@ has sequential numeric keys, starting from `0` and as a MessagePack map otherwis
 ```php
 $mpArr1 = $packer->pack([1, 2]);                   // MP array [1, 2]
 $mpArr2 = $packer->pack([0 => 1, 1 => 2]);         // MP array [1, 2]
-$mpMap1 = $packer->pack([0 => 1, 3 => 3]);         // MP map {0: 1, 3: 3}
-$mpMap2 = $packer->pack([1 => 1, 2 => 2]);         // MP map {1: 1, 2: 2}
+$mpMap1 = $packer->pack([0 => 1, 2 => 3]);         // MP map {0: 1, 2: 3}
+$mpMap2 = $packer->pack([1 => 2, 2 => 3]);         // MP map {1: 2, 2: 3}
 $mpMap3 = $packer->pack(['foo' => 1, 'bar' => 2]); // MP map {foo: 1, bar: 2}
 ```
 
@@ -229,7 +229,7 @@ $packer->setTransformers($coll);
 $unpacker->setTransformers($coll);
 
 $packed = $packer->pack(['foo' => new DateTime(), 'bar' => 'baz']);
-$raw = $unpacker->reset($packed)->unpack());
+$raw = $unpacker->reset($packed)->unpack();
 ```
 
 
