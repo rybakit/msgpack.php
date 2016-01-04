@@ -148,8 +148,9 @@ class TableWriter implements Writer
 
         $i = 1;
         foreach ($cells as $name => $value) {
+            $multiplier = $this->widths[$i] - strlen($value) - 2;
             echo (1 === $i) ? $padChar : ' ';
-            echo str_repeat($padChar, $this->widths[$i] - strlen($value) - 2).' ';
+            echo str_repeat($padChar, $multiplier > 0 ? $multiplier : 0).' ';
             echo $value;
             $i++;
         }
