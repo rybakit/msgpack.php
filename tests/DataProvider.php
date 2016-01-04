@@ -65,7 +65,7 @@ class DataProvider
             ['64-bit int #1', -2147483649, "\xd3"."\xff\xff\xff\xff"."\x7f\xff\xff\xff"],
             ['64-bit int #2', -1000000000000000002, "\xd3"."\xf2\x1f\x49\x4c"."\x58\x9b\xff\xfe"],
             // https://bugs.php.net/bug.php?id=53934
-            ['64-bit int #3', -PHP_INT_MAX - 1, "\xd3"."\x80\x00\x00\x00"."\x00\x00\x00\x00"],
+            ['64-bit int #3', (int) '-9223372036854775808', "\xd3"."\x80\x00\x00\x00"."\x00\x00\x00\x00"],
 
             ['64-bit float #1', 0.0, "\xcb"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
             ['64-bit float #2', 2.5, "\xcb"."\x40\x04\x00\x00"."\x00\x00\x00\x00"],
