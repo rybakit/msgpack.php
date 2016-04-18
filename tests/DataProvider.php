@@ -111,6 +111,7 @@ class DataProvider
             ['fix map #1', [1 => true, 2 => 'abc', 3 => "\x80", 4 => null], "\x84\x01\xc3\x02\xa3\x61\x62\x63\x03\xc4\x01\x80\x04\xc0"],
             ['fix map #2', ['abc' => 5], "\x81\xa3\x61\x62\x63\x05"],
             ['fix map #3', ["\x80" => 0xffff], "\x81\xc4\x01\x80\xcd\xff\xff"],
+            ['fix map #4', [-1 => -1, 1 => 1], "\x82\xff\xff\x01\x01"],
             ['16-bit map #1', array_fill(1, 16, 0x05), "\xde\x00\x10".array_reduce(range(1, 16), function ($r, $i) { return $r .= pack('C', $i)."\x05"; })],
             ['16-bit map #2', array_fill(1, 65535, 0x05), "\xde\xff\xff".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })],
             ['32-bit map', array_fill(1, 65536, 0x05), "\xdf\x00\x01\x00\x00".array_reduce(range(1, 127), function ($r, $i) { return $r .= pack('C', $i)."\x05"; }).array_reduce(range(128, 255), function ($r, $i) { return $r .= "\xcc".pack('C', $i)."\x05"; }).array_reduce(range(256, 65535), function ($r, $i) { return $r .= "\xcd".pack('n', $i)."\x05"; })."\xce".pack('N', 65536)."\x05"],
