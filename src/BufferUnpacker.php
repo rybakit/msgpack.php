@@ -137,7 +137,7 @@ class BufferUnpacker
         }
 
         if ($this->offset) {
-            $this->buffer = (string) substr($this->buffer, $this->offset);
+            $this->buffer = (string) \substr($this->buffer, $this->offset);
             $this->offset = 0;
         }
 
@@ -153,7 +153,7 @@ class BufferUnpacker
     {
         $this->ensureLength(1);
 
-        $c = ord($this->buffer[$this->offset]);
+        $c = \ord($this->buffer[$this->offset]);
         $this->offset += 1;
 
         // fixint
@@ -236,7 +236,7 @@ class BufferUnpacker
         $num = $this->buffer[$this->offset];
         $this->offset += 1;
 
-        $num = unpack('C', $num);
+        $num = \unpack('C', $num);
 
         return $num[1];
     }
@@ -248,7 +248,7 @@ class BufferUnpacker
         $num = $this->buffer[$this->offset].$this->buffer[$this->offset + 1];
         $this->offset += 2;
 
-        $num = unpack('n', $num);
+        $num = \unpack('n', $num);
 
         return $num[1];
     }
@@ -257,10 +257,10 @@ class BufferUnpacker
     {
         $this->ensureLength(4);
 
-        $num = substr($this->buffer, $this->offset, 4);
+        $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
 
-        $num = unpack('N', $num);
+        $num = \unpack('N', $num);
 
         return $num[1];
     }
@@ -269,12 +269,12 @@ class BufferUnpacker
     {
         $this->ensureLength(8);
 
-        $num = substr($this->buffer, $this->offset, 8);
+        $num = \substr($this->buffer, $this->offset, 8);
         $this->offset += 8;
 
-        //$num = unpack('J', $num);
+        //$num = \unpack('J', $num);
 
-        $set = unpack('N2', $num);
+        $set = \unpack('N2', $num);
         $value = $set[1] << 32 | $set[2];
 
         // PHP does not support unsigned integers.
@@ -291,7 +291,7 @@ class BufferUnpacker
         $num = $this->buffer[$this->offset];
         $this->offset += 1;
 
-        $num = unpack('c', $num);
+        $num = \unpack('c', $num);
 
         return $num[1];
     }
@@ -303,7 +303,7 @@ class BufferUnpacker
         $num = $this->buffer[$this->offset].$this->buffer[$this->offset + 1];
         $this->offset += 2;
 
-        $num = unpack('s', strrev($num));
+        $num = \unpack('s', \strrev($num));
 
         return $num[1];
     }
@@ -312,10 +312,10 @@ class BufferUnpacker
     {
         $this->ensureLength(4);
 
-        $num = substr($this->buffer, $this->offset, 4);
+        $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
 
-        $num = unpack('i', strrev($num));
+        $num = \unpack('i', \strrev($num));
 
         return $num[1];
     }
@@ -324,10 +324,10 @@ class BufferUnpacker
     {
         $this->ensureLength(8);
 
-        $num = substr($this->buffer, $this->offset, 8);
+        $num = \substr($this->buffer, $this->offset, 8);
         $this->offset += 8;
 
-        $set = unpack('N2', $num);
+        $set = \unpack('N2', $num);
 
         return $set[1] << 32 | $set[2];
     }
@@ -336,10 +336,10 @@ class BufferUnpacker
     {
         $this->ensureLength(4);
 
-        $num = substr($this->buffer, $this->offset, 4);
+        $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
 
-        $num = unpack('f', strrev($num));
+        $num = \unpack('f', \strrev($num));
 
         return $num[1];
     }
@@ -348,10 +348,10 @@ class BufferUnpacker
     {
         $this->ensureLength(8);
 
-        $num = substr($this->buffer, $this->offset, 8);
+        $num = \substr($this->buffer, $this->offset, 8);
         $this->offset += 8;
 
-        $num = unpack('d', strrev($num));
+        $num = \unpack('d', \strrev($num));
 
         return $num[1];
     }
@@ -364,7 +364,7 @@ class BufferUnpacker
 
         $this->ensureLength($length);
 
-        $str = substr($this->buffer, $this->offset, $length);
+        $str = \substr($this->buffer, $this->offset, $length);
         $this->offset += $length;
 
         return $str;
@@ -400,7 +400,7 @@ class BufferUnpacker
         $this->ensureLength($length);
 
         $type = $this->unpackI8();
-        $data = substr($this->buffer, $this->offset, $length);
+        $data = \substr($this->buffer, $this->offset, $length);
 
         if ($this->transformers && $transformer = $this->transformers->find($type)) {
             return $transformer->reverseTransform($this->unpack());
@@ -414,14 +414,14 @@ class BufferUnpacker
     private function ensureLength($length)
     {
         if (!isset($this->buffer[$this->offset + $length - 1])) {
-            throw new InsufficientDataException($length, strlen($this->buffer) - $this->offset);
+            throw new InsufficientDataException($length, \strlen($this->buffer) - $this->offset);
         }
     }
 
     private function handleIntOverflow($value)
     {
         if (self::INT_AS_STR === $this->intOverflowMode) {
-            return sprintf('%u', $value);
+            return \sprintf('%u', $value);
         }
         if (self::INT_AS_GMP === $this->intOverflowMode) {
             return gmp_init(sprintf('%u', $value));
