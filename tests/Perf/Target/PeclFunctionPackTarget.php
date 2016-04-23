@@ -28,7 +28,7 @@ class PeclFunctionPackTarget implements Target
      */
     public function sanitize(Test $test)
     {
-        if ($test->getPacked() !== msgpack_pack($test->getRaw())) {
+        if ($test->getPacked() !== \msgpack_pack($test->getRaw())) {
             throw new \UnexpectedValueException('$packed !== msgpack_pack($raw)');
         }
     }
@@ -38,7 +38,7 @@ class PeclFunctionPackTarget implements Target
      */
     public function perform(Test $test)
     {
-        msgpack_pack($test->getRaw());
+        \msgpack_pack($test->getRaw());
     }
 
     /**
