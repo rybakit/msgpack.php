@@ -42,18 +42,18 @@ class Packer
         $type = \gettype($value);
 
         switch ($type) {
-            case 'array':
-                return \array_values($value) === $value ? $this->packArray($value) : $this->packMap($value);
-            case 'string':
-                return \preg_match('//u', $value) ? $this->packStr($value) : $this->packBin($value);
-            case 'integer':
-                return $this->packInt($value);
-            case 'NULL':
-                return $this->packNil();
-            case 'boolean':
-                return $this->packBool($value);
-            case 'double':
-                return $this->packDouble($value);
+            case 'array': return \array_values($value) === $value
+                ? $this->packArray($value)
+                : $this->packMap($value);
+
+            case 'string': return \preg_match('//u', $value)
+                ? $this->packStr($value)
+                : $this->packBin($value);
+
+            case 'integer': return $this->packInt($value);
+            case 'NULL': return $this->packNil();
+            case 'boolean': return $this->packBool($value);
+            case 'double': return $this->packDouble($value);
         }
 
         if ($value instanceof Ext) {
