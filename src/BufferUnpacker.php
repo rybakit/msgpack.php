@@ -75,12 +75,12 @@ class BufferUnpacker
      */
     public function setIntOverflowMode($intOverflowMode)
     {
-        if (!in_array($intOverflowMode, [
+        if (!\in_array($intOverflowMode, [
             self::INT_AS_EXCEPTION,
             self::INT_AS_STR,
             self::INT_AS_GMP,
         ], true)) {
-            throw new \InvalidArgumentException(sprintf('Invalid integer overflow mode: %s.', $intOverflowMode));
+            throw new \InvalidArgumentException(\sprintf('Invalid integer overflow mode: %s.', $intOverflowMode));
         }
 
         $this->intOverflowMode = $intOverflowMode;
@@ -226,7 +226,7 @@ class BufferUnpacker
             case 0xc9: return $this->unpackExt($this->unpackU32());
         }
 
-        throw new UnpackingFailedException(sprintf('Unknown code: 0x%x.', $c));
+        throw new UnpackingFailedException(\sprintf('Unknown code: 0x%x.', $c));
     }
 
     private function unpackU8()
@@ -424,7 +424,7 @@ class BufferUnpacker
             return \sprintf('%u', $value);
         }
         if (self::INT_AS_GMP === $this->intOverflowMode) {
-            return gmp_init(sprintf('%u', $value));
+            return \gmp_init(\sprintf('%u', $value));
         }
 
         throw new IntegerOverflowException($value);
