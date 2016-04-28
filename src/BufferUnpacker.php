@@ -107,13 +107,13 @@ class BufferUnpacker
     }
 
     /**
-     * @param string|null $buffer
+     * @param string $buffer
      *
      * @return $this
      */
-    public function reset($buffer = null)
+    public function reset($buffer = '')
     {
-        $this->buffer = (string) $buffer;
+        $this->buffer = $buffer;
         $this->offset = 0;
 
         return $this;
@@ -137,7 +137,7 @@ class BufferUnpacker
         }
 
         if ($this->offset) {
-            $this->buffer = (string) \substr($this->buffer, $this->offset);
+            $this->buffer = isset($this->buffer[$this->offset]) ? \substr($this->buffer, $this->offset) : '';
             $this->offset = 0;
         }
 
@@ -187,6 +187,7 @@ class BufferUnpacker
             case 0xc5: return $this->unpackStr($this->unpackU16());
             case 0xc6: return $this->unpackStr($this->unpackU32());
 
+            // MP_FLOAT
             case 0xca: return $this->unpackFloat();
             case 0xcb: return $this->unpackDouble();
 

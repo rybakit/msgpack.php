@@ -124,11 +124,8 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->unpacker->append($packed[1]);
         $this->assertSame([], $this->unpacker->tryUnpack());
 
-        $this->unpacker->append($packed[2]);
+        $this->unpacker->append($packed[2].$packed[3]);
         $this->assertSame([$foo], $this->unpacker->tryUnpack());
-
-        $this->unpacker->append($packed[3]);
-        $this->assertSame([], $this->unpacker->tryUnpack());
 
         $this->unpacker->append($packed[4].$packed[5]);
         $this->assertSame([], $this->unpacker->tryUnpack());
