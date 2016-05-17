@@ -17,6 +17,24 @@ use MessagePack\TypeTransformer\Collection;
 class Packer
 {
     /**
+     * @var string
+     */
+    private static $regex = '/(
+        [\xC0-\xC1] # Invalid UTF-8 Bytes
+        | [\xF5-\xFF] # Invalid UTF-8 Bytes
+        | \xE0[\x80-\x9F] # Overlong encoding of prior code point
+        | \xF0[\x80-\x8F] # Overlong encoding of prior code point
+        | [\xC2-\xDF](?![\x80-\xBF]) # Invalid UTF-8 Sequence Start
+        | [\xE0-\xEF](?![\x80-\xBF]{2}) # Invalid UTF-8 Sequence Start
+        | [\xF0-\xF4](?![\x80-\xBF]{3}) # Invalid UTF-8 Sequence Start
+        | (?<=[\x0-\x7F\xF5-\xFF])[\x80-\xBF] # Invalid UTF-8 Sequence Middle
+        | (?<![\xC2-\xDF]|[\xE0-\xEF]|[\xE0-\xEF][\x80-\xBF]|[\xF0-\xF4]|[\xF0-\xF4][\x80-\xBF]|[\xF0-\xF4][\x80-\xBF]{2})[\x80-\xBF] # Overlong Sequence
+        | (?<=[\xE0-\xEF])[\x80-\xBF](?![\x80-\xBF]) # Short 3 byte sequence
+        | (?<=[\xF0-\xF4])[\x80-\xBF](?![\x80-\xBF]{2}) # Short 4 byte sequence
+        | (?<=[\xF0-\xF4][\x80-\xBF])[\x80-\xBF](?![\x80-\xBF]) # Short 4 byte sequence (2)
+    )/x';
+
+    /**
      * @var Collection
      */
     private $transformers;
@@ -46,7 +64,7 @@ class Packer
                 ? $this->packArray($value)
                 : $this->packMap($value);
 
-            case 'string': return \preg_match('//u', $value)
+            case 'string': return \preg_match(self::$regex, $value)
                 ? $this->packStr($value)
                 : $this->packBin($value);
 
