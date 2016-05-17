@@ -19,7 +19,7 @@ class Packer
     /**
      * @var string
      */
-    private static $regex = '/(
+    private static $invalidUtf8Regex = '/(
         [\xC0-\xC1] # Invalid UTF-8 Bytes
         | [\xF5-\xFF] # Invalid UTF-8 Bytes
         | \xE0[\x80-\x9F] # Overlong encoding of prior code point
@@ -64,9 +64,9 @@ class Packer
                 ? $this->packArray($value)
                 : $this->packMap($value);
 
-            case 'string': return \preg_match(self::$regex, $value)
-                ? $this->packStr($value)
-                : $this->packBin($value);
+            case 'string': return \preg_match(self::$invalidUtf8Regex, $value)
+                ? $this->packBin($value)
+                : $this->packStr($value);
 
             case 'integer': return $this->packInt($value);
             case 'NULL': return $this->packNil();
