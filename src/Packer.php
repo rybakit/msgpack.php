@@ -16,10 +16,7 @@ use MessagePack\TypeTransformer\Collection;
 
 class Packer
 {
-    /**
-     * @var string
-     */
-    private static $invalidUtf8Regex = '/(
+    const NON_UTF8_REGEX = '/(
         [\xC0-\xC1] # Invalid UTF-8 Bytes
         | [\xF5-\xFF] # Invalid UTF-8 Bytes
         | \xE0[\x80-\x9F] # Overlong encoding of prior code point
@@ -64,7 +61,7 @@ class Packer
                 ? $this->packArray($value)
                 : $this->packMap($value);
 
-            case 'string': return \preg_match(self::$invalidUtf8Regex, $value)
+            case 'string': return \preg_match(self::NON_UTF8_REGEX, $value)
                 ? $this->packBin($value)
                 : $this->packStr($value);
 
