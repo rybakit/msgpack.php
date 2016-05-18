@@ -234,10 +234,8 @@ class BufferUnpacker
     {
         $this->ensureLength(1);
 
-        $num = $this->buffer[$this->offset];
+        $num = \unpack("@$this->offset/C", $this->buffer);
         $this->offset += 1;
-
-        $num = \unpack('C', $num);
 
         return $num[1];
     }
@@ -246,10 +244,8 @@ class BufferUnpacker
     {
         $this->ensureLength(2);
 
-        $num = $this->buffer[$this->offset].$this->buffer[$this->offset + 1];
+        $num = \unpack("@$this->offset/n", $this->buffer);
         $this->offset += 2;
-
-        $num = \unpack('n', $num);
 
         return $num[1];
     }
@@ -258,10 +254,8 @@ class BufferUnpacker
     {
         $this->ensureLength(4);
 
-        $num = \substr($this->buffer, $this->offset, 4);
+        $num = \unpack("@$this->offset/N", $this->buffer);
         $this->offset += 4;
-
-        $num = \unpack('N', $num);
 
         return $num[1];
     }
@@ -270,12 +264,10 @@ class BufferUnpacker
     {
         $this->ensureLength(8);
 
-        $num = \substr($this->buffer, $this->offset, 8);
+        //$num = \unpack("@$this->offset/J", $this->buffer);
+        $set = \unpack("@$this->offset/N2", $this->buffer);
         $this->offset += 8;
 
-        //$num = \unpack('J', $num);
-
-        $set = \unpack('N2', $num);
         $value = $set[1] << 32 | $set[2];
 
         // PHP does not support unsigned integers.
@@ -289,10 +281,8 @@ class BufferUnpacker
     {
         $this->ensureLength(1);
 
-        $num = $this->buffer[$this->offset];
+        $num = \unpack("@$this->offset/c", $this->buffer);
         $this->offset += 1;
-
-        $num = \unpack('c', $num);
 
         return $num[1];
     }
@@ -325,10 +315,8 @@ class BufferUnpacker
     {
         $this->ensureLength(8);
 
-        $num = \substr($this->buffer, $this->offset, 8);
+        $set = \unpack("@$this->offset/N2", $this->buffer);
         $this->offset += 8;
-
-        $set = \unpack('N2', $num);
 
         return $set[1] << 32 | $set[2];
     }
