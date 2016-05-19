@@ -204,12 +204,12 @@ class DateTimeTransformer implements TypeTransformer
 
     public function transform($value)
     {
-        return $value->getTimestamp();
+        return $value->format(\DateTime::RFC3339);
     }
 
-    public function reverseTransform($timestamp)
+    public function reverseTransform($data)
     {
-        return new \DateTime('@'.$timestamp);
+        return new \DateTime($data);
     }
 }
 ```
