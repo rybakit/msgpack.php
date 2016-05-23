@@ -237,9 +237,7 @@ class BufferUnpacker
         $num = $this->buffer[$this->offset];
         $this->offset += 1;
 
-        $num = \unpack('C', $num);
-
-        return $num[1];
+        return \ord($num);
     }
 
     private function unpackU16()
@@ -289,12 +287,14 @@ class BufferUnpacker
     {
         $this->ensureLength(1);
 
-        $num = $this->buffer[$this->offset];
+        $num = \ord($this->buffer[$this->offset]);
         $this->offset += 1;
 
-        $num = \unpack('c', $num);
+        if ($num & 128) {
+            return $num - 256;
+        }
 
-        return $num[1];
+        return $num;
     }
 
     private function unpackI16()
