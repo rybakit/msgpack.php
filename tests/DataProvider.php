@@ -125,9 +125,9 @@ class DataProvider
             ['32-bit float #1', 0.0, "\xca"."\x00\x00\x00\x00"],
             ['32-bit float #2', 2.5, "\xca"."\x40\x20\x00\x00"],
 
-            ['fix map #1', [], "\x80"],
-            ['fix map #2', [0 => null], "\x81\xc2\xc0"],
-            ['fix map #3', [1 => null], "\x81\xc3\xc0"],
+            ['fix map #5', [], "\x80"],
+            ['fix map #6', [0 => null], "\x81\xc2\xc0"],
+            ['fix map #7', [1 => null], "\x81\xc3\xc0"],
 
             ['64-bit uint #3', 0, "\xcf"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
         ]);
