@@ -305,7 +305,7 @@ class BufferUnpacker
         $this->offset += 2;
 
         if ($hi > 0x7f) {
-            return -(0x010000 - (($hi << 8) | $lo));
+            return -(0x010000 - ($hi << 8 | $lo));
         }
 
         return $hi << 8 | $lo;
