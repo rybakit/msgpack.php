@@ -154,7 +154,7 @@ class BufferUnpacker
         $this->ensureLength(1);
 
         $c = \ord($this->buffer[$this->offset]);
-        $this->offset += 1;
+        ++$this->offset;
 
         // fixint
         if ($c <= 0x7f) {
@@ -235,7 +235,7 @@ class BufferUnpacker
         $this->ensureLength(1);
 
         $num = $this->buffer[$this->offset];
-        $this->offset += 1;
+        ++$this->offset;
 
         return \ord($num);
     }
@@ -287,7 +287,7 @@ class BufferUnpacker
         $this->ensureLength(1);
 
         $num = \ord($this->buffer[$this->offset]);
-        $this->offset += 1;
+        ++$this->offset;
 
         if ($num > 0x7f) {
             return $num - 256;
