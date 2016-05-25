@@ -305,7 +305,7 @@ class BufferUnpacker
         $this->offset += 2;
 
         if ($hi > 0x7f) {
-            return - (0x010000 - (($hi << 8) | $lo));
+            return -(0x010000 - (($hi << 8) | $lo));
         }
 
         return $hi << 8 | $lo;
@@ -377,7 +377,7 @@ class BufferUnpacker
     {
         $array = [];
 
-        for ($i = $size; $i; $i--) {
+        for ($i = $size; $i; --$i) {
             $array[] = $this->unpack();
         }
 
@@ -388,7 +388,7 @@ class BufferUnpacker
     {
         $map = [];
 
-        for ($i = $size; $i; $i--) {
+        for ($i = $size; $i; --$i) {
             $key = $this->unpack();
             $value = $this->unpack();
 
