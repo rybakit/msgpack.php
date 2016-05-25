@@ -122,6 +122,11 @@ class DataProvider
     public static function provideUnpackData()
     {
         return array_merge(self::provideData(), [
+            ['8-bit int #4', 0x7f, "\xd0\x7f"],
+            ['16-bit int #4', 0x7fff, "\xd1\x7f\xff"],
+            ['32-bit int #4', 0x7fffffff, "\xd2\x7f\xff\xff\xff"],
+            ['64-bit int #4', 0x7fffffffffffffff, "\xd3"."\x7f\xff\xff\xff"."\xff\xff\xff\xff"],
+
             ['32-bit float #1', 0.0, "\xca"."\x00\x00\x00\x00"],
             ['32-bit float #2', 2.5, "\xca"."\x40\x20\x00\x00"],
 
