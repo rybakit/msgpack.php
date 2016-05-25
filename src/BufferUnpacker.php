@@ -244,12 +244,11 @@ class BufferUnpacker
     {
         $this->ensureLength(2);
 
-        $num = $this->buffer[$this->offset].$this->buffer[$this->offset + 1];
+        $hi = \ord($this->buffer[$this->offset]);
+        $lo = \ord($this->buffer[$this->offset + 1]);
         $this->offset += 2;
 
-        $num = \unpack('n', $num);
-
-        return $num[1];
+        return $hi << 8 | $lo;
     }
 
     private function unpackU32()
@@ -290,7 +289,7 @@ class BufferUnpacker
         $num = \ord($this->buffer[$this->offset]);
         $this->offset += 1;
 
-        if ($num & 128) {
+        if ($num > 0x7f) {
             return $num - 256;
         }
 
@@ -301,12 +300,15 @@ class BufferUnpacker
     {
         $this->ensureLength(2);
 
-        $num = $this->buffer[$this->offset].$this->buffer[$this->offset + 1];
+        $hi = \ord($this->buffer[$this->offset]);
+        $lo = \ord($this->buffer[$this->offset + 1]);
         $this->offset += 2;
 
-        $num = \unpack('s', \strrev($num));
+        if ($hi > 0x7f) {
+            return - (0x010000 - (($hi << 8) | $lo));
+        }
 
-        return $num[1];
+        return $hi << 8 | $lo;
     }
 
     private function unpackI32()
