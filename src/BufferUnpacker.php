@@ -244,23 +244,24 @@ class BufferUnpacker
     {
         $this->ensureLength(2);
 
-        $hi = \ord($this->buffer[$this->offset]);
-        $lo = \ord($this->buffer[$this->offset + 1]);
+        $b1 = \ord($this->buffer[$this->offset]);
+        $b2 = \ord($this->buffer[$this->offset + 1]);
         $this->offset += 2;
 
-        return $hi << 8 | $lo;
+        return $b1 << 8 | $b2;
     }
 
     private function unpackU32()
     {
         $this->ensureLength(4);
 
-        $num = \substr($this->buffer, $this->offset, 4);
+        $b1 = \ord($this->buffer[$this->offset]);
+        $b2 = \ord($this->buffer[$this->offset + 1]);
+        $b3 = \ord($this->buffer[$this->offset + 2]);
+        $b4 = \ord($this->buffer[$this->offset + 3]);
         $this->offset += 4;
 
-        $num = \unpack('N', $num);
-
-        return $num[1];
+        return $b1 << 24 | $b2 << 16 | $b3 << 8 | $b4;
     }
 
     private function unpackU64()
@@ -300,27 +301,32 @@ class BufferUnpacker
     {
         $this->ensureLength(2);
 
-        $hi = \ord($this->buffer[$this->offset]);
-        $lo = \ord($this->buffer[$this->offset + 1]);
+        $b1 = \ord($this->buffer[$this->offset]);
+        $b2 = \ord($this->buffer[$this->offset + 1]);
         $this->offset += 2;
 
-        if ($hi > 0x7f) {
-            return -(0x010000 - ($hi << 8 | $lo));
+        if ($b1 > 0x7f) {
+            return -(0x010000 - ($b1 << 8 | $b2));
         }
 
-        return $hi << 8 | $lo;
+        return $b1 << 8 | $b2;
     }
 
     private function unpackI32()
     {
         $this->ensureLength(4);
 
-        $num = \substr($this->buffer, $this->offset, 4);
+        $b1 = \ord($this->buffer[$this->offset]);
+        $b2 = \ord($this->buffer[$this->offset + 1]);
+        $b3 = \ord($this->buffer[$this->offset + 2]);
+        $b4 = \ord($this->buffer[$this->offset + 3]);
         $this->offset += 4;
 
-        $num = \unpack('i', \strrev($num));
+        if ($b1 > 0x7f) {
+            return -(0x0100000000 - ($b1 << 24 | $b2 << 16 | $b3 << 8 | $b4));
+        }
 
-        return $num[1];
+        return $b1 << 24 | $b2 << 16 | $b3 << 8 | $b4;
     }
 
     private function unpackI64()
