@@ -384,7 +384,7 @@ You may change default benchmark settings by defining the following environment 
 For example:
 
 ```sh
-$ export MP_BENCH_TARGET=pure_p
+$ export MP_BENCH_TARGETS=pure_p
 $ export MP_BENCH_ITERATIONS=1000000
 $ export MP_BENCH_ROUNDS=5
 $ export MP_BENCH_TESTS='complex array, complex map'
