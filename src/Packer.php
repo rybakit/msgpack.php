@@ -54,9 +54,7 @@ class Packer
 
     public function pack($value)
     {
-        $type = \gettype($value);
-
-        switch ($type) {
+        switch (\gettype($value)) {
             case 'array': return \array_values($value) === $value
                 ? $this->packArray($value)
                 : $this->packMap($value);
