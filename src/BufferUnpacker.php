@@ -376,7 +376,6 @@ class BufferUnpacker
     private function unpackArray($size)
     {
         $array = [];
-
         for ($i = $size; $i; --$i) {
             $array[] = $this->unpack();
         }
@@ -387,12 +386,8 @@ class BufferUnpacker
     private function unpackMap($size)
     {
         $map = [];
-
         for ($i = $size; $i; --$i) {
-            $key = $this->unpack();
-            $value = $this->unpack();
-
-            $map[$key] = $value;
+            $map[$this->unpack()] = $this->unpack();
         }
 
         return $map;
