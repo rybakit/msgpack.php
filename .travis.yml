@@ -26,9 +26,7 @@ script:
   - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack -e PHPUNIT_OPTS="$PHPUNIT_OPTS" msgpack
 
 after_script:
-  - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack bash -c "
-      if [[ -f coverage.clover ]]; then
-        curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
-        php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
-      fi
-    "
+  - if [[ -f coverage.clover ]]; then
+      curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
+      php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
+    fi
