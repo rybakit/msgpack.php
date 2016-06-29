@@ -27,7 +27,7 @@ class UnpackerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->bufferUnpacker = $this->getMock('MessagePack\BufferUnpacker');
+        $this->bufferUnpacker = $this->getMockBuilder('MessagePack\BufferUnpacker')->getMock();
         $this->unpacker = new Unpacker($this->bufferUnpacker);
     }
 

@@ -55,7 +55,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
 
     public function testSetGetTransformers()
     {
-        $coll = $this->getMock('MessagePack\TypeTransformer\Collection');
+        $coll = $this->getMockBuilder('MessagePack\TypeTransformer\Collection')->getMock();
 
         $this->assertNull($this->packer->getTransformers());
         $this->packer->setTransformers($coll);
