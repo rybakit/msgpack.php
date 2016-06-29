@@ -14,7 +14,7 @@ use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\DurationBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\IterationBenchmark;
-use MessagePack\Tests\Perf\Filter\NameFilter;
+use MessagePack\Tests\Perf\Filter\ListFilter;
 use MessagePack\Tests\Perf\Filter\RegexpFilter;
 use MessagePack\Tests\Perf\Runner;
 use MessagePack\Tests\Perf\Target\BufferUnpackerTarget;
@@ -43,7 +43,7 @@ if ($rounds) {
     $benchmark = new AverageableBenchmark($benchmark, $rounds);
 }
 if ($testNames) {
-    $filter = '/' === $testNames[0] ? new RegexpFilter($testNames) : new NameFilter(explode(',', $testNames));
+    $filter = '/' === $testNames[0] ? new RegexpFilter($testNames) : new ListFilter(explode(',', $testNames));
     $benchmark = new FilterableBenchmark($benchmark, $filter);
 }
 

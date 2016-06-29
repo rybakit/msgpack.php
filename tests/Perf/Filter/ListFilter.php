@@ -13,14 +13,14 @@ namespace MessagePack\Tests\Perf\Filter;
 
 use MessagePack\Tests\Perf\Test;
 
-class NameFilter implements Filter
+class ListFilter implements Filter
 {
     private $whitelist = [];
     private $blacklist = [];
 
-    public function __construct(array $names)
+    public function __construct(array $list)
     {
-        foreach ($names as $name) {
+        foreach ($list as $name) {
             $name = trim($name);
 
             if ('-' !== $name[0]) {
