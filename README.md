@@ -387,7 +387,10 @@ For example:
 $ export MP_BENCH_TARGETS=pure_p
 $ export MP_BENCH_ITERATIONS=1000000
 $ export MP_BENCH_ROUNDS=5
+$ # a comma separated list of test names
 $ export MP_BENCH_TESTS='complex array, complex map'
+$ # or an regexp
+$ # export MP_BENCH_TESTS='/complex (array|map)/'
 $ php tests/bench.php
 ```
 
