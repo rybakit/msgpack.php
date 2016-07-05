@@ -398,12 +398,12 @@ class BufferUnpacker
         $this->ensureLength($length);
 
         $type = $this->unpackI8();
-        $data = \substr($this->buffer, $this->offset, $length);
 
         if ($this->transformers && $transformer = $this->transformers->find($type)) {
             return $transformer->reverseTransform($this->unpack());
         }
 
+        $data = \substr($this->buffer, $this->offset, $length);
         $this->offset += $length;
 
         return new Ext($type, $data);
