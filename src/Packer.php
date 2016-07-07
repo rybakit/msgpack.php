@@ -100,7 +100,7 @@ class Packer
             return \chr(0x90 | $size);
         }
         if ($size <= 0xffff) {
-            return \pack('Cn', 0xdc, $size);
+            return "\xdc".\chr($size >> 8).\chr($size);
         }
 
         return \pack('CN', 0xdd, $size);
@@ -125,7 +125,7 @@ class Packer
             return \chr(0x80 | $size);
         }
         if ($size <= 0xffff) {
-            return \pack('Cn', 0xde, $size);
+            return "\xde".\chr($size >> 8).\chr($size);
         }
 
         return \pack('CN', 0xdf, $size);
@@ -139,10 +139,10 @@ class Packer
             return \chr(0xa0 | $len).$str;
         }
         if ($len <= 0xff) {
-            return \pack('CC', 0xd9, $len).$str;
+            return "\xd9".\chr($len).$str;
         }
         if ($len <= 0xffff) {
-            return \pack('Cn', 0xda, $len).$str;
+            return "\xda".\chr($len >> 8).\chr($len).$str;
         }
 
         return \pack('CN', 0xdb, $len).$str;
@@ -153,10 +153,10 @@ class Packer
         $len = \strlen($str);
 
         if ($len <= 0xff) {
-            return \pack('CC', 0xc4, $len).$str;
+            return "\xc4".\chr($len).$str;
         }
         if ($len <= 0xffff) {
-            return \pack('Cn', 0xc5, $len).$str;
+            return "\xc5".\chr($len >> 8).\chr($len).$str;
         }
 
         return \pack('CN', 0xc6, $len).$str;
@@ -169,15 +169,15 @@ class Packer
         $len = \strlen($data);
 
         switch ($len) {
-            case 1: return \pack('CC', 0xd4, $type).$data;
-            case 2: return \pack('CC', 0xd5, $type).$data;
-            case 4: return \pack('CC', 0xd6, $type).$data;
-            case 8: return \pack('CC', 0xd7, $type).$data;
-            case 16: return \pack('CC', 0xd8, $type).$data;
+            case 1: return "\xd4".\chr($type).$data;
+            case 2: return "\xd5".\chr($type).$data;
+            case 4: return "\xd6".\chr($type).$data;
+            case 8: return "\xd7".\chr($type).$data;
+            case 16: return "\xd8".\chr($type).$data;
         }
 
         if ($len <= 0xff) {
-            return \pack('CCC', 0xc7, $len, $type).$data;
+            return "\xc7".\chr($len).\chr($type).$data;
         }
         if ($len <= 0xffff) {
             return \pack('CnC', 0xc8, $len, $type).$data;
@@ -208,10 +208,10 @@ class Packer
                 return \chr($num);
             }
             if ($num <= 0xff) {
-                return \pack('CC', 0xcc, $num);
+                return "\xcc".\chr($num);
             }
             if ($num <= 0xffff) {
-                return \pack('Cn', 0xcd, $num);
+                return "\xcd".\chr($num >> 8).\chr($num);
             }
             if ($num <= 0xffffffff) {
                 return \pack('CN', 0xce, $num);
@@ -224,10 +224,10 @@ class Packer
             return \chr(0xe0 | $num);
         }
         if ($num >= -0x80) {
-            return \pack('CC', 0xd0, $num);
+            return "\xd0".\chr($num);
         }
         if ($num >= -0x8000) {
-            return \pack('Cn', 0xd1, $num);
+            return "\xd1".\chr($num >> 8).\chr($num);
         }
         if ($num >= -0x80000000) {
             return \pack('CN', 0xd2, $num);
