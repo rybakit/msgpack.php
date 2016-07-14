@@ -54,21 +54,28 @@ class Packer
 
     public function pack($value)
     {
-        switch (\gettype($value)) {
-            case 'array': return \array_values($value) === $value
+        if (\is_array($value)) {
+            return \array_values($value) === $value
                 ? $this->packArray($value)
                 : $this->packMap($value);
-
-            case 'string': return \preg_match(self::NON_UTF8_REGEX, $value)
+        }
+        if (\is_string($value)) {
+            return \preg_match(self::NON_UTF8_REGEX, $value)
                 ? $this->packBin($value)
                 : $this->packStr($value);
-
-            case 'integer': return $this->packInt($value);
-            case 'NULL': return $this->packNil();
-            case 'boolean': return $this->packBool($value);
-            case 'double': return $this->packDouble($value);
         }
-
+        if (\is_int($value)) {
+            return $this->packInt($value);
+        }
+        if (null === $value) {
+            return $this->packNil();
+        }
+        if (\is_bool($value)) {
+            return $this->packBool($value);
+        }
+        if (\is_double($value)) {
+            return $this->packDouble($value);
+        }
         if ($value instanceof Ext) {
             return $this->packExt($value);
         }
