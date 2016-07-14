@@ -54,18 +54,18 @@ class Packer
 
     public function pack($value)
     {
-        if (\is_array($value)) {
-            return \array_values($value) === $value
-                ? $this->packArray($value)
-                : $this->packMap($value);
+        if (\is_int($value)) {
+            return $this->packInt($value);
         }
         if (\is_string($value)) {
             return \preg_match(self::NON_UTF8_REGEX, $value)
                 ? $this->packBin($value)
                 : $this->packStr($value);
         }
-        if (\is_int($value)) {
-            return $this->packInt($value);
+        if (\is_array($value)) {
+            return \array_values($value) === $value
+                ? $this->packArray($value)
+                : $this->packMap($value);
         }
         if (null === $value) {
             return $this->packNil();
