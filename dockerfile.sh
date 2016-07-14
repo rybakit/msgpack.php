@@ -14,7 +14,7 @@ fi
 
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    git clone https://github.com/xdebug/xdebug.git /usr/src/php/ext/xdebug"
-    RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install xdebug"
+    RUN_CMDS="$RUN_CMDS && \\\\\n    echo xdebug >> /usr/src/php-available-exts && docker-php-ext-install xdebug"
 fi
 
 echo -e "

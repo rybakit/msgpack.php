@@ -14,13 +14,8 @@ env:
   - PHP_RUNTIME='baptistedonaux/hhvm:3.12'
   - PHP_RUNTIME='baptistedonaux/hhvm:latest'
 
-before_install:
-  # https://github.com/travis-ci/travis-ci/issues/4778
-  # https://github.com/zuazo/kitchen-in-travis-native/issues/1#issuecomment-142230889
-  - sudo iptables -L DOCKER || (echo "DOCKER iptables chain missing"; sudo iptables -N DOCKER)
-
 install:
-  - ./dockerfile.sh | docker build -t msgpack -
+  - ./dockerfile.sh | tee /dev/tty | docker build -t msgpack -
 
 script:
   - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack -e PHPUNIT_OPTS="$PHPUNIT_OPTS" msgpack
