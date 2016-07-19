@@ -224,7 +224,7 @@ class Packer
                 return \pack('CN', 0xce, $num);
             }
 
-            return self::packU64(0xcf, $num);
+            return self::packUint64(0xcf, $num);
         }
 
         if ($num >= -0x20) {
@@ -240,10 +240,10 @@ class Packer
             return \pack('CN', 0xd2, $num);
         }
 
-        return self::packU64(0xd3, $num);
+        return self::packUint64(0xd3, $num);
     }
 
-    private static function packU64($code, $num)
+    private static function packUint64($code, $num)
     {
         $hi = ($num & 0xffffffff00000000) >> 32;
         $lo = $num & 0x00000000ffffffff;
