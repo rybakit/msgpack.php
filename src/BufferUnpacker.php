@@ -183,38 +183,38 @@ class BufferUnpacker
             case 0xc3: return true;
 
             // MP_BIN
-            case 0xc4: return $this->unpackStr($this->unpackU8());
-            case 0xc5: return $this->unpackStr($this->unpackU16());
-            case 0xc6: return $this->unpackStr($this->unpackU32());
+            case 0xc4: return $this->unpackStr($this->unpackUint8());
+            case 0xc5: return $this->unpackStr($this->unpackUint16());
+            case 0xc6: return $this->unpackStr($this->unpackUint32());
 
             // MP_FLOAT
-            case 0xca: return $this->unpackFloat();
-            case 0xcb: return $this->unpackDouble();
+            case 0xca: return $this->unpackFloat32();
+            case 0xcb: return $this->unpackFloat64();
 
             // MP_UINT
-            case 0xcc: return $this->unpackU8();
-            case 0xcd: return $this->unpackU16();
-            case 0xce: return $this->unpackU32();
-            case 0xcf: return $this->unpackU64();
+            case 0xcc: return $this->unpackUint8();
+            case 0xcd: return $this->unpackUint16();
+            case 0xce: return $this->unpackUint32();
+            case 0xcf: return $this->unpackUint64();
 
             // MP_INT
-            case 0xd0: return $this->unpackI8();
-            case 0xd1: return $this->unpackI16();
-            case 0xd2: return $this->unpackI32();
-            case 0xd3: return $this->unpackI64();
+            case 0xd0: return $this->unpackInt8();
+            case 0xd1: return $this->unpackInt16();
+            case 0xd2: return $this->unpackInt32();
+            case 0xd3: return $this->unpackInt64();
 
             // MP_STR
-            case 0xd9: return $this->unpackStr($this->unpackU8());
-            case 0xda: return $this->unpackStr($this->unpackU16());
-            case 0xdb: return $this->unpackStr($this->unpackU32());
+            case 0xd9: return $this->unpackStr($this->unpackUint8());
+            case 0xda: return $this->unpackStr($this->unpackUint16());
+            case 0xdb: return $this->unpackStr($this->unpackUint32());
 
             // MP_ARRAY
-            case 0xdc: return $this->unpackArray($this->unpackU16());
-            case 0xdd: return $this->unpackArray($this->unpackU32());
+            case 0xdc: return $this->unpackArray($this->unpackUint16());
+            case 0xdd: return $this->unpackArray($this->unpackUint32());
 
             // MP_MAP
-            case 0xde: return $this->unpackMap($this->unpackU16());
-            case 0xdf: return $this->unpackMap($this->unpackU32());
+            case 0xde: return $this->unpackMap($this->unpackUint16());
+            case 0xdf: return $this->unpackMap($this->unpackUint32());
 
             // MP_EXT
             case 0xd4: return $this->unpackExt(1);
@@ -222,15 +222,15 @@ class BufferUnpacker
             case 0xd6: return $this->unpackExt(4);
             case 0xd7: return $this->unpackExt(8);
             case 0xd8: return $this->unpackExt(16);
-            case 0xc7: return $this->unpackExt($this->unpackU8());
-            case 0xc8: return $this->unpackExt($this->unpackU16());
-            case 0xc9: return $this->unpackExt($this->unpackU32());
+            case 0xc7: return $this->unpackExt($this->unpackUint8());
+            case 0xc8: return $this->unpackExt($this->unpackUint16());
+            case 0xc9: return $this->unpackExt($this->unpackUint32());
         }
 
         throw new UnpackingFailedException(\sprintf('Unknown code: 0x%x.', $c));
     }
 
-    private function unpackU8()
+    private function unpackUint8()
     {
         $this->ensureLength(1);
 
@@ -240,7 +240,7 @@ class BufferUnpacker
         return \ord($num);
     }
 
-    private function unpackU16()
+    private function unpackUint16()
     {
         $this->ensureLength(2);
 
@@ -251,7 +251,7 @@ class BufferUnpacker
         return $hi << 8 | $lo;
     }
 
-    private function unpackU32()
+    private function unpackUint32()
     {
         $this->ensureLength(4);
 
@@ -263,7 +263,7 @@ class BufferUnpacker
         return $num[1];
     }
 
-    private function unpackU64()
+    private function unpackUint64()
     {
         $this->ensureLength(8);
 
@@ -282,7 +282,7 @@ class BufferUnpacker
         return ($value < 0) ? $this->handleIntOverflow($value) : $value;
     }
 
-    private function unpackI8()
+    private function unpackInt8()
     {
         $this->ensureLength(1);
 
@@ -296,7 +296,7 @@ class BufferUnpacker
         return $num;
     }
 
-    private function unpackI16()
+    private function unpackInt16()
     {
         $this->ensureLength(2);
 
@@ -311,7 +311,7 @@ class BufferUnpacker
         return $hi << 8 | $lo;
     }
 
-    private function unpackI32()
+    private function unpackInt32()
     {
         $this->ensureLength(4);
 
@@ -323,7 +323,7 @@ class BufferUnpacker
         return $num[1];
     }
 
-    private function unpackI64()
+    private function unpackInt64()
     {
         $this->ensureLength(8);
 
@@ -335,7 +335,7 @@ class BufferUnpacker
         return $set[1] << 32 | $set[2];
     }
 
-    private function unpackFloat()
+    private function unpackFloat32()
     {
         $this->ensureLength(4);
 
@@ -347,7 +347,7 @@ class BufferUnpacker
         return $num[1];
     }
 
-    private function unpackDouble()
+    private function unpackFloat64()
     {
         $this->ensureLength(8);
 
@@ -397,7 +397,7 @@ class BufferUnpacker
     {
         $this->ensureLength($length);
 
-        $type = $this->unpackI8();
+        $type = $this->unpackInt8();
 
         if ($this->transformers && $transformer = $this->transformers->find($type)) {
             return $transformer->reverseTransform($this->unpack());
