@@ -74,7 +74,7 @@ class Packer
             return $this->packBool($value);
         }
         if (\is_double($value)) {
-            return $this->packDouble($value);
+            return $this->packFloat($value);
         }
         if ($value instanceof Ext) {
             return $this->packExt($value);
@@ -203,7 +203,7 @@ class Packer
         return $val ? "\xc3" : "\xc2";
     }
 
-    public function packDouble($num)
+    public function packFloat($num)
     {
         return "\xcb".strrev(pack('d', $num));
     }

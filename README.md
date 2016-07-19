@@ -88,7 +88,7 @@ $packer->packBool(true);              // MP bool
 $packer->packArray([1, 2]);           // MP array
 $packer->packMap([1, 2]);             // MP map
 $packer->packExt(new Ext(1, "\xaa")); // MP ext
-$packer->packDouble(4.2);             // MP float
+$packer->packFloat(4.2);              // MP float
 $packer->packInt(42);                 // MP int
 $packer->packStr('foo');              // MP str
 $packer->packBin("\x80");             // MP bin
