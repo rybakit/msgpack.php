@@ -285,7 +285,7 @@ $ php tests/bench.php
 
 This command will output something like:
 
-```sh
+```
 Filter: MessagePack\Tests\Perf\Filter\ListFilter
 Rounds: 3
 Iterations: 100000
@@ -396,7 +396,7 @@ $ php tests/bench.php
 
 Another example, benchmarking both the library and [msgpack pecl extension](https://pecl.php.net/package/msgpack):
 
-```sh
+```
 $ MP_BENCH_TARGETS=pure_p,pure_u,pecl_p,pecl_u php tests/bench.php
 
 Filter: MessagePack\Tests\Perf\Filter\ListFilter
