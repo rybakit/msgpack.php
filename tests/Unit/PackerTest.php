@@ -53,6 +53,50 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    /**
+     * @dataProvider provideTypeDetectionModeData
+     */
+    public function testSetTypeDetectionMode($mode, $raw, $packed)
+    {
+        $this->packer->setTypeDetectionMode($mode);
+        $this->assertSame($packed, $this->packer->pack($raw));
+    }
+
+    public function provideTypeDetectionModeData()
+    {
+        return [
+            [Packer::FORCE_STR, "\x80", "\xa1\x80"],
+            [Packer::FORCE_BIN, 'a', "\xc4\x01\x61"],
+            [Packer::FORCE_ARR, [1 => 2], "\x91\x02"],
+            [Packer::FORCE_MAP, [0 => 1], "\x81\x00\x01"],
+            [Packer::FORCE_STR | Packer::FORCE_ARR, [1 => "\x80"], "\x91\xa1\x80"],
+            [Packer::FORCE_STR | Packer::FORCE_MAP, [0 => "\x80"], "\x81\x00\xa1\x80"],
+            [Packer::FORCE_BIN | Packer::FORCE_ARR, [1 => 'a'], "\x91\xc4\x01\x61"],
+            [Packer::FORCE_BIN | Packer::FORCE_MAP, [0 => 'a'], "\x81\x00\xc4\x01\x61"],
+        ];
+    }
+
+    /**
+     * @dataProvider provideInvalidTypeDetectionModeData
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid type detection mode.
+     */
+    public function testSetInvalidTypeDetectionMode($mode)
+    {
+        $this->packer->setTypeDetectionMode($mode);
+    }
+
+    public function provideInvalidTypeDetectionModeData()
+    {
+        return [
+            [-1],
+            [42],
+            [Packer::FORCE_STR | Packer::FORCE_BIN],
+            [Packer::FORCE_ARR | Packer::FORCE_MAP],
+            [Packer::FORCE_STR | Packer::FORCE_BIN | Packer::FORCE_ARR | Packer::FORCE_MAP],
+        ];
+    }
+
     public function testSetGetTransformers()
     {
         $coll = $this->getMockBuilder('MessagePack\TypeTransformer\Collection')->getMock();
