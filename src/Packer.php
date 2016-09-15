@@ -59,7 +59,7 @@ class Packer
      */
     public function setTypeDetectionMode($mode)
     {
-        if ($mode > 0b1010 || $mode < 0 | 0b11 === ($mode & 0b11)) {
+        if ($mode > 0b1010 || $mode < 0 || 0b11 === ($mode & 0b11)) {
             throw new \InvalidArgumentException('Invalid type detection mode.');
         }
 
