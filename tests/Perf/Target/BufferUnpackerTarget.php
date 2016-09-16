@@ -16,11 +16,11 @@ use MessagePack\Tests\Perf\Test;
 
 class BufferUnpackerTarget implements Target
 {
-    private $unpacker;
+    private $bufferUnpacker;
 
-    public function __construct(BufferUnpacker $unpacker = null)
+    public function __construct(BufferUnpacker $bufferUnpacker = null)
     {
-        $this->unpacker = new BufferUnpacker();
+        $this->bufferUnpacker = new BufferUnpacker();
     }
 
     /**
@@ -28,7 +28,7 @@ class BufferUnpackerTarget implements Target
      */
     public function getName()
     {
-        return get_class($this->unpacker);
+        return get_class($this->bufferUnpacker);
     }
 
     /**
@@ -43,8 +43,8 @@ class BufferUnpackerTarget implements Target
      */
     public function perform(Test $test)
     {
-        $this->unpacker->reset($test->getPacked());
-        $this->unpacker->unpack();
+        $this->bufferUnpacker->reset($test->getPacked());
+        $this->bufferUnpacker->unpack();
     }
 
     /**
