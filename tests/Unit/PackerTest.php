@@ -56,15 +56,28 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideTypeDetectionModeData
      */
+    public function testConstructorSetTypeDetectionMode($mode, $raw, $packed)
+    {
+        $this->assertSame($packed, (new Packer($mode))->pack($raw));
+    }
+
+    /**
+     * @dataProvider provideTypeDetectionModeData
+     */
     public function testSetTypeDetectionMode($mode, $raw, $packed)
     {
         $this->packer->setTypeDetectionMode($mode);
+        var_dump(bin2hex($this->packer->pack($raw)));
         $this->assertSame($packed, $this->packer->pack($raw));
     }
 
     public function provideTypeDetectionModeData()
     {
         return [
+            [0, "\x80", "\xc4\x01\x80"],
+            [0, 'a', "\xa1\x61"],
+            [0, [1 => 2], "\x81\x01\x02"],
+            [0, [0 => 1], "\x91\x01"],
             [Packer::FORCE_STR, "\x80", "\xa1\x80"],
             [Packer::FORCE_BIN, 'a', "\xc4\x01\x61"],
             [Packer::FORCE_ARR, [1 => 2], "\x91\x02"],
@@ -81,7 +94,17 @@ class PackerTest extends \PHPUnit_Framework_TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Invalid type detection mode.
      */
-    public function testSetInvalidTypeDetectionMode($mode)
+    public function testSetTypeDetectionModeThrowsError($mode)
+    {
+        $this->packer->setTypeDetectionMode($mode);
+    }
+
+    /**
+     * @dataProvider provideInvalidTypeDetectionModeData
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid type detection mode.
+     */
+    public function testConstructorThrowsErrorOnInvalidTypeDetectionMode($mode)
     {
         $this->packer->setTypeDetectionMode($mode);
     }
