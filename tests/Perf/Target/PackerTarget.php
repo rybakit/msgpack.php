@@ -16,10 +16,12 @@ use MessagePack\Tests\Perf\Test;
 
 class PackerTarget implements Target
 {
+    private $name;
     private $packer;
 
-    public function __construct(Packer $packer = null)
+    public function __construct($name = null, Packer $packer = null)
     {
+        $this->name = $name ?: get_class($this->packer);
         $this->packer = $packer ?: new Packer();
     }
 
@@ -28,7 +30,7 @@ class PackerTarget implements Target
      */
     public function getName()
     {
-        return get_class($this->packer);
+        return $this->name;
     }
 
     /**

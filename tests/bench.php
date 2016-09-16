@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use MessagePack\Packer;
 use MessagePack\Tests\DataProvider;
 use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\DurationBenchmark;
@@ -50,8 +51,11 @@ if ($testNames) {
 $targetFactories = [
     'pecl_p' => function () { return new PeclFunctionPackTarget(); },
     'pecl_u' => function () { return new PeclFunctionUnpackTarget(); },
-    'pure_p' => function () { return new PackerTarget(); },
-    'pure_u' => function () { return new BufferUnpackerTarget(); },
+    'pure_p' => function () { return new PackerTarget('Packer'); },
+    'pure_ps' => function () { return new PackerTarget('Packer (str)', new Packer(Packer::FORCE_STR)); },
+    'pure_pa' => function () { return new PackerTarget('Packer (arr)', new Packer(Packer::FORCE_ARR)); },
+    'pure_psa' => function () { return new PackerTarget('Packer (str|arr)', new Packer(Packer::FORCE_STR | Packer::FORCE_ARR)); },
+    'pure_u' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
 ];
 
 $targets = [];
