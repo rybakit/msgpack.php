@@ -32,7 +32,7 @@ if (extension_loaded('xdebug')) {
 
 set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
 
-$targetNames = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_u';
+$targetAliases = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_bu';
 $rounds = getenv('MP_BENCH_ROUNDS') ?: 3;
 $testNames = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
 
@@ -55,12 +55,12 @@ $targetFactories = [
     'pure_ps' => function () { return new PackerTarget('Packer (str)', new Packer(Packer::FORCE_STR)); },
     'pure_pa' => function () { return new PackerTarget('Packer (arr)', new Packer(Packer::FORCE_ARR)); },
     'pure_psa' => function () { return new PackerTarget('Packer (str|arr)', new Packer(Packer::FORCE_STR | Packer::FORCE_ARR)); },
-    'pure_u' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
+    'pure_bu' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
 ];
 
 $targets = [];
-foreach (explode(',', $targetNames) as $targetName) {
-    $targets[] = $targetFactories[trim($targetName)]();
+foreach (explode(',', $targetAliases) as $alias) {
+    $targets[] = $targetFactories[trim($alias)]();
 }
 
 $runner = new Runner(DataProvider::provideData());

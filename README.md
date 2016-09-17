@@ -376,7 +376,7 @@ Ignored                                0                           0
 
 You may change default benchmark settings by defining the following environment variables:
 
- * `MP_BENCH_TARGETS` (pure_p, pure_u, pecl_p, pecl_u)
+ * `MP_BENCH_TARGETS` (pure_p, pure_ps, pure_pa, pure_psa, pure_bu, pecl_p, pecl_u)
  * `MP_BENCH_ITERATIONS`/`MP_BENCH_DURATION`
  * `MP_BENCH_ROUNDS`
  * `MP_BENCH_TESTS`
@@ -397,7 +397,7 @@ $ php tests/bench.php
 Another example, benchmarking both the library and [msgpack pecl extension](https://pecl.php.net/package/msgpack):
 
 ```
-$ MP_BENCH_TARGETS=pure_p,pure_u,pecl_p,pecl_u php tests/bench.php
+$ MP_BENCH_TARGETS=pure_p,pure_bu,pecl_p,pecl_u php tests/bench.php
 
 Filter: MessagePack\Tests\Perf\Filter\ListFilter
 Rounds: 3
