@@ -67,7 +67,6 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     public function testSetTypeDetectionMode($mode, $raw, $packed)
     {
         $this->packer->setTypeDetectionMode($mode);
-        var_dump(bin2hex($this->packer->pack($raw)));
         $this->assertSame($packed, $this->packer->pack($raw));
     }
 

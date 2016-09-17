@@ -89,26 +89,28 @@ class Packer
             return $this->packInt($value);
         }
         if (\is_string($value)) {
+            if (!$this->strDetectionMode) {
+                return \preg_match(self::NON_UTF8_REGEX, $value)
+                    ? $this->packBin($value)
+                    : $this->packStr($value);
+            }
             if (self::FORCE_STR === $this->strDetectionMode) {
                 return $this->packStr($value);
             }
-            if (self::FORCE_BIN === $this->strDetectionMode) {
-                return $this->packBin($value);
-            }
-            return \preg_match(self::NON_UTF8_REGEX, $value)
-                ? $this->packBin($value)
-                : $this->packStr($value);
+
+            return $this->packBin($value);
         }
         if (\is_array($value)) {
+            if (!$this->arrDetectionMode) {
+                return \array_values($value) === $value
+                    ? $this->packArray($value)
+                    : $this->packMap($value);
+            }
             if (self::FORCE_ARR === $this->arrDetectionMode) {
                 return $this->packArray($value);
             }
-            if (self::FORCE_MAP === $this->arrDetectionMode) {
-                return $this->packMap($value);
-            }
-            return \array_values($value) === $value
-                ? $this->packArray($value)
-                : $this->packMap($value);
+
+            return $this->packMap($value);
         }
         if (null === $value) {
             return $this->packNil();
