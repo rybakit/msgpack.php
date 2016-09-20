@@ -17,7 +17,8 @@ use MessagePack\Tests\Perf\TestSkippedException;
 
 class TableWriter implements Writer
 {
-    const FIRST_COLUMN_WIDTH = 20;
+    const COLUMN_WIDTH_MIN = 9;
+    const COLUMN_WIDTH_FIRST = 20;
 
     const STATUS_SKIPPED = 'S';
     const STATUS_FAILED = 'F';
@@ -45,12 +46,12 @@ class TableWriter implements Writer
      */
     public function open(array $benchmarkInfo, array $targets)
     {
-        $this->widths = [self::FIRST_COLUMN_WIDTH];
+        $this->widths = [self::COLUMN_WIDTH_FIRST];
 
         $cells = ['Test/Target'];
         foreach ($targets as $target) {
             $targetName = $target->getName();
-            $this->widths[] = strlen($targetName) + 2;
+            $this->widths[] = max(strlen($targetName) + 2, self::COLUMN_WIDTH_MIN);
             $cells[] = $targetName;
 
             $this->summary['total'][$targetName] = 0;
