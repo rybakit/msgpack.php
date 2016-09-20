@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use MessagePack\Packer;
 use MessagePack\Tests\DataProvider;
 use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\DurationBenchmark;
@@ -31,7 +32,7 @@ if (extension_loaded('xdebug')) {
 
 set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
 
-$targetNames = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_u';
+$targetAliases = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_bu';
 $rounds = getenv('MP_BENCH_ROUNDS') ?: 3;
 $testNames = getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
 
@@ -50,13 +51,16 @@ if ($testNames) {
 $targetFactories = [
     'pecl_p' => function () { return new PeclFunctionPackTarget(); },
     'pecl_u' => function () { return new PeclFunctionUnpackTarget(); },
-    'pure_p' => function () { return new PackerTarget(); },
-    'pure_u' => function () { return new BufferUnpackerTarget(); },
+    'pure_p' => function () { return new PackerTarget('Packer'); },
+    'pure_ps' => function () { return new PackerTarget('Packer (str)', new Packer(Packer::FORCE_STR)); },
+    'pure_pa' => function () { return new PackerTarget('Packer (arr)', new Packer(Packer::FORCE_ARR)); },
+    'pure_psa' => function () { return new PackerTarget('Packer (str|arr)', new Packer(Packer::FORCE_STR | Packer::FORCE_ARR)); },
+    'pure_bu' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
 ];
 
 $targets = [];
-foreach (explode(',', $targetNames) as $targetName) {
-    $targets[] = $targetFactories[trim($targetName)]();
+foreach (explode(',', $targetAliases) as $alias) {
+    $targets[] = $targetFactories[trim($alias)]();
 }
 
 $runner = new Runner(DataProvider::provideData());

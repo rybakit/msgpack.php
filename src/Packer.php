@@ -16,6 +16,14 @@ use MessagePack\TypeTransformer\Collection;
 
 class Packer
 {
+    const FORCE_STR = 0b0001;
+    const FORCE_BIN = 0b0010;
+    const FORCE_ARR = 0b0100;
+    const FORCE_MAP = 0b1000;
+
+    private $strDetectionMode;
+    private $arrDetectionMode;
+
     const NON_UTF8_REGEX = '/(
         [\xC0-\xC1] # Invalid UTF-8 Bytes
         | [\xF5-\xFF] # Invalid UTF-8 Bytes
@@ -35,6 +43,29 @@ class Packer
      * @var Collection
      */
     private $transformers;
+
+    /**
+     * @param int|null $typeDetectionMode
+     */
+    public function __construct($typeDetectionMode = null)
+    {
+        if (null !== $typeDetectionMode) {
+            $this->setTypeDetectionMode($typeDetectionMode);
+        }
+    }
+
+    /**
+     * @param int $mode
+     */
+    public function setTypeDetectionMode($mode)
+    {
+        if ($mode > 0b1010 || $mode < 0 || 0b11 === ($mode & 0b11)) {
+            throw new \InvalidArgumentException('Invalid type detection mode.');
+        }
+
+        $this->strDetectionMode = $mode & 0b0011;
+        $this->arrDetectionMode = $mode & 0b1100;
+    }
 
     /**
      * @param Collection|null $transformers
@@ -58,14 +89,28 @@ class Packer
             return $this->packInt($value);
         }
         if (\is_string($value)) {
-            return \preg_match(self::NON_UTF8_REGEX, $value)
-                ? $this->packBin($value)
-                : $this->packStr($value);
+            if (!$this->strDetectionMode) {
+                return \preg_match(self::NON_UTF8_REGEX, $value)
+                    ? $this->packBin($value)
+                    : $this->packStr($value);
+            }
+            if (self::FORCE_STR === $this->strDetectionMode) {
+                return $this->packStr($value);
+            }
+
+            return $this->packBin($value);
         }
         if (\is_array($value)) {
-            return \array_values($value) === $value
-                ? $this->packArray($value)
-                : $this->packMap($value);
+            if (!$this->arrDetectionMode) {
+                return \array_values($value) === $value
+                    ? $this->packArray($value)
+                    : $this->packMap($value);
+            }
+            if (self::FORCE_ARR === $this->arrDetectionMode) {
+                return $this->packArray($value);
+            }
+
+            return $this->packMap($value);
         }
         if (null === $value) {
             return $this->packNil();
