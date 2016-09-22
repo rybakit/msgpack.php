@@ -43,7 +43,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
      */
     public function testUnpackEmptyBuffer()
     {
@@ -98,7 +98,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: need 1, have 0.
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
      */
     public function testReset()
     {
@@ -153,7 +153,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         try {
             $this->unpacker->unpack();
         } catch (InsufficientDataException $e) {
-            $this->assertSame('Not enough data to unpack: need 1, have 0.', $e->getMessage());
+            $this->assertSame('Not enough data to unpack: expected 1, got 0.', $e->getMessage());
 
             return;
         }

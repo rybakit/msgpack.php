@@ -15,7 +15,7 @@ class InsufficientDataException extends UnpackingFailedException
 {
     public function __construct($expectedLength, $actualLength, $code = null, \Exception $previous = null)
     {
-        $message = \sprintf('Not enough data to unpack: need %d, have %d.', $expectedLength, $actualLength);
+        $message = "Not enough data to unpack: expected $expectedLength, got $actualLength.";
 
         parent::__construct($message, $code, $previous);
     }
