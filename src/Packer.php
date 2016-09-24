@@ -21,9 +21,6 @@ class Packer
     const FORCE_ARR = 0b0100;
     const FORCE_MAP = 0b1000;
 
-    private $strDetectionMode;
-    private $arrDetectionMode;
-
     const NON_UTF8_REGEX = '/(
         [\xC0-\xC1] # Invalid UTF-8 Bytes
         | [\xF5-\xFF] # Invalid UTF-8 Bytes
@@ -38,6 +35,16 @@ class Packer
         | (?<=[\xF0-\xF4])[\x80-\xBF](?![\x80-\xBF]{2}) # Short 4 byte sequence
         | (?<=[\xF0-\xF4][\x80-\xBF])[\x80-\xBF](?![\x80-\xBF]) # Short 4 byte sequence (2)
     )/x';
+
+    /**
+     * @var int
+     */
+    private $strDetectionMode;
+
+    /**
+     * @var int
+     */
+    private $arrDetectionMode;
 
     /**
      * @var Collection
