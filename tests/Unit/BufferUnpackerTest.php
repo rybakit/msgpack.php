@@ -42,12 +42,44 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     * @dataProvider provideInsufficientData
      */
-    public function testUnpackEmptyBuffer()
+    public function testUnpackInsufficientData($data, $expectedLength, $actualLength)
     {
-        $this->unpacker->unpack();
+        try {
+            $this->unpacker->reset($data)->unpack();
+        } catch (InsufficientDataException $e) {
+            $this->assertSame("Not enough data to unpack: expected $expectedLength, got $actualLength.", $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('InsufficientDataException was not thrown.');
+    }
+
+    public function provideInsufficientData()
+    {
+        return [
+            'str'       => ['', 1, 0],
+            'uint8'     => ["\xcc", 1, 0],
+            'uint16'    => ["\xcd", 2, 0],
+            'uint32'    => ["\xce", 4, 0],
+            'uint64'    => ["\xcf", 8, 0],
+            'in8'       => ["\xd0", 1, 0],
+            'int16'     => ["\xd1", 2, 0],
+            'int32'     => ["\xd2", 4, 0],
+            'int64'     => ["\xd3", 8, 0],
+            'float32'   => ["\xca", 4, 0],
+            'float64'   => ["\xcb", 8, 0],
+            'fixext1'   => ["\xd4", 1, 0],
+            'fixext2'   => ["\xd5", 2, 0],
+            'fixext4'   => ["\xd6", 4, 0],
+            'fixext8'   => ["\xd7", 8, 0],
+            'fixext16'  => ["\xd8", 16, 0],
+            'ext8'      => ["\xc7", 1, 0],
+            'ext16'     => ["\xc8", 2, 0],
+            'ext32'     => ["\xc9", 4, 0],
+        ];
     }
 
     /**

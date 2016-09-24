@@ -151,7 +151,9 @@ class BufferUnpacker
      */
     public function unpack()
     {
-        $this->ensureLength(1);
+        if (!isset($this->buffer[$this->offset])) {
+            throw new InsufficientDataException(1, \strlen($this->buffer) - $this->offset);
+        }
 
         $c = \ord($this->buffer[$this->offset]);
         ++$this->offset;
@@ -232,7 +234,9 @@ class BufferUnpacker
 
     private function unpackUint8()
     {
-        $this->ensureLength(1);
+        if (!isset($this->buffer[$this->offset])) {
+            throw new InsufficientDataException(1, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = $this->buffer[$this->offset];
         ++$this->offset;
@@ -242,7 +246,9 @@ class BufferUnpacker
 
     private function unpackUint16()
     {
-        $this->ensureLength(2);
+        if (!isset($this->buffer[$this->offset + 1])) {
+            throw new InsufficientDataException(2, \strlen($this->buffer) - $this->offset);
+        }
 
         $hi = \ord($this->buffer[$this->offset]);
         $lo = \ord($this->buffer[$this->offset + 1]);
@@ -253,7 +259,9 @@ class BufferUnpacker
 
     private function unpackUint32()
     {
-        $this->ensureLength(4);
+        if (!isset($this->buffer[$this->offset + 3])) {
+            throw new InsufficientDataException(4, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
@@ -265,7 +273,9 @@ class BufferUnpacker
 
     private function unpackUint64()
     {
-        $this->ensureLength(8);
+        if (!isset($this->buffer[$this->offset + 7])) {
+            throw new InsufficientDataException(8, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = \substr($this->buffer, $this->offset, 8);
         $this->offset += 8;
@@ -284,7 +294,9 @@ class BufferUnpacker
 
     private function unpackInt8()
     {
-        $this->ensureLength(1);
+        if (!isset($this->buffer[$this->offset])) {
+            throw new InsufficientDataException(1, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = \ord($this->buffer[$this->offset]);
         ++$this->offset;
@@ -298,7 +310,9 @@ class BufferUnpacker
 
     private function unpackInt16()
     {
-        $this->ensureLength(2);
+        if (!isset($this->buffer[$this->offset + 1])) {
+            throw new InsufficientDataException(2, \strlen($this->buffer) - $this->offset);
+        }
 
         $hi = \ord($this->buffer[$this->offset]);
         $lo = \ord($this->buffer[$this->offset + 1]);
@@ -313,7 +327,9 @@ class BufferUnpacker
 
     private function unpackInt32()
     {
-        $this->ensureLength(4);
+        if (!isset($this->buffer[$this->offset + 3])) {
+            throw new InsufficientDataException(4, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
@@ -325,7 +341,9 @@ class BufferUnpacker
 
     private function unpackInt64()
     {
-        $this->ensureLength(8);
+        if (!isset($this->buffer[$this->offset + 7])) {
+            throw new InsufficientDataException(8, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = \substr($this->buffer, $this->offset, 8);
         $this->offset += 8;
@@ -337,7 +355,9 @@ class BufferUnpacker
 
     private function unpackFloat32()
     {
-        $this->ensureLength(4);
+        if (!isset($this->buffer[$this->offset + 3])) {
+            throw new InsufficientDataException(4, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
@@ -349,7 +369,9 @@ class BufferUnpacker
 
     private function unpackFloat64()
     {
-        $this->ensureLength(8);
+        if (!isset($this->buffer[$this->offset + 7])) {
+            throw new InsufficientDataException(8, \strlen($this->buffer) - $this->offset);
+        }
 
         $num = \substr($this->buffer, $this->offset, 8);
         $this->offset += 8;
@@ -365,7 +387,9 @@ class BufferUnpacker
             return '';
         }
 
-        $this->ensureLength($length);
+        if (!isset($this->buffer[$this->offset + $length - 1])) {
+            throw new InsufficientDataException($length, \strlen($this->buffer) - $this->offset);
+        }
 
         $str = \substr($this->buffer, $this->offset, $length);
         $this->offset += $length;
@@ -395,7 +419,9 @@ class BufferUnpacker
 
     private function unpackExt($length)
     {
-        $this->ensureLength($length);
+        if (!isset($this->buffer[$this->offset + $length - 1])) {
+            throw new InsufficientDataException($length, \strlen($this->buffer) - $this->offset);
+        }
 
         $type = $this->unpackInt8();
 
@@ -407,13 +433,6 @@ class BufferUnpacker
         $this->offset += $length;
 
         return new Ext($type, $data);
-    }
-
-    private function ensureLength($length)
-    {
-        if (!isset($this->buffer[$this->offset + $length - 1])) {
-            throw new InsufficientDataException($length, \strlen($this->buffer) - $this->offset);
-        }
     }
 
     private function handleIntOverflow($value)
