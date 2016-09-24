@@ -13,7 +13,7 @@ A pure PHP implementation of the MessagePack serialization format.
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unsigned-64-bit-integers)
  * Supports [object serialization](#custom-types)
- * Works with PHP 5.4-7.0 and HHVM
+ * Works with PHP 5.4-7.x and HHVM
  * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
  * [Relatively fast](#performance)
 
@@ -108,10 +108,9 @@ from running the auto detection routine:
 ```php
 $packer = new Packer(Packer::FORCE_STR);
 // or
+// $packer->setTypeDetectionMode(Packer::FORCE_STR);
 ...
-$packer->setTypeDetectionMode(Packer::FORCE_STR);
-...
-$packer->pack($utf8string);
+$packer->pack([$utf8string1, $utf8string2]);
 ```
 
 Available modes are:
