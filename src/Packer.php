@@ -21,20 +21,16 @@ class Packer
     const FORCE_ARR = 0b0100;
     const FORCE_MAP = 0b1000;
 
-    const NON_UTF8_REGEX = '/(
-        [\xC0-\xC1] # Invalid UTF-8 Bytes
-        | [\xF5-\xFF] # Invalid UTF-8 Bytes
-        | \xE0[\x80-\x9F] # Overlong encoding of prior code point
-        | \xF0[\x80-\x8F] # Overlong encoding of prior code point
-        | [\xC2-\xDF](?![\x80-\xBF]) # Invalid UTF-8 Sequence Start
-        | [\xE0-\xEF](?![\x80-\xBF]{2}) # Invalid UTF-8 Sequence Start
-        | [\xF0-\xF4](?![\x80-\xBF]{3}) # Invalid UTF-8 Sequence Start
-        | (?<=[\x0-\x7F\xF5-\xFF])[\x80-\xBF] # Invalid UTF-8 Sequence Middle
-        | (?<![\xC2-\xDF]|[\xE0-\xEF]|[\xE0-\xEF][\x80-\xBF]|[\xF0-\xF4]|[\xF0-\xF4][\x80-\xBF]|[\xF0-\xF4][\x80-\xBF]{2})[\x80-\xBF] # Overlong Sequence
-        | (?<=[\xE0-\xEF])[\x80-\xBF](?![\x80-\xBF]) # Short 3 byte sequence
-        | (?<=[\xF0-\xF4])[\x80-\xBF](?![\x80-\xBF]{2}) # Short 4 byte sequence
-        | (?<=[\xF0-\xF4][\x80-\xBF])[\x80-\xBF](?![\x80-\xBF]) # Short 4 byte sequence (2)
-    )/x';
+    const UTF8_REGEX = '/\A(?:
+          [\x00-\x7F]++                      # ASCII
+        | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+        |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
+        | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
+        |  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
+        |  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
+        | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
+        |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
+        )*+\z/x';
 
     /**
      * @var int
@@ -97,9 +93,9 @@ class Packer
         }
         if (\is_string($value)) {
             if (!$this->strDetectionMode) {
-                return \preg_match(self::NON_UTF8_REGEX, $value)
-                    ? $this->packBin($value)
-                    : $this->packStr($value);
+                return \preg_match(self::UTF8_REGEX, $value)
+                    ? $this->packStr($value)
+                    : $this->packBin($value);
             }
             if (self::FORCE_STR === $this->strDetectionMode) {
                 return $this->packStr($value);
