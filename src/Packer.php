@@ -94,8 +94,8 @@ class Packer
         if (\is_string($value)) {
             if (!$this->strDetectionMode) {
                 return \preg_match(self::UTF8_REGEX, $value)
-                    ? $this->packBin($value)
-                    : $this->packStr($value);
+                    ? $this->packStr($value)
+                    : $this->packBin($value);
             }
             if (self::FORCE_STR === $this->strDetectionMode) {
                 return $this->packStr($value);
