@@ -22,7 +22,7 @@ class Packer
     const FORCE_MAP = 0b1000;
 
     const UTF8_REGEX = '/\A(?:
-          [\x00-\x7F]                        # ASCII
+          [\x00-\x7F]++                      # ASCII
         | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
         |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
         | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
