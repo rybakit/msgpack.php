@@ -143,7 +143,7 @@ class Packer
         $data = self::packArrayHeader($size);
 
         foreach ($array as $val) {
-            $data .= $this->pack($val);
+            $data = "$data{$this->pack($val)}";
         }
 
         return $data;
@@ -167,8 +167,7 @@ class Packer
         $data = self::packMapHeader($size);
 
         foreach ($map as $key => $val) {
-            $data .= $this->pack($key);
-            $data .= $this->pack($val);
+            $data = "$data{$this->pack($key)}{$this->pack($val)}";
         }
 
         return $data;
