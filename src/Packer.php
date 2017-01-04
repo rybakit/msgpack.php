@@ -253,7 +253,7 @@ class Packer
 
     public function packFloat($num)
     {
-        return "\xcb".strrev(pack('d', $num));
+        return "\xcb".\strrev(\pack('d', $num));
     }
 
     public function packInt($num)
