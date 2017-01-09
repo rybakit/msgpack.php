@@ -69,21 +69,21 @@ class BufferUnpacker
     }
 
     /**
-     * @param int $intOverflowMode
+     * @param int $mode
      *
      * @throws \InvalidArgumentException
      */
-    public function setIntOverflowMode($intOverflowMode)
+    public function setIntOverflowMode($mode)
     {
-        if (!\in_array($intOverflowMode, [
+        if (!\in_array($mode, [
             self::INT_AS_EXCEPTION,
             self::INT_AS_STR,
             self::INT_AS_GMP,
         ], true)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid integer overflow mode: %s.', $intOverflowMode));
+            throw new \InvalidArgumentException(\sprintf('Invalid integer overflow mode: %s.', $mode));
         }
 
-        $this->intOverflowMode = $intOverflowMode;
+        $this->intOverflowMode = $mode;
     }
 
     /**
