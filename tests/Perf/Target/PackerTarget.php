@@ -21,8 +21,8 @@ class PackerTarget implements Target
 
     public function __construct($name = null, Packer $packer = null)
     {
-        $this->name = $name ?: get_class($this->packer);
         $this->packer = $packer ?: new Packer();
+        $this->name = $name ?: get_class($this->packer);
     }
 
     /**
