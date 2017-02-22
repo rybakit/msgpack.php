@@ -184,7 +184,7 @@ the library will throw a `IntegerOverflowException`.
 You can change this default behavior to unpack `uint64` integer to a string:
 
 ```php
-$unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_STRING);
+$unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_STR);
 ```
 
 Or to a `Gmp` number (make sure that [gmp](http://php.net/manual/en/book.gmp.php) extension is enabled):
