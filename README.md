@@ -153,7 +153,7 @@ $unpacked = $unpacker->unpack();
 ```
 
 If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack`
-method, which will try to unpack data and return an array of unpacked data instead of throwing a `InsufficientDataException`:
+method, which will try to unpack data and return an array of unpacked data instead of throwing an `InsufficientDataException`:
 
 ```php
 $unpacker->append($chunk1);
