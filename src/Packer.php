@@ -49,6 +49,8 @@ class Packer
 
     /**
      * @param int|null $typeDetectionMode
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct($typeDetectionMode = null)
     {
@@ -59,6 +61,8 @@ class Packer
 
     /**
      * @param int $mode
+     *
+     * @throws \InvalidArgumentException
      */
     public function setTypeDetectionMode($mode)
     {
@@ -121,7 +125,7 @@ class Packer
         if (\is_bool($value)) {
             return $this->packBool($value);
         }
-        if (\is_double($value)) {
+        if (\is_float($value)) {
             return $this->packFloat($value);
         }
         if ($value instanceof Ext) {
