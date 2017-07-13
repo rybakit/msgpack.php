@@ -47,7 +47,7 @@ $ composer require rybakit/msgpack
 
 ### Packing
 
-To pack values use the `Packer` class:
+To pack values you can either use an instance of `Packer`:
 
 ```php
 use MessagePack\Packer;
@@ -59,7 +59,15 @@ $packer = new Packer();
 $packed = $packer->pack($value);
 ```
 
-In the example above, the method `pack` automatically pack a value depending on its type.
+or call the static method on the `MessagePack` class:
+
+```php
+use MessagePack\MessagePack;
+
+$packed = MessagePack::pack($value);
+```
+
+In the examples above, the method `pack` automatically pack a value depending on its type.
 But not all PHP types can be uniquely translated to MessagePack types. For example,
 MessagePack format defines `map` and `array` types, which are represented by a single `array`
 type in PHP. By default, the packer will pack a PHP array as a MessagePack array if it
@@ -110,7 +118,7 @@ $packer = new Packer(Packer::FORCE_STR);
 // or
 // $packer->setTypeDetectionMode(Packer::FORCE_STR);
 ...
-$packer->pack([$utf8string1, $utf8string2]);
+$packed = $packer->pack([$utf8string1, $utf8string2]);
 ```
 
 Available modes are:
@@ -139,7 +147,7 @@ $packer->setTypeDetectionMode(Packer::FORCE_MAP | Packer::FORCE_ARR);
 
 ### Unpacking
 
-To unpack data use the `BufferUnpacker` class:
+To unpack data you can either use an instance of `BufferUnpacker`:
 
 ```php
 use MessagePack\BufferUnpacker;
@@ -152,6 +160,14 @@ $unpacker->reset($data);
 $unpacked = $unpacker->unpack();
 ```
 
+or call the static method on the `MessagePack` class:
+
+```php
+use MessagePack\MessagePack;
+
+$unpacked = MessagePack::unpack($packed);
+```
+
 If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack`
 method, which will try to unpack data and return an array of unpacked data instead of throwing an `InsufficientDataException`:
 
@@ -161,17 +177,6 @@ $unpackedBlocks = $unpacker->tryUnpack();
 
 $unpacker->append($chunk2);
 $unpackedBlocks = $unpacker->tryUnpack();
-```
-
-To save some keystrokes, the library ships with a syntax sugar class `Unpacker`, which
-is no more than a tiny wrapper around `BufferUnpacker` with a single method `unpack`:
-
-```php
-use MessagePack\Unpacker;
-
-...
-
-$unpacked = (new Unpacker())->unpack($data);
 ```
 
 
@@ -200,11 +205,10 @@ To define application-specific types use the `Ext` class:
 
 ```php
 use MessagePack\Ext;
-use MessagePack\Packer;
-use MessagePack\Unpacker;
+use MessagePack\MessagePack;
 
-$packerd = (new Packer())->pack(new Ext(42, "\xaa"));
-$ext = (new Unpacker())->unpack($packed);
+$packed = MessagePack::pack(new Ext(42, "\xaa"));
+$ext = MessagePack::unpack($packed);
 
 $extType = $ext->getType(); // 42
 $extData = $ext->getData(); // "\xaa"
@@ -268,7 +272,7 @@ $packer->setTransformers($coll);
 $unpacker->setTransformers($coll);
 
 $packed = $packer->pack(['foo' => new DateTime(), 'bar' => 'baz']);
-$raw = $unpacker->reset($packed)->unpack();
+$unpacked = $unpacker->reset($packed)->unpack();
 ```
 
 
