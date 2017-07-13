@@ -156,7 +156,7 @@ $unpacker = new BufferUnpacker();
 
 ...
 
-$unpacker->reset($data);
+$unpacker->reset($packed);
 $unpacked = $unpacker->unpack();
 ```
 
