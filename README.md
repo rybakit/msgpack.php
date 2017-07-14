@@ -64,6 +64,8 @@ or call the static method on the `MessagePack` class:
 ```php
 use MessagePack\MessagePack;
 
+...
+
 $packed = MessagePack::pack($value);
 ```
 
@@ -157,7 +159,7 @@ $unpacker = new BufferUnpacker();
 ...
 
 $unpacker->reset($packed);
-$unpacked = $unpacker->unpack();
+$value = $unpacker->unpack();
 ```
 
 or call the static method on the `MessagePack` class:
@@ -165,7 +167,9 @@ or call the static method on the `MessagePack` class:
 ```php
 use MessagePack\MessagePack;
 
-$unpacked = MessagePack::unpack($packed);
+...
+
+$value = MessagePack::unpack($packed);
 ```
 
 If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack`
@@ -272,7 +276,7 @@ $packer->setTransformers($coll);
 $unpacker->setTransformers($coll);
 
 $packed = $packer->pack(['foo' => new DateTime(), 'bar' => 'baz']);
-$unpacked = $unpacker->reset($packed)->unpack();
+$value = $unpacker->reset($packed)->unpack();
 ```
 
 
