@@ -38,4 +38,8 @@ final class MessagePack
     {
         return (new BufferUnpacker($intOverflowMode))->reset($data)->unpack();
     }
+
+    private function __construct()
+    {
+    }
 }
