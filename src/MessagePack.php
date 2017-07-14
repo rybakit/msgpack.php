@@ -39,6 +39,9 @@ final class MessagePack
         return (new BufferUnpacker($intOverflowMode))->reset($data)->unpack();
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     private function __construct()
     {
     }
