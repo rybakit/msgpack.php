@@ -69,7 +69,7 @@ use MessagePack\MessagePack;
 $packed = MessagePack::pack($value);
 ```
 
-In the examples above, the method `pack` automatically pack a value depending on its type.
+In the examples above, the method `pack` automatically packs a value depending on its type.
 But not all PHP types can be uniquely translated to MessagePack types. For example,
 MessagePack format defines `map` and `array` types, which are represented by a single `array`
 type in PHP. By default, the packer will pack a PHP array as a MessagePack array if it
