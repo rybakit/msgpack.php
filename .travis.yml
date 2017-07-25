@@ -13,6 +13,8 @@ env:
   - PHP_RUNTIME='php:7.1-cli'
   - PHP_RUNTIME='baptistedonaux/hhvm:3.9'
   - PHP_RUNTIME='baptistedonaux/hhvm:3.12'
+  - PHP_RUNTIME='baptistedonaux/hhvm:3.15'
+  - PHP_RUNTIME='baptistedonaux/hhvm:3.18'
   - PHP_RUNTIME='baptistedonaux/hhvm:latest'
 
 install:
