@@ -109,9 +109,9 @@ $packer->packBin("\x80");             // MP bin
 
 #### Type detection mode
 
-Automatically detecting a MP type of PHP arrays/strings adds some overhead which can be noticed
+Automatically detecting an MP type of PHP arrays/strings adds some overhead which can be noticed
 when you pack large (16- and 32-bit) arrays or strings. However, if you know the variable type
-in advance (for example, you only work with utf-8 strings or/and associative arrays), you can
+in advance (for example, you only work with UTF-8 strings or/and associative arrays), you can
 eliminate this overhead by forcing the packer to use the appropriate type, which will save it
 from running the auto detection routine:
 
@@ -188,7 +188,7 @@ $unpackedBlocks = $unpacker->tryUnpack();
 
 The binary MessagePack format has unsigned 64-bit as its largest integer data type,
 but PHP does not support such integers. By default, while unpacking `uint64` value
-the library will throw a `IntegerOverflowException`.
+the library will throw an `IntegerOverflowException`.
 
 You can change this default behavior to unpack `uint64` integer to a string:
 
@@ -535,7 +535,7 @@ Ignored                         17              17             0               8
 ```
 
 > Note, that this is not a fair comparison as the msgpack extension (0.5.2+, 2.0) doesn't
-support **ext**, **bin** and utf-8 **str** types.
+support **ext**, **bin** and UTF-8 **str** types.
 
 
 ## License
