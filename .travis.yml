@@ -11,11 +11,11 @@ env:
   - PHP_RUNTIME='php:5.6-cli'
   - PHP_RUNTIME='php:7.0-cli' PHPUNIT_OPTS='--coverage-clover=coverage.clover'
   - PHP_RUNTIME='php:7.1-cli'
-  - PHP_RUNTIME='baptistedonaux/hhvm:3.9'
-  - PHP_RUNTIME='baptistedonaux/hhvm:3.12'
-  - PHP_RUNTIME='baptistedonaux/hhvm:3.15'
-  - PHP_RUNTIME='baptistedonaux/hhvm:3.18'
-  - PHP_RUNTIME='baptistedonaux/hhvm:latest'
+  - PHP_RUNTIME='hhvm/hhvm:3.12-lts-latest'
+  - PHP_RUNTIME='hhvm/hhvm:3.15-lts-latest'
+  - PHP_RUNTIME='hhvm/hhvm:3.18-lts-latest'
+  - PHP_RUNTIME='hhvm/hhvm:3.21-lts-latest'
+  - PHP_RUNTIME='hhvm/hhvm:latest'
 
 install:
   - ./dockerfile.sh | tee /dev/tty | docker build -t msgpack -
