@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -z "$PHP_RUNTIME" ]] ; then
-    PHP_RUNTIME='php:7.0-cli'
+    PHP_RUNTIME='php:7.2-cli'
 fi
 
 RUN_CMDS=''
@@ -23,7 +23,7 @@ FROM $PHP_RUNTIME
 RUN apt-get update && apt-get install -y git curl zlib1g-dev${RUN_CMDS}
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \\
-    composer global require 'phpunit/phpunit:^4.8|^5.0'
+    composer global require 'phpunit/phpunit:^4.8|^5.0|^6.0'
 
 ENV PATH=~/.composer/vendor/bin:\$PATH
 
