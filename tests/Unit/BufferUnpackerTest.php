@@ -35,7 +35,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     public function testUnpack($title, $raw, $packed)
     {
         $this->unpacker->reset($packed);
-        $isOrHasObject = is_object($raw) || is_array($raw);
+        $isOrHasObject = \is_object($raw) || \is_array($raw);
 
         $isOrHasObject
             ? $this->assertEquals($raw, $this->unpacker->unpack())

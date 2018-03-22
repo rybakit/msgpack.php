@@ -111,9 +111,9 @@ class BufferUnpacker
     }
 
     /**
-     * @return mixed
-     *
      * @throws UnpackingFailedException
+     *
+     * @return mixed
      */
     public function unpack()
     {

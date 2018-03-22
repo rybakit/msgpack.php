@@ -51,7 +51,7 @@ class TableWriter implements Writer
         $cells = ['Test/Target'];
         foreach ($targets as $target) {
             $targetName = $target->getName();
-            $this->widths[] = max(strlen($targetName) + 2, self::COLUMN_WIDTH_MIN);
+            $this->widths[] = \max(\strlen($targetName) + 2, self::COLUMN_WIDTH_MIN);
             $cells[] = $targetName;
 
             $this->summary['total'][$targetName] = 0;
@@ -60,16 +60,16 @@ class TableWriter implements Writer
             $this->summary['ignored'][$targetName] = 0;
         }
 
-        $this->width = array_sum($this->widths);
+        $this->width = \array_sum($this->widths);
 
         foreach ($benchmarkInfo as $title => $value) {
             echo "$title: $value\n";
         }
         echo "\n";
 
-        echo str_repeat('=', $this->width)."\n";
+        echo \str_repeat('=', $this->width)."\n";
         $this->writeRow($cells);
-        echo str_repeat('-', $this->width)."\n";
+        echo \str_repeat('-', $this->width)."\n";
     }
 
     public function write(Test $test, array $stats)
@@ -80,17 +80,17 @@ class TableWriter implements Writer
         foreach ($stats as $targetName => $result) {
             if (!$result instanceof \Exception) {
                 $this->summary['total'][$targetName] += $result;
-                $cells[$targetName] = sprintf('%.4f', $result);
+                $cells[$targetName] = \sprintf('%.4f', $result);
                 continue;
             }
 
             $isIncomplete = true;
 
             if ($result instanceof TestSkippedException) {
-                $this->summary['skipped'][$targetName]++;
+                ++$this->summary['skipped'][$targetName];
                 $cells[$targetName] = self::STATUS_SKIPPED;
             } else {
-                $this->summary['failed'][$targetName]++;
+                ++$this->summary['failed'][$targetName];
                 $cells[$targetName] = self::STATUS_FAILED;
             }
         }
@@ -105,7 +105,7 @@ class TableWriter implements Writer
 
                 $cells[$targetName] = self::STATUS_IGNORED;
                 $this->summary['total'][$targetName] -= $result;
-                $this->summary['ignored'][$targetName]++;
+                ++$this->summary['ignored'][$targetName];
             }
         }
 
@@ -114,10 +114,10 @@ class TableWriter implements Writer
 
     public function close()
     {
-        echo str_repeat('=', $this->width)."\n";
+        echo \str_repeat('=', $this->width)."\n";
 
         $this->writeSummary('Total', 'total', function ($value) {
-            return sprintf('%.4f', $value);
+            return \sprintf('%.4f', $value);
         });
 
         $this->writeSummary('Skipped', 'skipped');
@@ -138,22 +138,22 @@ class TableWriter implements Writer
 
     private function writeRow(array $cells, $padChar = ' ')
     {
-        $title = array_shift($cells);
+        $title = \array_shift($cells);
 
         echo $title;
-        $paddingLen = $this->widths[0] - strlen($title);
+        $paddingLen = $this->widths[0] - \strlen($title);
 
         if ($this->widths[0] > 1) {
-            echo ' '.str_repeat($padChar, $paddingLen - 1);
+            echo ' '.\str_repeat($padChar, $paddingLen - 1);
         }
 
         $i = 1;
         foreach ($cells as $name => $value) {
-            $multiplier = $this->widths[$i] - strlen($value) - 2;
+            $multiplier = $this->widths[$i] - \strlen($value) - 2;
             echo (1 === $i) ? $padChar : ' ';
-            echo str_repeat($padChar, $multiplier > 0 ? $multiplier : 0).' ';
+            echo \str_repeat($padChar, $multiplier > 0 ? $multiplier : 0).' ';
             echo $value;
-            $i++;
+            ++$i;
         }
 
         echo "\n";

@@ -24,10 +24,10 @@ final class MessagePack
      * @param mixed $value
      * @param PackOptions|int|null $options
      *
-     * @return string
-     *
      * @throws \MessagePack\Exception\InvalidOptionException
      * @throws \MessagePack\Exception\PackingFailedException
+     *
+     * @return string
      */
     public static function pack($value, $options = null)
     {
@@ -38,10 +38,10 @@ final class MessagePack
      * @param string $data
      * @param UnpackOptions|int|null $options
      *
-     * @return mixed
-     *
      * @throws \MessagePack\Exception\InvalidOptionException
      * @throws \MessagePack\Exception\UnpackingFailedException
+     *
+     * @return mixed
      */
     public static function unpack($data, $options = null)
     {

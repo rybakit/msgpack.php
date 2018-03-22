@@ -39,7 +39,7 @@ class AverageableBenchmark implements Benchmark
     {
         $sum = 0;
 
-        for ($i = $this->rounds; $i; $i--) {
+        for ($i = $this->rounds; $i; --$i) {
             $sum += $this->benchmark->benchmark($target, $test);
         }
 

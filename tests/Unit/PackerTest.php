@@ -49,7 +49,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     public function provideUnsupportedValues()
     {
         return [
-            [tmpfile()],
+            [\tmpfile()],
             [new \stdClass()],
         ];
     }

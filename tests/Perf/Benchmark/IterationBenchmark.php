@@ -11,8 +11,8 @@
 
 namespace MessagePack\Tests\Perf\Benchmark;
 
-use MessagePack\Tests\Perf\Test;
 use MessagePack\Tests\Perf\Target\Target;
+use MessagePack\Tests\Perf\Test;
 
 class IterationBenchmark implements Benchmark
 {
@@ -49,23 +49,23 @@ class IterationBenchmark implements Benchmark
 
     private function measurePerform(Target $target, Test $test)
     {
-        $time = microtime(true);
+        $time = \microtime(true);
 
-        for ($i = $this->iterations; $i; $i--) {
+        for ($i = $this->iterations; $i; --$i) {
             $target->perform($test);
         }
 
-        return microtime(true) - $time;
+        return \microtime(true) - $time;
     }
 
     private function measureOverhead(Target $target, Test $test)
     {
-        $time = microtime(true);
+        $time = \microtime(true);
 
-        for ($i = $this->iterations; $i; $i--) {
+        for ($i = $this->iterations; $i; --$i) {
             $target->calibrate($test);
         }
 
-        return microtime(true) - $time;
+        return \microtime(true) - $time;
     }
 }
