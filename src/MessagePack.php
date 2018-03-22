@@ -14,35 +14,37 @@ namespace MessagePack;
 final class MessagePack
 {
     /**
-     * @param mixed $value
-     * @param int|null $typeDetectionMode
-     *
-     * @return string
-     *
-     * @throws \InvalidArgumentException|\MessagePack\Exception\PackingFailedException
-     */
-    public static function pack($value, $typeDetectionMode = null)
-    {
-        return (new Packer($typeDetectionMode))->pack($value);
-    }
-
-    /**
-     * @param string $data
-     * @param int|null $intOverflowMode
-     *
-     * @return mixed
-     *
-     * @throws \MessagePack\Exception\UnpackingFailedException
-     */
-    public static function unpack($data, $intOverflowMode = null)
-    {
-        return (new BufferUnpacker($intOverflowMode))->reset($data)->unpack();
-    }
-
-    /**
      * @codeCoverageIgnore
      */
     private function __construct()
     {
+    }
+
+    /**
+     * @param mixed $value
+     * @param PackOptions|int|null $options
+     *
+     * @return string
+     *
+     * @throws \MessagePack\Exception\InvalidOptionException
+     * @throws \MessagePack\Exception\PackingFailedException
+     */
+    public static function pack($value, $options = null)
+    {
+        return (new Packer($options))->pack($value);
+    }
+
+    /**
+     * @param string $data
+     * @param UnpackOptions|int|null $options
+     *
+     * @return mixed
+     *
+     * @throws \MessagePack\Exception\InvalidOptionException
+     * @throws \MessagePack\Exception\UnpackingFailedException
+     */
+    public static function unpack($data, $options = null)
+    {
+        return (new BufferUnpacker($data, $options))->unpack();
     }
 }

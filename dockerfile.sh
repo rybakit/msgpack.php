@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 if [[ -z "$PHP_RUNTIME" ]] ; then
-    PHP_RUNTIME='php:7.1-cli'
+    PHP_RUNTIME='php:7.2-cli'
 fi
 
 RUN_CMDS=''
 
 if [[ $PHP_RUNTIME == php* ]]; then
-    RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install zip"
+    RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install zip mbstring"
     RUN_CMDS="$RUN_CMDS && \\\\\n    apt-get install -y libgmp-dev"
     RUN_CMDS="$RUN_CMDS && \\\\\n    ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && docker-php-ext-install gmp"
 fi
@@ -23,7 +23,7 @@ FROM $PHP_RUNTIME
 RUN apt-get update && apt-get install -y git curl zlib1g-dev${RUN_CMDS}
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \\
-    composer global require 'phpunit/phpunit:^4.8|^5.0|^6.0'
+    composer global require phpunit/phpunit
 
 ENV PATH=~/.composer/vendor/bin:\$PATH
 
