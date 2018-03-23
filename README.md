@@ -11,7 +11,7 @@ A pure PHP implementation of the MessagePack serialization format.
  * Fully compliant with the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md),
    including **bin**, **str** and **ext** types
  * Supports [streaming unpacking](#unpacking)
- * Supports [unsigned 64-bit integers handling](#unsigned-64-bit-integers)
+ * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#custom-types)
  * Works with PHP 5.4-7.x and HHVM 3.9+
  * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
@@ -23,11 +23,11 @@ A pure PHP implementation of the MessagePack serialization format.
  * [Installation](#installation)
  * [Usage](#usage)
    * [Packing](#packing)
-     * [Type Detection Mode](#type-detection-mode)
+     * [Packing options](#packing-options)
    * [Unpacking](#unpacking)
-     * [Unsigned 64-bit Integers](#unsigned-64-bit-integers)
+     * [Unpacking options](#unpacking-options)
  * [Extensions](#extensions)
- * [Custom Types](#custom-types)
+ * [Custom types](#custom-types)
  * [Exceptions](#exceptions)
  * [Tests](#tests)
     * [Performance](#performance)
@@ -93,57 +93,61 @@ $mpMap = $packer->packMap([1, 2]); // {0: 1, 1: 2}
 Here is a list of all low-level packer methods:
 
 ```php
-$packer->packNil();                   // MP nil
-$packer->packBool(true);              // MP bool
 $packer->packArray([1, 2]);           // MP array
 $packer->packMap([1, 2]);             // MP map
-$packer->packExt(new Ext(1, "\xaa")); // MP ext
-$packer->packFloat(4.2);              // MP float
-$packer->packInt(42);                 // MP int
 $packer->packStr('foo');              // MP str
 $packer->packBin("\x80");             // MP bin
+$packer->packFloat32(M_PI);           // MP float 32
+$packer->packFloat64(M_PI);           // MP float 64
+$packer->packInt(42);                 // MP int
+$packer->packNil();                   // MP nil
+$packer->packBool(true);              // MP bool
+$packer->packExt(new Ext(1, "\xaa")); // MP ext
 ```
 
-> Check ["Custom Types"](#custom-types) section below on how to pack arbitrary PHP objects.
+> Check ["Custom types"](#custom-types) section below on how to pack arbitrary PHP objects.
 
 
-#### Type detection mode
+#### Packing options
 
-Automatically detecting an MP type of PHP arrays/strings adds some overhead which can be noticed
-when you pack large (16- and 32-bit) arrays or strings. However, if you know the variable type
-in advance (for example, you only work with UTF-8 strings or/and associative arrays), you can
-eliminate this overhead by forcing the packer to use the appropriate type, which will save it
-from running the auto detection routine:
+The `Packer` object supports a number of options for fine-tuning the packing process:
+
+| Name               | Description                                                   |
+| ------------------ | ------------------------------------------------------------- |
+| FORCE_STR          | Forces PHP strings to be packed as MessagePack strings        |
+| FORCE_BIN          | Forces PHP strings to be packed as MessagePack binary strings |
+| **DETECT_STR_BIN** | Detects MessagePack str/bin type automatically                |
+| FORCE_ARR          | Forces PHP arrays to be packed as MessagePack arrays          |
+| FORCE_MAP          | Forces PHP arrays to be packed as MessagePack maps            |
+| **DETECT_ARR_MAP** | Detects MessagePack array/map type automatically              |
+| FORCE_FLOAT32      | Forces PHP floats to be packed as 32-bits MessagePack floats  |
+| **FORCE_FLOAT64**  | Forces PHP floats to be packed as 64-bits MessagePack floats  |
+
+
+> Note
+
+> Automatically detecting which MessagePack type to use to pack a value (`DETECT_STR_BIN`/`DETECT_ARR_MAP` mode) 
+adds some overhead which can be noticed when you pack large (16- and 32-bit) arrays or strings.
+However, if you know the value type in advance (for example, you only work with UTF-8 strings 
+or/and associative arrays), you can eliminate this overhead by forcing the packer to use 
+the appropriate type, which will save it from running the auto detection routine.
+
+Examples:
 
 ```php
-$packer = new Packer(Packer::FORCE_STR);
-// or
-// $packer->setTypeDetectionMode(Packer::FORCE_STR);
-...
-$packed = $packer->pack([$utf8string1, $utf8string2]);
-```
+use MessagePack\Packer;
+use MessagePack\PackOptions;
 
-Available modes are:
+// convert PHP strings to MP strings, PHP arrays to MP maps 
+// and PHP 64-bit floats (doubles) to MP 32-bit floats
+$packer = new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_MAP | PackOptions::FORCE_FLOAT32);
 
-```php
-Packer::FORCE_STR
-Packer::FORCE_BIN
-Packer::FORCE_ARR
-Packer::FORCE_MAP
-```
+// convert PHP strings to MP binaries and PHP arrays to MP arrays
+$packer = new Packer(PackOptions::FORCE_BIN | PackOptions::FORCE_ARR);
 
-Of course, you can combine modes:
-
-```php
-// convert PHP strings to MP strings, PHP arrays to MP maps
-$packer->setTypeDetectionMode(Packer::FORCE_STR | Packer::FORCE_MAP);
-
-// convert PHP strings to MP binaries, PHP arrays to MP arrays
-$packer->setTypeDetectionMode(Packer::FORCE_BIN | Packer::FORCE_ARR);
-
-// this will throw \InvalidArgumentException
-$packer->setTypeDetectionMode(Packer::FORCE_STR | Packer::FORCE_BIN);
-$packer->setTypeDetectionMode(Packer::FORCE_MAP | Packer::FORCE_ARR);
+// these will throw MessagePack\Exception\InvalidOptionException
+$packer = new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_BIN);
+$packer = new Packer(PackOptions::FORCE_FLOAT32 | PackOptions::FORCE_FLOAT64);
 ```
 
 
@@ -185,22 +189,38 @@ while ($chunk = ...) {
 ```
 
 
-#### Unsigned 64-bit Integers
+#### Unpacking options
 
-The binary MessagePack format has unsigned 64-bit as its largest integer data type,
-but PHP does not support such integers. By default, while unpacking `uint64` value
-the library will throw an `IntegerOverflowException`.
+The `BufferUnpacker` object supports a number of options for fine-tuning the unpacking process:
 
-You can change this default behavior to unpack `uint64` integer to a string:
+| Name                | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| BIGINT_AS_EXCEPTION | Throws an exception on integer overflow <sup>[1]</sup>     |
+| BIGINT_AS_GMP       | Converts overflowed integers to GMP objects <sup>[2]</sup> |
+| **BIGINT_AS_STR**   | Converts overflowed integers to strings                    |
+
+> 1. The binary MessagePack format has unsigned 64-bit as its largest integer data type,
+     but PHP does not support such integers, which means that an overflow can occur during unpacking.
+
+> 2. Make sure that the [GMP](http://php.net/manual/en/book.gmp.php) extension is enabled.
+
+
+Examples:
 
 ```php
-$unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_STR);
-```
+use MessagePack\BufferUnpacker;
+use MessagePack\UnpackOptions;
 
-Or to a `Gmp` number (make sure that [gmp](http://php.net/manual/en/book.gmp.php) extension is enabled):
+$packedUint64 = "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff";
 
-```php
-$unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_GMP);
+$unpacker = new BufferUnpacker($packedUint64);
+var_dump($unpacker->unpack()); // string(20) "18446744073709551615"
+
+$unpacker = new BufferUnpacker($packedUint64, UnpackOptions::BIGINT_AS_GMP);
+var_dump($unpacker->unpack()); // object(GMP) {...}
+
+$unpacker = new BufferUnpacker($packedUint64, UnpackOptions::BIGINT_AS_EXCEPTION);
+$unpacker->unpack(); // throws MessagePack\Exception\IntegerOverflowException
 ```
 
 
@@ -220,7 +240,7 @@ $extData = $ext->getData(); // "\xaa"
 ```
 
 
-### Custom Types
+### Custom types
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
 the library provides the functionality to serialize and deserialize arbitrary types.
@@ -291,6 +311,8 @@ In addition, there are two more exceptions that can be thrown during unpacking:
  * `InsufficientDataException`
  * `IntegerOverflowException`
 
+The `InvalidOptionException` will be thrown in case of an invalid option (or a combination of options) is used.
+
 
 ## Tests
 
@@ -307,7 +329,7 @@ First, create a container:
 $ ./dockerfile.sh | docker build -t msgpack -
 ```
 
-The command above will create a container named `msgpack` with PHP 7.0 runtime.
+The command above will create a container named `msgpack` with PHP 7.2 runtime.
 You may change the default runtime by defining the `PHP_RUNTIME` environment variable:
 
 ```sh
@@ -325,10 +347,10 @@ $ docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
 
 #### Performance
 
-To check the performance run:
+To check performance, run:
 
 ```sh
-$ php tests/bench.php
+$ php -n tests/bench.php
 ```
 
 This command will output something like:
@@ -439,13 +461,13 @@ $ # a comma separated list of test names
 $ export MP_BENCH_TESTS='complex array, complex map'
 $ # or an regexp
 $ # export MP_BENCH_TESTS='/complex (array|map)/'
-$ php tests/bench.php
+$ php -n tests/bench.php
 ```
 
 Another example, benchmarking both the library and [msgpack pecl extension](https://pecl.php.net/package/msgpack):
 
 ```
-$ MP_BENCH_TARGETS=pure_ps,pure_bu,pecl_p,pecl_u php tests/bench.php
+$ MP_BENCH_TARGETS=pure_ps,pure_bu,pecl_p,pecl_u php -n tests/bench.php
 
 Filter: MessagePack\Tests\Perf\Filter\ListFilter
 Rounds: 3
