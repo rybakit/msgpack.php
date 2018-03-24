@@ -11,6 +11,7 @@
 
 namespace MessagePack\Tests\Unit;
 
+use MessagePack\Exception\InvalidOptionException;
 use MessagePack\PackOptions;
 
 class PackOptionsTest extends \PHPUnit_Framework_TestCase
@@ -51,6 +52,40 @@ class PackOptionsTest extends \PHPUnit_Framework_TestCase
             ['isForceFloat32Mode', false, null],
             ['isForceFloat32Mode', true, PackOptions::FORCE_FLOAT32],
             ['isForceFloat32Mode', false, PackOptions::FORCE_FLOAT64],
+        ];
+    }
+
+    /**
+     * @dataProvider provideInvalidOptionsData
+     */
+    public function testFromBitmaskWithInvalidOptions($options, $errorMessage)
+    {
+        try {
+            PackOptions::fromBitmask($options);
+        } catch (InvalidOptionException $e) {
+            self::assertSame($e->getMessage(), $errorMessage);
+
+            return;
+        }
+
+        self::fail();
+    }
+
+    public function provideInvalidOptionsData()
+    {
+        return [
+            [
+                PackOptions::FORCE_STR | PackOptions::FORCE_BIN,
+                'Invalid option str/bin, use one of MessagePack\PackOptions::FORCE_STR, MessagePack\PackOptions::FORCE_BIN or MessagePack\PackOptions::DETECT_STR_BIN.',
+            ],
+            [
+                PackOptions::FORCE_ARR | PackOptions::FORCE_MAP,
+                'Invalid option arr/map, use one of MessagePack\PackOptions::FORCE_ARR, MessagePack\PackOptions::FORCE_MAP or MessagePack\PackOptions::DETECT_ARR_MAP.',
+            ],
+            [
+                PackOptions::FORCE_FLOAT32 | PackOptions::FORCE_FLOAT64,
+                'Invalid option float, use MessagePack\PackOptions::FORCE_FLOAT32 or MessagePack\PackOptions::FORCE_FLOAT64.',
+            ],
         ];
     }
 }

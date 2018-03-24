@@ -103,7 +103,7 @@ final class PackOptions
         ];
 
         $validOptions = [];
-        for ($i = 1; $i <= $mask; $i <<= 1) {
+        for ($i = $mask & -$mask; $i <= $mask; $i <<= 1) {
             $validOptions[] = __CLASS__.'::'.$map[$i];
         }
 
