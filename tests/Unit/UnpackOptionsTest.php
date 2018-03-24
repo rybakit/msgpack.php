@@ -63,7 +63,7 @@ class UnpackOptionsTest extends \PHPUnit_Framework_TestCase
             [
                 UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_STR,
                 'Invalid option bigint, use one of MessagePack\UnpackOptions::BIGINT_AS_STR, MessagePack\UnpackOptions::BIGINT_AS_GMP or MessagePack\UnpackOptions::BIGINT_AS_EXCEPTION.',
-            ]
+            ],
         ];
     }
 }
