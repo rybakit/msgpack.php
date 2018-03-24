@@ -308,7 +308,8 @@ In addition, there are two more exceptions that can be thrown during unpacking:
  * `InsufficientDataException`
  * `IntegerOverflowException`
 
-The `InvalidOptionException` will be thrown in case of an invalid option (or a combination of options) is used.
+The `InvalidOptionException` will be thrown in case of an invalid option (or a combination 
+of mutually exclusive options) is used.
 
 
 ## Tests
