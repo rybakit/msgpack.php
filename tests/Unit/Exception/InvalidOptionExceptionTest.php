@@ -16,16 +16,16 @@ use MessagePack\Exception\InvalidOptionException;
 class InvalidOptionExceptionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @dataProvider provideFromRangeData
+     * @dataProvider provideFromValidOptionsData
      */
-    public function testFromRange($invalidOption, array $validOptions, $message)
+    public function testFromValidOptions($invalidOption, array $validOptions, $message)
     {
         $exception = InvalidOptionException::fromValidOptions($invalidOption, $validOptions);
 
         self::assertSame($message, $exception->getMessage());
     }
 
-    public function provideFromRangeData()
+    public function provideFromValidOptionsData()
     {
         return [
             ['foobar', ['foo'], 'Invalid option foobar, use foo.'],
