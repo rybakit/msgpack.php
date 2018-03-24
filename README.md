@@ -123,9 +123,6 @@ The `Packer` object supports a number of options for fine-tuning the packing pro
 | FORCE_FLOAT32      | Forces PHP floats to be packed as 32-bits MessagePack floats  |
 | **FORCE_FLOAT64**  | Forces PHP floats to be packed as 64-bits MessagePack floats  |
 
-
-> Note
-
 > Automatically detecting which MessagePack type to use to pack a value (`DETECT_STR_BIN`/`DETECT_ARR_MAP` mode) 
 adds some overhead which can be noticed when you pack large (16- and 32-bit) arrays or strings.
 However, if you know the value type in advance (for example, you only work with UTF-8 strings 
@@ -200,8 +197,8 @@ The `BufferUnpacker` object supports a number of options for fine-tuning the unp
 | **BIGINT_AS_STR**   | Converts overflowed integers to strings                    |
 
 > 1. The binary MessagePack format has unsigned 64-bit as its largest integer data type,
-     but PHP does not support such integers, which means that an overflow can occur during unpacking.
-
+>    but PHP does not support such integers, which means that an overflow can occur during unpacking.
+>
 > 2. Make sure that the [GMP](http://php.net/manual/en/book.gmp.php) extension is enabled.
 
 
