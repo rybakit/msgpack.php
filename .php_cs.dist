@@ -7,14 +7,13 @@ return PhpCsFixer\Config::create()
         '@Symfony' => true,
         '@Symfony:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
-        'binary_operator_spaces' => ['operators' => ['=' => null]],
+        'binary_operator_spaces' => ['operators' => ['=' => null, '=>' => null]],
         'native_function_invocation' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
         'ordered_imports' => true,
         'phpdoc_order' => true,
         'phpdoc_align' => false,
-        'php_unit_strict' => true,
         'strict_comparison' => true,
     ])
 ;
