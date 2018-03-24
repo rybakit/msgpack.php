@@ -555,8 +555,8 @@ Failed                           0               0            17               9
 Ignored                         17              17             0               8
 ```
 
-> Note, that this is not a fair comparison as the msgpack extension (0.5.2+, 2.0) doesn't
-support **ext**, **bin** and UTF-8 **str** types.
+> *Note, that this is not a fair comparison as the msgpack extension (0.5.2+, 2.0) doesn't
+support **ext**, **bin** and UTF-8 **str** types.*
 
 
 ## License
