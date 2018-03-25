@@ -32,6 +32,22 @@ class ListFilter implements Filter
         }
     }
 
+    public static function fromBlacklist(array $blacklist)
+    {
+        $self = new self([]);
+        $self->blacklist = $blacklist;
+
+        return $self;
+    }
+
+    public static function fromWhitelist(array $whitelist)
+    {
+        $self = new self([]);
+        $self->whitelist = $whitelist;
+
+        return $self;
+    }
+
     public function reset()
     {
         $this->whitelist = [];

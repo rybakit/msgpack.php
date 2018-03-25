@@ -32,11 +32,39 @@ if (\extension_loaded('xdebug')) {
     exit(42);
 }
 
+function resolve_filter($testNames)
+{
+    if ('/' === $testNames[0]) {
+        return new RegexpFilter($testNames);
+    }
+
+    if ('@' !== $testNames[0] && '@' !== $testNames[1]) {
+        return new ListFilter(\explode(',', $testNames));
+    }
+
+    $exclude = '-' === $testNames[0];
+
+    switch (ltrim($testNames, '-@')) {
+        case 'slow':
+            return $exclude
+                ? ListFilter::fromBlacklist(DataProvider::getSlowTestNames())
+                : ListFilter::fromWhitelist(DataProvider::getSlowTestNames());
+
+
+        case 'pecl_comp':
+            return $exclude
+                ? ListFilter::fromWhitelist(DataProvider::getPeclIncompatibleTestNames())
+                : ListFilter::fromBlacklist(DataProvider::getPeclIncompatibleTestNames());
+    }
+
+    throw new \UnexpectedValueException(sprintf('Unknown test alias "%s".', $testNames));
+}
+
 \set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
 
 $targetAliases = \getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_bu';
 $rounds = \getenv('MP_BENCH_ROUNDS') ?: 3;
-$testNames = \getenv('MP_BENCH_TESTS') ?: '-16-bit array #2, -32-bit array, -16-bit map #2, -32-bit map';
+$testNames = \getenv('MP_BENCH_TESTS') ?: '-@slow';
 
 $benchmark = \getenv('MP_BENCH_DURATION')
     ? new DurationBenchmark(\getenv('MP_BENCH_DURATION'))
@@ -46,7 +74,7 @@ if ($rounds) {
     $benchmark = new AverageableBenchmark($benchmark, $rounds);
 }
 if ($testNames) {
-    $filter = '/' === $testNames[0] ? new RegexpFilter($testNames) : new ListFilter(\explode(',', $testNames));
+    $filter = resolve_filter($testNames);
     $benchmark = new FilterableBenchmark($benchmark, $filter);
 }
 
@@ -56,7 +84,7 @@ $targetFactories = [
     'pure_p' => function () { return new PackerTarget('Packer'); },
     'pure_ps' => function () { return new PackerTarget('Packer (str)', new Packer(PackOptions::FORCE_STR)); },
     'pure_pa' => function () { return new PackerTarget('Packer (arr)', new Packer(PackOptions::FORCE_ARR)); },
-    'pure_psa' => function () { return new PackerTarget('Packer (str|arr)', new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_ARR)); },
+    'pure_psa' => function () { return new PackerTarget('Packer (str/arr)', new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_ARR)); },
     'pure_bu' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
 ];
 

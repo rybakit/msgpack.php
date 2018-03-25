@@ -137,4 +137,41 @@ class DataProvider
             ['64-bit uint #3', 0, "\xcf"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
         ]);
     }
+
+    public static function getSlowTestNames()
+    {
+        return [
+            '16-bit array #2',
+            '32-bit array',
+            '16-bit map #2',
+            '32-bit map',
+        ];
+    }
+
+    public static function getPeclIncompatibleTestNames()
+    {
+        return [
+            '8-bit binary #1',
+            '8-bit binary #2',
+            '8-bit binary #3',
+            '16-bit binary',
+            '32-bit binary',
+            'fixext 1',
+            'fixext 2',
+            'fixext 4',
+            'fixext 8',
+            'fixext 16',
+            '32-bit map',
+            '8-bit ext',
+            '16-bit ext',
+            '32-bit ext',
+            '16-bit array #2',
+            '32-bit array',
+            '16-bit map #2',
+            'complex array',
+            'fix map #1',
+            'fix map #3',
+            'fix map #4',
+        ];
+    }
 }
