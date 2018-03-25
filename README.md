@@ -334,7 +334,7 @@ You may change the default runtime by defining the `PHP_RUNTIME` environment var
 $ PHP_RUNTIME='php:7.1-cli' ./dockerfile.sh | docker build -t msgpack -
 ```
 
-> See a list of various runtimes [here](.travis.yml#L9-L16).
+> *See a list of various runtimes [here](.travis.yml#L8).*
 
 Then run the unit tests:
 
