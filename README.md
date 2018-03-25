@@ -457,9 +457,9 @@ $ export MP_BENCH_ITERATIONS=1000000
 $ export MP_BENCH_ROUNDS=5
 $ # a comma separated list of test names
 $ export MP_BENCH_TESTS='complex array, complex map'
-$ # or an group name
+$ # or a group name
 $ # export MP_BENCH_TESTS='-@slow' // @pecl_comp
-$ # or an regexp
+$ # or a regexp
 $ # export MP_BENCH_TESTS='/complex (array|map)/'
 $ php -n tests/bench.php
 ```
