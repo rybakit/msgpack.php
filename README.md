@@ -110,16 +110,19 @@ $packer->packExt(new Ext(1, "\xaa")); // MP ext
 
 #### Packing options
 
-The `Packer` object supports a number of bitmask-based options for fine-tuning the packing process:
+The `Packer` object supports a number of bitmask-based options for fine-tuning the packing 
+process (defaults are in bold):
 
 | Name               | Description                                                   |
 | ------------------ | ------------------------------------------------------------- |
-| FORCE_STR          | Forces PHP strings to be packed as MessagePack strings        |
-| FORCE_BIN          | Forces PHP strings to be packed as MessagePack binary strings |
+| FORCE_STR          | Forces PHP strings to be packed as MessagePack UTF-8 strings  |
+| FORCE_BIN          | Forces PHP strings to be packed as MessagePack binary data    |
 | **DETECT_STR_BIN** | Detects MessagePack str/bin type automatically                |
+|                    |                                                               |
 | FORCE_ARR          | Forces PHP arrays to be packed as MessagePack arrays          |
 | FORCE_MAP          | Forces PHP arrays to be packed as MessagePack maps            |
 | **DETECT_ARR_MAP** | Detects MessagePack array/map type automatically              |
+|                    |                                                               |
 | FORCE_FLOAT32      | Forces PHP floats to be packed as 32-bits MessagePack floats  |
 | **FORCE_FLOAT64**  | Forces PHP floats to be packed as 64-bits MessagePack floats  |
 
@@ -135,11 +138,11 @@ Examples:
 use MessagePack\Packer;
 use MessagePack\PackOptions;
 
-// convert PHP strings to MP strings, PHP arrays to MP maps 
+// cast PHP strings to MP strings, PHP arrays to MP maps 
 // and PHP 64-bit floats (doubles) to MP 32-bit floats
 $packer = new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_MAP | PackOptions::FORCE_FLOAT32);
 
-// convert PHP strings to MP binaries and PHP arrays to MP arrays
+// cast PHP strings to MP binaries and PHP arrays to MP arrays
 $packer = new Packer(PackOptions::FORCE_BIN | PackOptions::FORCE_ARR);
 
 // these will throw MessagePack\Exception\InvalidOptionException
@@ -188,7 +191,8 @@ while ($chunk = ...) {
 
 #### Unpacking options
 
-The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning the unpacking process:
+The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning 
+the unpacking process (defaults are in bold):
 
 | Name                | Description                                                |
 | ------------------- | ---------------------------------------------------------- |
