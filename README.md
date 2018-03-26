@@ -240,8 +240,8 @@ $extData = $ext->getData(); // "\xaa"
 ### Custom types
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
-the library provides the functionality to serialize and deserialize arbitrary types.
-To do this, you need to create a transformer, that converts your type to a type, which can be handled by MessagePack.
+the library provides functionality to serialize and deserialize arbitrary types. To do this, you need 
+to create a transformer, that converts your type to a type, which can be handled by MessagePack.
 
 For example, the code below shows how to add `DateTime` object support:
 
