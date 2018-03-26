@@ -21,15 +21,31 @@ class ListFilter implements Filter
     public function __construct(array $list)
     {
         foreach ($list as $name) {
-            $name = trim($name);
+            $name = \trim($name);
 
             if ('-' !== $name[0]) {
                 $this->whitelist[] = $name;
                 continue;
             }
 
-            $this->blacklist[] = substr($name, 1);
+            $this->blacklist[] = \substr($name, 1);
         }
+    }
+
+    public static function fromBlacklist(array $blacklist)
+    {
+        $self = new self([]);
+        $self->blacklist = $blacklist;
+
+        return $self;
+    }
+
+    public static function fromWhitelist(array $whitelist)
+    {
+        $self = new self([]);
+        $self->whitelist = $whitelist;
+
+        return $self;
     }
 
     public function reset()
@@ -40,11 +56,11 @@ class ListFilter implements Filter
 
     public function isAccepted(Test $test)
     {
-        if (in_array($test->getName(), $this->blacklist, true)) {
+        if (\in_array($test->getName(), $this->blacklist, true)) {
             return false;
         }
 
-        if ($this->whitelist && !in_array($test->getName(), $this->whitelist, true)) {
+        if ($this->whitelist && !\in_array($test->getName(), $this->whitelist, true)) {
             return false;
         }
 

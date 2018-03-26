@@ -11,16 +11,12 @@
 
 namespace MessagePack;
 
+use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
 use MessagePack\TypeTransformer\Collection;
 
 class Packer
 {
-    const FORCE_STR = 0b0001;
-    const FORCE_BIN = 0b0010;
-    const FORCE_ARR = 0b0100;
-    const FORCE_MAP = 0b1000;
-
     const UTF8_REGEX = '/\A(?:
           [\x00-\x7F]++                      # ASCII
         | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
@@ -32,46 +28,33 @@ class Packer
         |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
         )*+\z/x';
 
-    /**
-     * @var int
-     */
-    private $strDetectionMode;
+    private $isDetectStrBin;
+    private $isForceStr;
+    private $isDetectArrMap;
+    private $isForceArr;
+    private $isForceFloat32;
 
     /**
-     * @var int
-     */
-    private $arrDetectionMode;
-
-    /**
-     * @var Collection
+     * @var Collection|null
      */
     private $transformers;
 
     /**
-     * @param int|null $typeDetectionMode
+     * @param PackOptions|int|null $options
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidOptionException
      */
-    public function __construct($typeDetectionMode = null)
+    public function __construct($options = null)
     {
-        if (null !== $typeDetectionMode) {
-            $this->setTypeDetectionMode($typeDetectionMode);
-        }
-    }
-
-    /**
-     * @param int $mode
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function setTypeDetectionMode($mode)
-    {
-        if ($mode > 0b1010 || $mode < 0 || 0b11 === ($mode & 0b11)) {
-            throw new \InvalidArgumentException('Invalid type detection mode.');
+        if (!$options instanceof PackOptions) {
+            $options = PackOptions::fromBitmask($options);
         }
 
-        $this->strDetectionMode = $mode & 0b0011;
-        $this->arrDetectionMode = $mode & 0b1100;
+        $this->isDetectStrBin = $options->isDetectStrBinMode();
+        $this->isForceStr = $options->isForceStrMode();
+        $this->isDetectArrMap = $options->isDetectArrMapMode();
+        $this->isForceArr = $options->isForceArrMode();
+        $this->isForceFloat32 = $options->isForceFloat32Mode();
     }
 
     /**
@@ -96,28 +79,22 @@ class Packer
             return $this->packInt($value);
         }
         if (\is_string($value)) {
-            if (!$this->strDetectionMode) {
+            if ($this->isDetectStrBin) {
                 return \preg_match(self::UTF8_REGEX, $value)
                     ? $this->packStr($value)
                     : $this->packBin($value);
             }
-            if (self::FORCE_STR === $this->strDetectionMode) {
-                return $this->packStr($value);
-            }
 
-            return $this->packBin($value);
+            return $this->isForceStr ? $this->packStr($value) : $this->packBin($value);
         }
         if (\is_array($value)) {
-            if (!$this->arrDetectionMode) {
+            if ($this->isDetectArrMap) {
                 return \array_values($value) === $value
                     ? $this->packArray($value)
                     : $this->packMap($value);
             }
-            if (self::FORCE_ARR === $this->arrDetectionMode) {
-                return $this->packArray($value);
-            }
 
-            return $this->packMap($value);
+            return $this->isForceArr ? $this->packArray($value) : $this->packMap($value);
         }
         if (null === $value) {
             return $this->packNil();
@@ -126,7 +103,9 @@ class Packer
             return $this->packBool($value);
         }
         if (\is_float($value)) {
-            return $this->packFloat($value);
+            return $this->isForceFloat32
+                ? $this->packFloat32($value)
+                : $this->packFloat64($value);
         }
         if ($value instanceof Ext) {
             return $this->packExt($value);
@@ -255,7 +234,12 @@ class Packer
         return $val ? "\xc3" : "\xc2";
     }
 
-    public function packFloat($num)
+    public function packFloat32($num)
+    {
+        return "\xca".\strrev(\pack('f', $num));
+    }
+
+    public function packFloat64($num)
     {
         return "\xcb".\strrev(\pack('d', $num));
     }

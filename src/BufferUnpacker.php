@@ -13,43 +13,38 @@ namespace MessagePack;
 
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
+use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\TypeTransformer\Collection;
 
 class BufferUnpacker
 {
-    const INT_AS_EXCEPTION = 0;
-    const INT_AS_STR = 1;
-    const INT_AS_GMP = 2;
-
-    /**
-     * @var int
-     */
-    private $intOverflowMode = self::INT_AS_EXCEPTION;
-
-    /**
-     * @var string
-     */
-    private $buffer = '';
-
-    /**
-     * @var int
-     */
+    private $buffer;
     private $offset = 0;
+    private $isBigIntAsStr;
+    private $isBigIntAsGmp;
 
     /**
-     * @var Collection
+     * @var Collection|null
      */
     private $transformers;
 
     /**
-     * @param int|null $intOverflowMode
+     * @param string $buffer
+     * @param UnpackOptions|int|null $options
+     *
+     * @throws InvalidOptionException
      */
-    public function __construct($intOverflowMode = null)
+    public function __construct($buffer = '', $options = null)
     {
-        if (null !== $intOverflowMode) {
-            $this->intOverflowMode = $intOverflowMode;
+        if (!$options instanceof UnpackOptions) {
+            $options = UnpackOptions::fromBitmask($options);
         }
+
+        $this->isBigIntAsStr = $options->isBigIntAsStrMode();
+        $this->isBigIntAsGmp = $options->isBigIntAsGmpMode();
+
+        $this->buffer = $buffer;
     }
 
     /**
@@ -66,32 +61,6 @@ class BufferUnpacker
     public function getTransformers()
     {
         return $this->transformers;
-    }
-
-    /**
-     * @param int $mode
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function setIntOverflowMode($mode)
-    {
-        if (!\in_array($mode, [
-            self::INT_AS_EXCEPTION,
-            self::INT_AS_STR,
-            self::INT_AS_GMP,
-        ], true)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid integer overflow mode: %s.', $mode));
-        }
-
-        $this->intOverflowMode = $mode;
-    }
-
-    /**
-     * @return int
-     */
-    public function getIntOverflowMode()
-    {
-        return $this->intOverflowMode;
     }
 
     /**
@@ -145,9 +114,9 @@ class BufferUnpacker
     }
 
     /**
-     * @return mixed
-     *
      * @throws UnpackingFailedException
+     *
+     * @return mixed
      */
     public function unpack()
     {
@@ -437,10 +406,10 @@ class BufferUnpacker
 
     private function handleIntOverflow($value)
     {
-        if (self::INT_AS_STR === $this->intOverflowMode) {
+        if ($this->isBigIntAsStr) {
             return \sprintf('%u', $value);
         }
-        if (self::INT_AS_GMP === $this->intOverflowMode) {
+        if ($this->isBigIntAsGmp) {
             return \gmp_init(\sprintf('%u', $value));
         }
 

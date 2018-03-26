@@ -13,6 +13,7 @@ namespace MessagePack\Tests\Unit;
 
 use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
+use MessagePack\UnpackOptions;
 
 class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,12 +30,12 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider MessagePack\Tests\DataProvider::provideUnpackData
+     * @dataProvider \MessagePack\Tests\DataProvider::provideUnpackData
      */
     public function testUnpack($title, $raw, $packed)
     {
         $this->unpacker->reset($packed);
-        $isOrHasObject = is_object($raw) || is_array($raw);
+        $isOrHasObject = \is_object($raw) || \is_array($raw);
 
         $isOrHasObject
             ? $this->assertEquals($raw, $this->unpacker->unpack())
@@ -95,17 +96,29 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
      * @expectedException \MessagePack\Exception\IntegerOverflowException
      * @expectedExceptionMessage The value is too big: 18446744073709551615.
      */
-    public function testUnpackUint64ThrowsException()
+    public function testUnpackBigIntAsException()
     {
-        $this->unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
+        $unpacker = new BufferUnpacker(
+            "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
+            UnpackOptions::BIGINT_AS_EXCEPTION
+        );
 
-        $this->unpacker->unpack();
+        $unpacker->unpack();
     }
 
-    public function testUnpackUint64AsString()
+    public function testUnpackBigIntAsString()
     {
-        $unpacker = new BufferUnpacker(BufferUnpacker::INT_AS_STR);
-        $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
+        $unpacker = new BufferUnpacker(
+            "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
+            UnpackOptions::BIGINT_AS_STR
+        );
+
+        $this->assertSame('18446744073709551615', $unpacker->unpack());
+    }
+
+    public function testUnpackBigIntDefaultModeString()
+    {
+        $unpacker = new BufferUnpacker("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
         $this->assertSame('18446744073709551615', $unpacker->unpack());
     }
@@ -113,10 +126,13 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @requires extension gmp
      */
-    public function testUnpackUint64AsGmp()
+    public function testUnpackBigIntAsGmp()
     {
-        $unpacker = new BufferUnpacker(BufferUnpacker::INT_AS_GMP);
-        $unpacker->reset("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
+        $unpacker = new BufferUnpacker(
+            "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
+            UnpackOptions::BIGINT_AS_GMP
+        );
+
         $uint64 = $unpacker->unpack();
 
         if (PHP_VERSION_ID < 50600) {
@@ -193,21 +209,24 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->fail('Buffer was not truncated.');
     }
 
-    public function testSetGetIntOverflowMode()
+    /**
+     * @dataProvider provideInvalidOptionsData
+     * @expectedException \MessagePack\Exception\InvalidOptionException
+     * @expectedExceptionMessageRegExp /Invalid option .+?, use .+?\./
+     */
+    public function testConstructorThrowsErrorOnInvalidOptions($options)
     {
-        $this->assertSame(BufferUnpacker::INT_AS_EXCEPTION, $this->unpacker->getIntOverflowMode());
-
-        $this->unpacker->setIntOverflowMode(BufferUnpacker::INT_AS_STR);
-        $this->assertSame(BufferUnpacker::INT_AS_STR, $this->unpacker->getIntOverflowMode());
+        new BufferUnpacker('', $options);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid integer overflow mode: 42.
-     */
-    public function testSetIntOverflowModeThrowsException()
+    public function provideInvalidOptionsData()
     {
-        $this->unpacker->setIntOverflowMode(42);
+        return [
+            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP],
+            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_EXCEPTION],
+            [UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_EXCEPTION],
+            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_EXCEPTION],
+        ];
     }
 
     /**

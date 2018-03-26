@@ -24,6 +24,6 @@ class RegexpFilter implements Filter
 
     public function isAccepted(Test $test)
     {
-        return 1 === preg_match($this->regexp, $test->getName());
+        return 1 === \preg_match($this->regexp, $test->getName());
     }
 }

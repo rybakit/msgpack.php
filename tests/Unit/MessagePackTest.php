@@ -11,9 +11,9 @@
 
 namespace MessagePack\Tests\Unit;
 
-use MessagePack\BufferUnpacker;
 use MessagePack\MessagePack;
-use MessagePack\Packer;
+use MessagePack\PackOptions;
+use MessagePack\UnpackOptions;
 
 class MessagePackTest extends \PHPUnit_Framework_TestCase
 {
@@ -22,9 +22,9 @@ class MessagePackTest extends \PHPUnit_Framework_TestCase
         $this->assertSame("\x91\x01", MessagePack::pack([0 => 1]));
     }
 
-    public function testPackWithArgument()
+    public function testPackWithOptions()
     {
-        $this->assertSame("\x81\x00\x01", MessagePack::pack([0 => 1], Packer::FORCE_MAP));
+        $this->assertSame("\x81\x00\x01", MessagePack::pack([0 => 1], PackOptions::FORCE_MAP));
     }
 
     public function testUnpack()
@@ -32,11 +32,11 @@ class MessagePackTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('abc', MessagePack::unpack("\xa3\x61\x62\x63"));
     }
 
-    public function testUnpackWithArgument()
+    public function testUnpackWithOptions()
     {
         $packed = "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff";
         $unpacked = '18446744073709551615';
 
-        $this->assertSame($unpacked, MessagePack::unpack($packed, BufferUnpacker::INT_AS_STR));
+        $this->assertSame($unpacked, MessagePack::unpack($packed, UnpackOptions::BIGINT_AS_STR));
     }
 }

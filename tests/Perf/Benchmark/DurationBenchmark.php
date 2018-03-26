@@ -11,8 +11,8 @@
 
 namespace MessagePack\Tests\Perf\Benchmark;
 
-use MessagePack\Tests\Perf\Test;
 use MessagePack\Tests\Perf\Target\Target;
+use MessagePack\Tests\Perf\Test;
 
 class DurationBenchmark implements Benchmark
 {
@@ -36,7 +36,7 @@ class DurationBenchmark implements Benchmark
         $iterations = $this->measurePerform($target, $test);
         $overheadTime = $this->measureOverhead($target, $test, $iterations);
 
-        $extraIterations = round($overheadTime * $iterations / $this->duration);
+        $extraIterations = \round($overheadTime * $iterations / $this->duration);
 
         return $iterations + $extraIterations;
     }
@@ -52,9 +52,9 @@ class DurationBenchmark implements Benchmark
     private function measurePerform(Target $target, Test $test)
     {
         $iterations = 0;
-        $time = microtime(true) + $this->duration;
+        $time = \microtime(true) + $this->duration;
 
-        while (microtime(true) <= $time) {
+        while (\microtime(true) <= $time) {
             $target->perform($test);
             ++$iterations;
         }
@@ -64,12 +64,12 @@ class DurationBenchmark implements Benchmark
 
     private function measureOverhead(Target $target, Test $test, $iterations)
     {
-        $time = microtime(true);
+        $time = \microtime(true);
 
-        for ($i = $iterations; $i; $i--) {
+        for ($i = $iterations; $i; --$i) {
             $target->calibrate($test);
         }
 
-        return microtime(true) - $time;
+        return \microtime(true) - $time;
     }
 }
