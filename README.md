@@ -110,7 +110,7 @@ $packer->packExt(new Ext(1, "\xaa")); // MP ext
 
 #### Packing options
 
-The `Packer` object supports a number of options for fine-tuning the packing process:
+The `Packer` object supports a number of bitmask-based options for fine-tuning the packing process:
 
 | Name               | Description                                                   |
 | ------------------ | ------------------------------------------------------------- |
@@ -188,7 +188,7 @@ while ($chunk = ...) {
 
 #### Unpacking options
 
-The `BufferUnpacker` object supports a number of options for fine-tuning the unpacking process:
+The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning the unpacking process:
 
 | Name                | Description                                                |
 | ------------------- | ---------------------------------------------------------- |
