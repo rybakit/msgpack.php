@@ -202,26 +202,24 @@ class Packer
 
     public function packExt(Ext $ext)
     {
-        $type = $ext->getType();
-        $data = $ext->getData();
-        $len = \strlen($data);
+        $len = \strlen($ext->data);
 
         switch ($len) {
-            case 1: return "\xd4".\chr($type).$data;
-            case 2: return "\xd5".\chr($type).$data;
-            case 4: return "\xd6".\chr($type).$data;
-            case 8: return "\xd7".\chr($type).$data;
-            case 16: return "\xd8".\chr($type).$data;
+            case 1: return "\xd4".\chr($ext->type).$ext->data;
+            case 2: return "\xd5".\chr($ext->type).$ext->data;
+            case 4: return "\xd6".\chr($ext->type).$ext->data;
+            case 8: return "\xd7".\chr($ext->type).$ext->data;
+            case 16: return "\xd8".\chr($ext->type).$ext->data;
         }
 
         if ($len <= 0xff) {
-            return "\xc7".\chr($len).\chr($type).$data;
+            return "\xc7".\chr($len).\chr($ext->type).$ext->data;
         }
         if ($len <= 0xffff) {
-            return \pack('CnC', 0xc8, $len, $type).$data;
+            return \pack('CnC', 0xc8, $len, $ext->type).$ext->data;
         }
 
-        return \pack('CNC', 0xc9, $len, $type).$data;
+        return \pack('CNC', 0xc9, $len, $ext->type).$ext->data;
     }
 
     public function packNil()

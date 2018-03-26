@@ -236,8 +236,8 @@ use MessagePack\MessagePack;
 $packed = MessagePack::pack(new Ext(42, "\xaa"));
 $ext = MessagePack::unpack($packed);
 
-$extType = $ext->getType(); // 42
-$extData = $ext->getData(); // "\xaa"
+var_dump($ext->type === 42); // bool(true)
+var_dump($ext->data === "\xaa"); // bool(true)
 ```
 
 
