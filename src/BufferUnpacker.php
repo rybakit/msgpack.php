@@ -133,15 +133,15 @@ class BufferUnpacker
         }
         // fixstr
         if ($c >= 0xa0 && $c <= 0xbf) {
-            return $this->unpackStr($c & 0x1f);
+            return ($c & 0x1f) ? $this->unpackStr($c & 0x1f) : '';
         }
         // fixarray
         if ($c >= 0x90 && $c <= 0x9f) {
-            return $this->unpackArray($c & 0xf);
+            return ($c & 0xf) ? $this->unpackArray($c & 0xf) : [];
         }
         // fixmap
         if ($c >= 0x80 && $c <= 0x8f) {
-            return $this->unpackMap($c & 0xf);
+            return ($c & 0xf) ? $this->unpackMap($c & 0xf) : [];
         }
         // negfixint
         if ($c >= 0xe0) {
@@ -352,10 +352,6 @@ class BufferUnpacker
 
     private function unpackStr($length)
     {
-        if (!$length) {
-            return '';
-        }
-
         if (!isset($this->buffer[$this->offset + $length - 1])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, $length);
         }
@@ -369,7 +365,7 @@ class BufferUnpacker
     private function unpackArray($size)
     {
         $array = [];
-        for ($i = $size; $i; --$i) {
+        while ($size--) {
             $array[] = $this->unpack();
         }
 
@@ -379,7 +375,7 @@ class BufferUnpacker
     private function unpackMap($size)
     {
         $map = [];
-        for ($i = $size; $i; --$i) {
+        while ($size--) {
             $map[$this->unpack()] = $this->unpack();
         }
 
