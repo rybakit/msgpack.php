@@ -28,9 +28,6 @@ final class PackOptions
     private $arrMapMode;
     private $floatMode;
 
-    /**
-     * @codeCoverageIgnore
-     */
     private function __construct()
     {
     }

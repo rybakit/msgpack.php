@@ -21,9 +21,6 @@ final class UnpackOptions
 
     private $bigIntMode;
 
-    /**
-     * @codeCoverageIgnore
-     */
     private function __construct()
     {
     }
