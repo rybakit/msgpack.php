@@ -44,12 +44,11 @@ function resolve_filter($testNames)
 
     $exclude = '-' === $testNames[0];
 
-    switch (ltrim($testNames, '-@')) {
+    switch (\ltrim($testNames, '-@')) {
         case 'slow':
             return $exclude
                 ? ListFilter::fromBlacklist(DataProvider::getSlowTestNames())
                 : ListFilter::fromWhitelist(DataProvider::getSlowTestNames());
-
 
         case 'pecl_comp':
             return $exclude
@@ -57,7 +56,7 @@ function resolve_filter($testNames)
                 : ListFilter::fromBlacklist(DataProvider::getPeclIncompatibleTestNames());
     }
 
-    throw new \UnexpectedValueException(sprintf('Unknown test alias "%s".', $testNames));
+    throw new \UnexpectedValueException(\sprintf('Unknown test group "%s".', $testNames));
 }
 
 \set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
