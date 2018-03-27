@@ -123,7 +123,14 @@ class Packer
     public function packArray(array $array)
     {
         $size = \count($array);
-        $data = self::packArrayHeader($size);
+
+        if ($size <= 0xf) {
+            $data = \chr(0x90 | $size);
+        } elseif ($size <= 0xffff) {
+            $data = "\xdc".\chr($size >> 8).\chr($size);
+        } else {
+            $data = \pack('CN', 0xdd, $size);
+        }
 
         foreach ($array as $val) {
             $data .= $this->pack($val);
@@ -132,22 +139,17 @@ class Packer
         return $data;
     }
 
-    private static function packArrayHeader($size)
-    {
-        if ($size <= 0xf) {
-            return \chr(0x90 | $size);
-        }
-        if ($size <= 0xffff) {
-            return "\xdc".\chr($size >> 8).\chr($size);
-        }
-
-        return \pack('CN', 0xdd, $size);
-    }
-
     public function packMap(array $map)
     {
         $size = \count($map);
-        $data = self::packMapHeader($size);
+
+        if ($size <= 0xf) {
+            $data = \chr(0x80 | $size);
+        } elseif ($size <= 0xffff) {
+            $data = "\xde".\chr($size >> 8).\chr($size);
+        } else {
+            $data = \pack('CN', 0xdf, $size);
+        }
 
         foreach ($map as $key => $val) {
             $data .= $this->pack($key);
@@ -155,18 +157,6 @@ class Packer
         }
 
         return $data;
-    }
-
-    private static function packMapHeader($size)
-    {
-        if ($size <= 0xf) {
-            return \chr(0x80 | $size);
-        }
-        if ($size <= 0xffff) {
-            return "\xde".\chr($size >> 8).\chr($size);
-        }
-
-        return \pack('CN', 0xdf, $size);
     }
 
     public function packStr($str)
