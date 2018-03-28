@@ -38,8 +38,8 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $isOrHasObject = \is_object($raw) || \is_array($raw);
 
         $isOrHasObject
-            ? $this->assertEquals($raw, $this->unpacker->unpack())
-            : $this->assertSame($raw, $this->unpacker->unpack());
+            ? self::assertEquals($raw, $this->unpacker->unpack())
+            : self::assertSame($raw, $this->unpacker->unpack());
     }
 
     /**
@@ -50,12 +50,12 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         try {
             $this->unpacker->reset($data)->unpack();
         } catch (InsufficientDataException $e) {
-            $this->assertSame("Not enough data to unpack: expected $expectedLength, got $actualLength.", $e->getMessage());
+            self::assertSame("Not enough data to unpack: expected $expectedLength, got $actualLength.", $e->getMessage());
 
             return;
         }
 
-        $this->fail('InsufficientDataException was not thrown.');
+        self::fail('InsufficientDataException was not thrown.');
     }
 
     public function provideInsufficientData()
@@ -113,14 +113,14 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
             UnpackOptions::BIGINT_AS_STR
         );
 
-        $this->assertSame('18446744073709551615', $unpacker->unpack());
+        self::assertSame('18446744073709551615', $unpacker->unpack());
     }
 
     public function testUnpackBigIntDefaultModeString()
     {
         $unpacker = new BufferUnpacker("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
-        $this->assertSame('18446744073709551615', $unpacker->unpack());
+        self::assertSame('18446744073709551615', $unpacker->unpack());
     }
 
     /**
@@ -136,12 +136,12 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $uint64 = $unpacker->unpack();
 
         if (PHP_VERSION_ID < 50600) {
-            $this->assertInternalType('resource', $uint64);
+            self::assertInternalType('resource', $uint64);
         } else {
-            $this->assertInstanceOf('GMP', $uint64);
+            self::assertInstanceOf('GMP', $uint64);
         }
 
-        $this->assertSame('18446744073709551615', gmp_strval($uint64));
+        self::assertSame('18446744073709551615', gmp_strval($uint64));
     }
 
     /**
@@ -157,7 +157,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     {
         $this->unpacker->append("\xc2")->reset("\xc3");
 
-        $this->assertTrue($this->unpacker->unpack());
+        self::assertTrue($this->unpacker->unpack());
     }
 
     public function testTryUnpack()
@@ -167,19 +167,19 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $packed = "\x92\x01\x02\xa3\x62\x61\x72";
 
         $this->unpacker->append($packed[0]);
-        $this->assertSame([], $this->unpacker->tryUnpack());
+        self::assertSame([], $this->unpacker->tryUnpack());
 
         $this->unpacker->append($packed[1]);
-        $this->assertSame([], $this->unpacker->tryUnpack());
+        self::assertSame([], $this->unpacker->tryUnpack());
 
         $this->unpacker->append($packed[2].$packed[3]);
-        $this->assertSame([$foo], $this->unpacker->tryUnpack());
+        self::assertSame([$foo], $this->unpacker->tryUnpack());
 
         $this->unpacker->append($packed[4].$packed[5]);
-        $this->assertSame([], $this->unpacker->tryUnpack());
+        self::assertSame([], $this->unpacker->tryUnpack());
 
         $this->unpacker->append($packed[6]);
-        $this->assertSame([$bar], $this->unpacker->tryUnpack());
+        self::assertSame([$bar], $this->unpacker->tryUnpack());
     }
 
     public function testTryUnpackReturnsAllUnpackedData()
@@ -189,24 +189,24 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $packed = "\x92\x01\x02\xa3\x62\x61\x72";
 
         $this->unpacker->append($packed);
-        $this->assertSame([$foo, $bar], $this->unpacker->tryUnpack());
+        self::assertSame([$foo, $bar], $this->unpacker->tryUnpack());
     }
 
     public function testTryUnpackTruncatesBuffer()
     {
         $this->unpacker->append("\xc3");
 
-        $this->assertSame([true], $this->unpacker->tryUnpack());
+        self::assertSame([true], $this->unpacker->tryUnpack());
 
         try {
             $this->unpacker->unpack();
         } catch (InsufficientDataException $e) {
-            $this->assertSame('Not enough data to unpack: expected 1, got 0.', $e->getMessage());
+            self::assertSame('Not enough data to unpack: expected 1, got 0.', $e->getMessage());
 
             return;
         }
 
-        $this->fail('Buffer was not truncated.');
+        self::fail('Buffer was not truncated.');
     }
 
     /**
@@ -245,16 +245,16 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->unpacker->reset("\x82\x82\x00\x01\x01\x02\x00\x04\x02"); // [[1, 2] => 0, 4 => 2]
         $raw = @$this->unpacker->unpack();
 
-        $this->assertSame([4 => 2], $raw);
+        self::assertSame([4 => 2], $raw);
     }
 
     public function testSetGetTransformers()
     {
         $coll = $this->getTransformerCollectionMock();
 
-        $this->assertNull($this->unpacker->getTransformers());
+        self::assertNull($this->unpacker->getTransformers());
         $this->unpacker->setTransformers($coll);
-        $this->assertSame($coll, $this->unpacker->getTransformers());
+        self::assertSame($coll, $this->unpacker->getTransformers());
     }
 
     public function testUnpackCustomType()
@@ -262,12 +262,12 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $obj = new \stdClass();
 
         $transformer = $this->getTransformerMock(5);
-        $transformer->expects($this->once())->method('reverseTransform')->willReturn($obj);
+        $transformer->expects(self::once())->method('reverseTransform')->willReturn($obj);
 
         $coll = $this->getTransformerCollectionMock([$transformer]);
-        $coll->expects($this->once())->method('find')->with(5);
+        $coll->expects(self::once())->method('find')->with(5);
         $this->unpacker->setTransformers($coll);
 
-        $this->assertSame($obj, $this->unpacker->reset("\xd4\x05\x01")->unpack());
+        self::assertSame($obj, $this->unpacker->reset("\xd4\x05\x01")->unpack());
     }
 }

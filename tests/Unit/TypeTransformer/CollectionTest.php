@@ -30,13 +30,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testConstructor()
     {
-        $this->assertNull($this->coll->find(5));
+        self::assertNull($this->coll->find(5));
 
         $t1 = $this->getTransformerMock(1);
         $t2 = $this->getTransformerMock(2);
 
         $coll = new Collection([$t1, $t2]);
-        $this->assertSame($t2, $coll->find(2));
+        self::assertSame($t2, $coll->find(2));
     }
 
     public function testAddRemoveFind()
@@ -45,10 +45,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $transformer = $this->getTransformerMock($id);
 
         $this->coll->add($transformer);
-        $this->assertSame($transformer, $this->coll->find($id));
+        self::assertSame($transformer, $this->coll->find($id));
 
         $this->coll->remove($id);
-        $this->assertNull($this->coll->find($id));
+        self::assertNull($this->coll->find($id));
     }
 
     public function testMatchReturnsTransformer()
@@ -56,34 +56,34 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $value = new \stdClass();
 
         $t1 = $this->getTransformerMock(1);
-        $t1->expects($this->once())->method('supports')
+        $t1->expects(self::once())->method('supports')
             ->with($value)
             ->willReturn(false);
         $this->coll->add($t1);
 
         $t2 = $this->getTransformerMock(2);
-        $t2->expects($this->once())->method('supports')
+        $t2->expects(self::once())->method('supports')
             ->with($value)
             ->willReturn(true);
         $this->coll->add($t2);
 
         $t3 = $this->getTransformerMock(3);
-        $t3->expects($this->exactly(0))->method('supports');
+        $t3->expects(self::exactly(0))->method('supports');
         $this->coll->add($t3);
 
-        $this->assertSame($t2, $this->coll->match($value));
+        self::assertSame($t2, $this->coll->match($value));
     }
 
     public function testMatchReturnsNull()
     {
         $t1 = $this->getTransformerMock(1);
-        $t1->expects($this->once())->method('supports')->willReturn(false);
+        $t1->expects(self::once())->method('supports')->willReturn(false);
         $this->coll->add($t1);
 
         $t2 = $this->getTransformerMock(2);
-        $t2->expects($this->once())->method('supports')->willReturn(false);
+        $t2->expects(self::once())->method('supports')->willReturn(false);
         $this->coll->add($t2);
 
-        $this->assertNull($this->coll->match(new \stdClass()));
+        self::assertNull($this->coll->match(new \stdClass()));
     }
 }

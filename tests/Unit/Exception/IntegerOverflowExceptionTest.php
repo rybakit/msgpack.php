@@ -23,9 +23,9 @@ class IntegerOverflowExceptionTest extends \PHPUnit_Framework_TestCase
 
         $exception = new IntegerOverflowException($value, $errorCode, $prevException);
 
-        $this->assertSame($value, $exception->getValue());
-        $this->assertSame('The value is too big: 18446744073709551615.', $exception->getMessage());
-        $this->assertSame($errorCode, $exception->getCode());
-        $this->assertSame($prevException, $exception->getPrevious());
+        self::assertSame($value, $exception->getValue());
+        self::assertSame('The value is too big: 18446744073709551615.', $exception->getMessage());
+        self::assertSame($errorCode, $exception->getCode());
+        self::assertSame($prevException, $exception->getPrevious());
     }
 }

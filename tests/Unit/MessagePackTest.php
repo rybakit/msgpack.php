@@ -19,17 +19,17 @@ class MessagePackTest extends \PHPUnit_Framework_TestCase
 {
     public function testPack()
     {
-        $this->assertSame("\x91\x01", MessagePack::pack([0 => 1]));
+        self::assertSame("\x91\x01", MessagePack::pack([0 => 1]));
     }
 
     public function testPackWithOptions()
     {
-        $this->assertSame("\x81\x00\x01", MessagePack::pack([0 => 1], PackOptions::FORCE_MAP));
+        self::assertSame("\x81\x00\x01", MessagePack::pack([0 => 1], PackOptions::FORCE_MAP));
     }
 
     public function testUnpack()
     {
-        $this->assertSame('abc', MessagePack::unpack("\xa3\x61\x62\x63"));
+        self::assertSame('abc', MessagePack::unpack("\xa3\x61\x62\x63"));
     }
 
     public function testUnpackWithOptions()
@@ -37,6 +37,6 @@ class MessagePackTest extends \PHPUnit_Framework_TestCase
         $packed = "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff";
         $unpacked = '18446744073709551615';
 
-        $this->assertSame($unpacked, MessagePack::unpack($packed, UnpackOptions::BIGINT_AS_STR));
+        self::assertSame($unpacked, MessagePack::unpack($packed, UnpackOptions::BIGINT_AS_STR));
     }
 }

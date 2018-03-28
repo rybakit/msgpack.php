@@ -19,7 +19,7 @@ trait TransformerUtils
     private function getTransformerMock($id)
     {
         $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\TypeTransformer')->getMock();
-        $transformer->expects($this->any())->method('getId')
+        $transformer->expects(self::any())->method('getId')
             ->willReturn($id);
 
         return $transformer;
@@ -35,10 +35,10 @@ trait TransformerUtils
         $coll = $this->getMockBuilder('MessagePack\TypeTransformer\Collection')->getMock();
 
         if ($transformers) {
-            $coll->expects($this->any())->method('find')
+            $coll->expects(self::any())->method('find')
                 ->willReturn($transformers[0]);
 
-            $coll->expects($this->any())->method('match')
+            $coll->expects(self::any())->method('match')
                 ->willReturn($transformers[0]);
         }
 

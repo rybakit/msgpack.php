@@ -33,7 +33,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
      */
     public function testPack($title, $raw, $packed)
     {
-        $this->assertSame($packed, $this->packer->pack($raw));
+        self::assertSame($packed, $this->packer->pack($raw));
     }
 
     /**
@@ -59,7 +59,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructorSetOptions($options, $raw, $packed)
     {
-        $this->assertSame($packed, (new Packer($options))->pack($raw));
+        self::assertSame($packed, (new Packer($options))->pack($raw));
     }
 
     public function provideOptionsData()
@@ -113,7 +113,7 @@ class PackerTest extends \PHPUnit_Framework_TestCase
      */
     public function testPackFloat32($raw, $packed)
     {
-        $this->assertSame($packed, $this->packer->packFloat32($raw));
+        self::assertSame($packed, $this->packer->packFloat32($raw));
     }
 
     public function provideFloat32Data()
@@ -128,9 +128,9 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     {
         $coll = $this->getMockBuilder('MessagePack\TypeTransformer\Collection')->getMock();
 
-        $this->assertNull($this->packer->getTransformers());
+        self::assertNull($this->packer->getTransformers());
         $this->packer->setTransformers($coll);
-        $this->assertSame($coll, $this->packer->getTransformers());
+        self::assertSame($coll, $this->packer->getTransformers());
     }
 
     public function testPackCustomType()
@@ -138,12 +138,12 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         $obj = new \stdClass();
 
         $transformer = $this->getTransformerMock(5);
-        $transformer->expects($this->once())->method('transform')->willReturn(1);
+        $transformer->expects(self::once())->method('transform')->willReturn(1);
 
         $coll = $this->getTransformerCollectionMock([$transformer]);
-        $coll->expects($this->once())->method('match')->with($obj);
+        $coll->expects(self::once())->method('match')->with($obj);
         $this->packer->setTransformers($coll);
 
-        $this->assertSame("\xd4\x05\x01", $this->packer->pack($obj));
+        self::assertSame("\xd4\x05\x01", $this->packer->pack($obj));
     }
 }

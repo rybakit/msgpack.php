@@ -54,7 +54,7 @@ class UnpackOptionsTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        self::fail();
+        self::fail('InvalidOptionException was not thrown.');
     }
 
     public function provideInvalidOptionsData()

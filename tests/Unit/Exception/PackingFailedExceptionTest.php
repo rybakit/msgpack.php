@@ -24,9 +24,9 @@ class PackingFailedExceptionTest extends \PHPUnit_Framework_TestCase
 
         $exception = new PackingFailedException($value, $errorMessage, $errorCode, $prevException);
 
-        $this->assertSame($value, $exception->getValue());
-        $this->assertSame($errorMessage, $exception->getMessage());
-        $this->assertSame($errorCode, $exception->getCode());
-        $this->assertSame($prevException, $exception->getPrevious());
+        self::assertSame($value, $exception->getValue());
+        self::assertSame($errorMessage, $exception->getMessage());
+        self::assertSame($errorCode, $exception->getCode());
+        self::assertSame($prevException, $exception->getPrevious());
     }
 }
