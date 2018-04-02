@@ -13,7 +13,7 @@ namespace MessagePack;
 
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
-use MessagePack\TypeTransformer\Collection;
+use MessagePack\TypeTransformer\Packable;
 
 class Packer
 {
@@ -35,9 +35,9 @@ class Packer
     private $isForceFloat32;
 
     /**
-     * @var Collection|null
+     * @var Packable[]
      */
-    private $transformers;
+    private $transformers = [];
 
     /**
      * @param PackOptions|int|null $options
@@ -57,20 +57,9 @@ class Packer
         $this->isForceFloat32 = $options->isForceFloat32Mode();
     }
 
-    /**
-     * @param Collection|null $transformers
-     */
-    public function setTransformers(Collection $transformers = null)
+    public function registerTransformer(Packable $transformer)
     {
-        $this->transformers = $transformers;
-    }
-
-    /**
-     * @return Collection|null
-     */
-    public function getTransformers()
-    {
-        return $this->transformers;
+        $this->transformers[] = $transformer;
     }
 
     public function pack($value)
@@ -108,13 +97,16 @@ class Packer
                 : $this->packFloat64($value);
         }
         if ($value instanceof Ext) {
-            return $this->packExt($value);
+            return $this->packExt($value->type, $value->data);
         }
+        if ($this->transformers) {
+            foreach ($this->transformers as $transformer) {
+                if (null === $packed = $transformer->pack($this, $value)) {
+                    continue;
+                }
 
-        if ($this->transformers && $transformer = $this->transformers->match($value)) {
-            $ext = new Ext($transformer->getId(), $this->pack($transformer->transform($value)));
-
-            return $this->packExt($ext);
+                return $packed;
+            }
         }
 
         throw new PackingFailedException($value, 'Unsupported type.');
@@ -190,26 +182,26 @@ class Packer
         return \pack('CN', 0xc6, $len).$str;
     }
 
-    public function packExt(Ext $ext)
+    public function packExt($type, $data)
     {
-        $len = \strlen($ext->data);
+        $len = \strlen($data);
 
         switch ($len) {
-            case 1: return "\xd4".\chr($ext->type).$ext->data;
-            case 2: return "\xd5".\chr($ext->type).$ext->data;
-            case 4: return "\xd6".\chr($ext->type).$ext->data;
-            case 8: return "\xd7".\chr($ext->type).$ext->data;
-            case 16: return "\xd8".\chr($ext->type).$ext->data;
+            case 1: return "\xd4".\chr($type).$data;
+            case 2: return "\xd5".\chr($type).$data;
+            case 4: return "\xd6".\chr($type).$data;
+            case 8: return "\xd7".\chr($type).$data;
+            case 16: return "\xd8".\chr($type).$data;
         }
 
         if ($len <= 0xff) {
-            return "\xc7".\chr($len).\chr($ext->type).$ext->data;
+            return "\xc7".\chr($len).\chr($type).$data;
         }
         if ($len <= 0xffff) {
-            return \pack('CnC', 0xc8, $len, $ext->type).$ext->data;
+            return \pack('CnC', 0xc8, $len, $type).$data;
         }
 
-        return \pack('CNC', 0xc9, $len, $ext->type).$ext->data;
+        return \pack('CNC', 0xc9, $len, $type).$data;
     }
 
     public function packNil()

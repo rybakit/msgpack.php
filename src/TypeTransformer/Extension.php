@@ -11,31 +11,20 @@
 
 namespace MessagePack\TypeTransformer;
 
-interface TypeTransformer
+use MessagePack\BufferUnpacker;
+
+interface Extension extends Packable
 {
     /**
      * @return int
      */
-    public function getId();
+    public function getType();
 
     /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function supports($value);
-
-    /**
-     * @param mixed $value
+     * @param BufferUnpacker $unpacker
+     * @param int $length
      *
      * @return mixed
      */
-    public function transform($value);
-
-    /**
-     * @param string $data
-     *
-     * @return mixed
-     */
-    public function reverseTransform($data);
+    public function unpack(BufferUnpacker $unpacker, $length);
 }

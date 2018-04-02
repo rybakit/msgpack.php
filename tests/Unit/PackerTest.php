@@ -16,8 +16,6 @@ use MessagePack\PackOptions;
 
 class PackerTest extends \PHPUnit_Framework_TestCase
 {
-    use TransformerUtils;
-
     /**
      * @var Packer
      */
@@ -124,26 +122,18 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testSetGetTransformers()
-    {
-        $coll = $this->getMockBuilder('MessagePack\TypeTransformer\Collection')->getMock();
-
-        self::assertNull($this->packer->getTransformers());
-        $this->packer->setTransformers($coll);
-        self::assertSame($coll, $this->packer->getTransformers());
-    }
-
     public function testPackCustomType()
     {
         $obj = new \stdClass();
+        $packed = 'packed';
 
-        $transformer = $this->getTransformerMock(5);
-        $transformer->expects(self::once())->method('transform')->willReturn(1);
+        $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\Packable')->getMock();
+        $transformer->expects(self::once())->method('pack')
+            ->with($this->packer, $obj)
+            ->willReturn($packed);
 
-        $coll = $this->getTransformerCollectionMock([$transformer]);
-        $coll->expects(self::once())->method('match')->with($obj);
-        $this->packer->setTransformers($coll);
+        $this->packer->registerTransformer($transformer);
 
-        self::assertSame("\xd4\x05\x01", $this->packer->pack($obj));
+        self::assertSame($packed, $this->packer->pack($obj));
     }
 }

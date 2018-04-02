@@ -15,7 +15,7 @@ use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
-use MessagePack\TypeTransformer\Collection;
+use MessagePack\TypeTransformer\Extension;
 
 class BufferUnpacker
 {
@@ -25,7 +25,7 @@ class BufferUnpacker
     private $isBigIntAsGmp;
 
     /**
-     * @var Collection|null
+     * @var Extension[]
      */
     private $transformers;
 
@@ -47,20 +47,9 @@ class BufferUnpacker
         $this->buffer = $buffer;
     }
 
-    /**
-     * @param Collection|null $transformers
-     */
-    public function setTransformers(Collection $transformers = null)
+    public function registerTransformer(Extension $ext)
     {
-        $this->transformers = $transformers;
-    }
-
-    /**
-     * @return Collection|null
-     */
-    public function getTransformers()
-    {
-        return $this->transformers;
+        $this->transformers[$ext->getType()] = $ext;
     }
 
     /**
@@ -84,6 +73,18 @@ class BufferUnpacker
     {
         $this->buffer = $buffer;
         $this->offset = 0;
+
+        return $this;
+    }
+
+    /**
+     * @param int $length
+     *
+     * @return $this
+     */
+    public function skip($length)
+    {
+        $this->offset += $length;
 
         return $this;
     }
@@ -201,7 +202,7 @@ class BufferUnpacker
         throw new UnpackingFailedException(\sprintf('Unknown code: 0x%x.', $c));
     }
 
-    private function unpackUint8()
+    public function unpackUint8()
     {
         if (!isset($this->buffer[$this->offset])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
@@ -213,7 +214,7 @@ class BufferUnpacker
         return \ord($num);
     }
 
-    private function unpackUint16()
+    public function unpackUint16()
     {
         if (!isset($this->buffer[$this->offset + 1])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 2);
@@ -226,7 +227,7 @@ class BufferUnpacker
         return $hi << 8 | $lo;
     }
 
-    private function unpackUint32()
+    public function unpackUint32()
     {
         if (!isset($this->buffer[$this->offset + 3])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 4);
@@ -240,7 +241,7 @@ class BufferUnpacker
         return $num[1];
     }
 
-    private function unpackUint64()
+    public function unpackUint64()
     {
         if (!isset($this->buffer[$this->offset + 7])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
@@ -261,7 +262,7 @@ class BufferUnpacker
         return ($value < 0) ? $this->handleIntOverflow($value) : $value;
     }
 
-    private function unpackInt8()
+    public function unpackInt8()
     {
         if (!isset($this->buffer[$this->offset])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
@@ -277,7 +278,7 @@ class BufferUnpacker
         return $num;
     }
 
-    private function unpackInt16()
+    public function unpackInt16()
     {
         if (!isset($this->buffer[$this->offset + 1])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 2);
@@ -294,7 +295,7 @@ class BufferUnpacker
         return $hi << 8 | $lo;
     }
 
-    private function unpackInt32()
+    public function unpackInt32()
     {
         if (!isset($this->buffer[$this->offset + 3])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 4);
@@ -308,7 +309,7 @@ class BufferUnpacker
         return $num[1];
     }
 
-    private function unpackInt64()
+    public function unpackInt64()
     {
         if (!isset($this->buffer[$this->offset + 7])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
@@ -322,7 +323,7 @@ class BufferUnpacker
         return $set[1] << 32 | $set[2];
     }
 
-    private function unpackFloat32()
+    public function unpackFloat32()
     {
         if (!isset($this->buffer[$this->offset + 3])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 4);
@@ -336,7 +337,7 @@ class BufferUnpacker
         return $num[1];
     }
 
-    private function unpackFloat64()
+    public function unpackFloat64()
     {
         if (!isset($this->buffer[$this->offset + 7])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
@@ -350,7 +351,7 @@ class BufferUnpacker
         return $num[1];
     }
 
-    private function unpackStr($length)
+    public function unpackStr($length)
     {
         if (!isset($this->buffer[$this->offset + $length - 1])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, $length);
@@ -362,7 +363,7 @@ class BufferUnpacker
         return $str;
     }
 
-    private function unpackArray($size)
+    public function unpackArray($size)
     {
         $array = [];
         while ($size--) {
@@ -372,7 +373,7 @@ class BufferUnpacker
         return $array;
     }
 
-    private function unpackMap($size)
+    public function unpackMap($size)
     {
         $map = [];
         while ($size--) {
@@ -382,7 +383,7 @@ class BufferUnpacker
         return $map;
     }
 
-    private function unpackExt($length)
+    public function unpackExt($length)
     {
         if (!isset($this->buffer[$this->offset + $length - 1])) {
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, $length);
@@ -390,8 +391,8 @@ class BufferUnpacker
 
         $type = $this->unpackInt8();
 
-        if ($this->transformers && $transformer = $this->transformers->find($type)) {
-            return $transformer->reverseTransform($this->unpack());
+        if (isset($this->transformers[$type])) {
+            return $this->transformers[$type]->unpack($this, $length);
         }
 
         $data = \substr($this->buffer, $this->offset, $length);

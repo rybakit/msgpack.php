@@ -17,8 +17,6 @@ use MessagePack\UnpackOptions;
 
 class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 {
-    use TransformerUtils;
-
     /**
      * @var BufferUnpacker
      */
@@ -141,7 +139,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
             self::assertInstanceOf('GMP', $uint64);
         }
 
-        self::assertSame('18446744073709551615', gmp_strval($uint64));
+        self::assertSame('18446744073709551615', \gmp_strval($uint64));
     }
 
     /**
@@ -156,6 +154,13 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     public function testResetWithBuffer()
     {
         $this->unpacker->append("\xc2")->reset("\xc3");
+
+        self::assertTrue($this->unpacker->unpack());
+    }
+
+    public function testSkip()
+    {
+        $this->unpacker->append("\xc2\xc2\xc3")->skip(2);
 
         self::assertTrue($this->unpacker->unpack());
     }
@@ -248,25 +253,18 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame([4 => 2], $raw);
     }
 
-    public function testSetGetTransformers()
-    {
-        $coll = $this->getTransformerCollectionMock();
-
-        self::assertNull($this->unpacker->getTransformers());
-        $this->unpacker->setTransformers($coll);
-        self::assertSame($coll, $this->unpacker->getTransformers());
-    }
-
     public function testUnpackCustomType()
     {
         $obj = new \stdClass();
+        $type = 5;
 
-        $transformer = $this->getTransformerMock(5);
-        $transformer->expects(self::once())->method('reverseTransform')->willReturn($obj);
+        $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\Extension')->getMock();
+        $transformer->expects(self::any())->method('getType')->willReturn($type);
+        $transformer->expects(self::once())->method('unpack')
+            ->with($this->unpacker, 1)
+            ->willReturn($obj);
 
-        $coll = $this->getTransformerCollectionMock([$transformer]);
-        $coll->expects(self::once())->method('find')->with(5);
-        $this->unpacker->setTransformers($coll);
+        $this->unpacker->registerTransformer($transformer);
 
         self::assertSame($obj, $this->unpacker->reset("\xd4\x05\x01")->unpack());
     }
