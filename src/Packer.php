@@ -35,9 +35,9 @@ class Packer
     private $isForceFloat32;
 
     /**
-     * @var Packable[]
+     * @var Packable[]|null
      */
-    private $transformers = [];
+    private $transformers;
 
     /**
      * @param PackOptions|int|null $options

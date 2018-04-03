@@ -25,7 +25,7 @@ class BufferUnpacker
     private $isBigIntAsGmp;
 
     /**
-     * @var Extension[]
+     * @var Extension[]|null
      */
     private $transformers;
 
