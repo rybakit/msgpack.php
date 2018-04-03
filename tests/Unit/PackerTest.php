@@ -136,4 +136,21 @@ class PackerTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame($packed, $this->packer->pack($obj));
     }
+
+    /**
+     * @expectedException \MessagePack\Exception\PackingFailedException
+     * @expectedExceptionMessage Unsupported type.
+     */
+    public function testPackCustomUnsupportedType()
+    {
+        $obj = new \stdClass();
+
+        $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\Packable')->getMock();
+        $transformer->expects(self::atLeastOnce())->method('pack')
+            ->with($this->packer, $obj)
+            ->willReturn(null);
+
+        $this->packer->registerTransformer($transformer);
+        $this->packer->pack($obj);
+    }
 }

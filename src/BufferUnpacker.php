@@ -208,10 +208,7 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $num = $this->buffer[$this->offset];
-        ++$this->offset;
-
-        return \ord($num);
+        return \ord($this->buffer[$this->offset++]);
     }
 
     public function unpackUint16()
@@ -259,7 +256,7 @@ class BufferUnpacker
         // If a number is bigger than 2^63, it will be interpreted as a float.
         // @link http://php.net/manual/en/language.types.integer.php#language.types.integer.overflow
 
-        return ($value < 0) ? $this->handleIntOverflow($value) : $value;
+        return $value < 0 ? $this->handleIntOverflow($value) : $value;
     }
 
     public function unpackInt8()
@@ -271,11 +268,7 @@ class BufferUnpacker
         $num = \ord($this->buffer[$this->offset]);
         ++$this->offset;
 
-        if ($num > 0x7f) {
-            return $num - 256;
-        }
-
-        return $num;
+        return $num > 0x7f ? $num - 256 : $num;
     }
 
     public function unpackInt16()
@@ -389,7 +382,11 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, $length);
         }
 
-        $type = $this->unpackInt8();
+        // int8
+        $num = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
+
+        $type = $num > 0x7f ? $num - 256 : $num;
 
         if (isset($this->transformers[$type])) {
             return $this->transformers[$type]->unpack($this, $length);
