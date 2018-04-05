@@ -1,7 +1,5 @@
 <?php
 
-namespace x;
-
 use App\MessagePack\PackedMap;
 use App\MessagePack\PackedMapTransformer;
 use MessagePack\BufferUnpacker;
