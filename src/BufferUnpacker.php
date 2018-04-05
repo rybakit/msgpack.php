@@ -356,6 +356,23 @@ class BufferUnpacker
         return $str;
     }
 
+    public function unpackArrayLength()
+    {
+        $c = $this->unpackUint8();
+
+        if ($c >= 0x90 && $c <= 0x9f) {
+            return $c & 0xf;
+        }
+        if (0xdc === $c) {
+            return $this->unpackUint16();
+        }
+        if (0xdd === $c) {
+            return $this->unpackUint32();
+        }
+
+        throw new UnpackingFailedException(\sprintf('Unknown array header code: 0x%x.', $c));
+    }
+
     public function unpackArray($size)
     {
         $array = [];
@@ -364,6 +381,23 @@ class BufferUnpacker
         }
 
         return $array;
+    }
+
+    public function unpackMapLength()
+    {
+        $c = $this->unpackUint8();
+
+        if ($c >= 0x80 && $c <= 0x8f) {
+            return $c & 0xf;
+        }
+        if (0xde === $c) {
+            return $this->unpackUint16();
+        }
+        if (0xdf === $c) {
+            return $this->unpackUint32();
+        }
+
+        throw new UnpackingFailedException(\sprintf('Unknown map header code: 0x%x.', $c));
     }
 
     public function unpackMap($size)

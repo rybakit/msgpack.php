@@ -22,9 +22,9 @@ interface Extension extends Packable
 
     /**
      * @param BufferUnpacker $unpacker
-     * @param int $length
+     * @param int $extLength
      *
      * @return mixed
      */
-    public function unpack(BufferUnpacker $unpacker, $length);
+    public function unpack(BufferUnpacker $unpacker, $extLength);
 }

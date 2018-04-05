@@ -31,10 +31,10 @@ class DateTimeTransformer implements Extension
         return $packer->packExt($this->type, $data);
     }
 
-    public function unpack(BufferUnpacker $unpacker, $length)
+    public function unpack(BufferUnpacker $unpacker, $extLength)
     {
         $unpacker->skip(1);
-        $data = $unpacker->unpackStr($length - 1);
+        $data = $unpacker->unpackStr($extLength - 1);
 
         return new \DateTime($data);
     }

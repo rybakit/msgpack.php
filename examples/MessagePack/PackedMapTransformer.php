@@ -6,7 +6,7 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\Extension;
 
-class ArrayIteratorTransformer implements Extension
+class PackedMapTransformer implements Extension
 {
     private $type;
 
@@ -22,18 +22,21 @@ class ArrayIteratorTransformer implements Extension
 
     public function pack(Packer $packer, $value)
     {
-        if (!$value instanceof \ArrayIterator) {
+        if (!$value instanceof PackedMap) {
             return null;
         }
 
         $data = '';
         $length = 0;
-        foreach ($value as $item) {
-            $data .= $packer->pack($item);
+        foreach ($value->map as $item) {
+            foreach ($value->schema as $key) {
+                $data .= $packer->pack($item[$key]);
+            }
             ++$length;
         }
 
         return $packer->packExt($this->type,
+            $packer->packArray($value->schema).
             $packer->packArrayLength($length).
             $data
         );
@@ -41,10 +44,17 @@ class ArrayIteratorTransformer implements Extension
 
     public function unpack(BufferUnpacker $unpacker, $extLength)
     {
-        $length = $unpacker->unpackArrayLength();
+        $schema = $unpacker->unpackArray($unpacker->unpackArrayLength());
 
-        while ($length--) {
-            yield $unpacker->unpack();
+        $length = $unpacker->unpackArrayLength();
+        $items = [];
+
+        for ($i = 0; $i < $length; ++$i) {
+            foreach ($schema as $key) {
+                $items[$i][$key] = $unpacker->unpack();
+            }
         }
+
+        return $items;
     }
 }

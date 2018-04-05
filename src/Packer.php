@@ -112,15 +112,7 @@ class Packer
 
     public function packArray(array $array)
     {
-        $size = \count($array);
-
-        if ($size <= 0xf) {
-            $data = \chr(0x90 | $size);
-        } elseif ($size <= 0xffff) {
-            $data = "\xdc".\chr($size >> 8).\chr($size);
-        } else {
-            $data = \pack('CN', 0xdd, $size);
-        }
+        $data = $this->packArrayLength(\count($array));
 
         foreach ($array as $val) {
             $data .= $this->pack($val);
@@ -129,17 +121,21 @@ class Packer
         return $data;
     }
 
+    public function packArrayLength($length)
+    {
+        if ($length <= 0xf) {
+            return \chr(0x90 | $length);
+        }
+        if ($length <= 0xffff) {
+            return "\xdc".\chr($length >> 8).\chr($length);
+        }
+
+        return \pack('CN', 0xdd, $length);
+    }
+
     public function packMap(array $map)
     {
-        $size = \count($map);
-
-        if ($size <= 0xf) {
-            $data = \chr(0x80 | $size);
-        } elseif ($size <= 0xffff) {
-            $data = "\xde".\chr($size >> 8).\chr($size);
-        } else {
-            $data = \pack('CN', 0xdf, $size);
-        }
+        $data = $this->packMapLength(\count($map));
 
         foreach ($map as $key => $val) {
             $data .= $this->pack($key);
@@ -149,42 +145,54 @@ class Packer
         return $data;
     }
 
+    public function packMapLength($length)
+    {
+        if ($length <= 0xf) {
+            return \chr(0x80 | $length);
+        }
+        if ($length <= 0xffff) {
+            return "\xde".\chr($length >> 8).\chr($length);
+        }
+
+        return \pack('CN', 0xdf, $length);
+    }
+
     public function packStr($str)
     {
-        $len = \strlen($str);
+        $length = \strlen($str);
 
-        if ($len < 32) {
-            return \chr(0xa0 | $len).$str;
+        if ($length < 32) {
+            return \chr(0xa0 | $length).$str;
         }
-        if ($len <= 0xff) {
-            return "\xd9".\chr($len).$str;
+        if ($length <= 0xff) {
+            return "\xd9".\chr($length).$str;
         }
-        if ($len <= 0xffff) {
-            return "\xda".\chr($len >> 8).\chr($len).$str;
+        if ($length <= 0xffff) {
+            return "\xda".\chr($length >> 8).\chr($length).$str;
         }
 
-        return \pack('CN', 0xdb, $len).$str;
+        return \pack('CN', 0xdb, $length).$str;
     }
 
     public function packBin($str)
     {
-        $len = \strlen($str);
+        $length = \strlen($str);
 
-        if ($len <= 0xff) {
-            return "\xc4".\chr($len).$str;
+        if ($length <= 0xff) {
+            return "\xc4".\chr($length).$str;
         }
-        if ($len <= 0xffff) {
-            return "\xc5".\chr($len >> 8).\chr($len).$str;
+        if ($length <= 0xffff) {
+            return "\xc5".\chr($length >> 8).\chr($length).$str;
         }
 
-        return \pack('CN', 0xc6, $len).$str;
+        return \pack('CN', 0xc6, $length).$str;
     }
 
     public function packExt($type, $data)
     {
-        $len = \strlen($data);
+        $length = \strlen($data);
 
-        switch ($len) {
+        switch ($length) {
             case 1: return "\xd4".\chr($type).$data;
             case 2: return "\xd5".\chr($type).$data;
             case 4: return "\xd6".\chr($type).$data;
@@ -192,14 +200,14 @@ class Packer
             case 16: return "\xd8".\chr($type).$data;
         }
 
-        if ($len <= 0xff) {
-            return "\xc7".\chr($len).\chr($type).$data;
+        if ($length <= 0xff) {
+            return "\xc7".\chr($length).\chr($type).$data;
         }
-        if ($len <= 0xffff) {
-            return \pack('CnC', 0xc8, $len, $type).$data;
+        if ($length <= 0xffff) {
+            return \pack('CnC', 0xc8, $length, $type).$data;
         }
 
-        return \pack('CNC', 0xc9, $len, $type).$data;
+        return \pack('CNC', 0xc9, $length, $type).$data;
     }
 
     public function packNil()

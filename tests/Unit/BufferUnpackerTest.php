@@ -85,7 +85,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
      * @expectedException \MessagePack\Exception\UnpackingFailedException
      * @expectedExceptionMessage Unknown code: 0xc1.
      */
-    public function testUnknownCodeThrowsException()
+    public function testUnpackUnknownCode()
     {
         $this->unpacker->reset("\xc1")->unpack();
     }
@@ -267,5 +267,65 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $this->unpacker->registerTransformer($transformer);
 
         self::assertSame($obj, $this->unpacker->reset("\xd4\x05\x01")->unpack());
+    }
+
+    /**
+     * @dataProvider provideUnpackArrayLengthData
+     */
+    public function testUnpackArrayLength($length, $buffer)
+    {
+        $this->unpacker->reset($buffer);
+
+        self::assertSame($length, $this->unpacker->unpackArrayLength());
+    }
+
+    public function provideUnpackArrayLengthData()
+    {
+        return [
+            [0, "\x90"],
+            [3, "\x93"],
+            [16, "\xdc\x00\x10"],
+            [65535, "\xdc\xff\xff"],
+            [65536, "\xdd\x00\x01\x00\x00"],
+        ];
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Unknown array header code: 0x80.
+     */
+    public function testUnpackInvalidArrayLength()
+    {
+        $this->unpacker->reset("\x80")->unpackArrayLength();
+    }
+
+    /**
+     * @dataProvider provideUnpackMapLengthData
+     */
+    public function testUnpackMapLength($length, $buffer)
+    {
+        $this->unpacker->reset($buffer);
+
+        self::assertSame($length, $this->unpacker->unpackMapLength());
+    }
+
+    public function provideUnpackMapLengthData()
+    {
+        return [
+            [0, "\x80"],
+            [3, "\x83"],
+            [16, "\xde\x00\x10"],
+            [65535, "\xde\xff\xff"],
+            [65536, "\xdf\x00\x01\x00\x00"],
+        ];
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Unknown map header code: 0x90.
+     */
+    public function testUnpackInvalidMapLength()
+    {
+        $this->unpacker->reset("\x90")->unpackMapLength();
     }
 }
