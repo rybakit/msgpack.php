@@ -26,16 +26,15 @@ class DateTimeTransformer implements Extension
             return null;
         }
 
-        $data = $packer->packStr($value->format(\DateTime::RFC3339));
-
-        return $packer->packExt($this->type, $data);
+        return $packer->packExt($this->type,
+            $packer->packStr($value->format(\DateTime::RFC3339))
+        );
     }
 
     public function unpack(BufferUnpacker $unpacker, $extLength)
     {
         $unpacker->skip(1);
-        $data = $unpacker->unpackStr($extLength - 1);
 
-        return new \DateTime($data);
+        return new \DateTime($unpacker->unpackStr($extLength - 1));
     }
 }
