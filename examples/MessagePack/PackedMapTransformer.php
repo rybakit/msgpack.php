@@ -29,14 +29,14 @@ class PackedMapTransformer implements Extension
         $data = '';
         $length = 0;
         foreach ($value->map as $item) {
-            foreach ($value->schema as $key) {
-                $data .= $packer->pack($item[$key]);
+            foreach ($value->schema as $key => $type) {
+                $data .= $packer->{'pack'.$type}($item[$key]);
             }
             ++$length;
         }
 
         return $packer->packExt($this->type,
-            $packer->packArray($value->schema).
+            $packer->packArray(\array_keys($value->schema)).
             $packer->packArrayLength($length).
             $data
         );

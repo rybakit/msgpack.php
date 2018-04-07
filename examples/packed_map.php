@@ -7,7 +7,11 @@ use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$schema = ['first_name', 'last_name', 'email'];
+$schema = [
+    'first_name' => 'str',
+    'last_name' => 'str',
+    'email' => 'str',
+];
 
 $profiles = [];
 for ($i = 0; $i < 1000; ++$i) {
