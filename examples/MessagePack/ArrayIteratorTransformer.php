@@ -27,23 +27,23 @@ class ArrayIteratorTransformer implements Extension
         }
 
         $data = '';
-        $length = 0;
+        $size = 0;
         foreach ($value as $item) {
             $data .= $packer->pack($item);
-            ++$length;
+            ++$size;
         }
 
         return $packer->packExt($this->type,
-            $packer->packArrayLength($length).
+            $packer->packArrayHeader($size).
             $data
         );
     }
 
     public function unpack(BufferUnpacker $unpacker, $extLength)
     {
-        $length = $unpacker->unpackArrayLength();
+        $size = $unpacker->unpackArrayHeader();
 
-        while ($length--) {
+        while ($size--) {
             yield $unpacker->unpack();
         }
     }

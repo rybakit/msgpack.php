@@ -8,17 +8,17 @@ use MessagePack\Packer;
 require __DIR__.'/autoload.php';
 
 $schema = [
+    'id' => 'int',
     'first_name' => 'str',
     'last_name' => 'str',
-    'email' => 'str',
 ];
 
 $profiles = [];
 for ($i = 0; $i < 1000; ++$i) {
     $profiles[] = [
-        'first_name' => \sprintf('first_name_%03s', \random_int(0, 999)),
-        'last_name' => \sprintf('last_name_%03s', \random_int(0, 999)),
-        'email' => \sprintf('email_%03s@example.com', \random_int(0, 999)),
+        'id' => $id = \random_int(0, 999),
+        'first_name' => \sprintf('first_name_%03s', $id),
+        'last_name' => \sprintf('last_name_%03s', $id),
     ];
 }
 

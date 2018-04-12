@@ -92,9 +92,7 @@ class Packer
             return $this->packBool($value);
         }
         if (\is_float($value)) {
-            return $this->isForceFloat32
-                ? $this->packFloat32($value)
-                : $this->packFloat64($value);
+            return $this->packFloat($value);
         }
         if ($value instanceof Ext) {
             return $this->packExt($value->type, $value->data);
@@ -110,51 +108,56 @@ class Packer
         throw new PackingFailedException($value, 'Unsupported type.');
     }
 
-    public function packArray(array $array)
+    public function packNil()
     {
-        $data = $this->packArrayLength(\count($array));
-
-        foreach ($array as $val) {
-            $data .= $this->pack($val);
-        }
-
-        return $data;
+        return "\xc0";
     }
 
-    public function packArrayLength($length)
+    public function packBool($bool)
     {
-        if ($length <= 0xf) {
-            return \chr(0x90 | $length);
-        }
-        if ($length <= 0xffff) {
-            return "\xdc".\chr($length >> 8).\chr($length);
-        }
-
-        return \pack('CN', 0xdd, $length);
+        return $bool ? "\xc3" : "\xc2";
     }
 
-    public function packMap(array $map)
+    public function packInt($int)
     {
-        $data = $this->packMapLength(\count($map));
+        if ($int >= 0) {
+            if ($int <= 0x7f) {
+                return \chr($int);
+            }
+            if ($int <= 0xff) {
+                return "\xcc".\chr($int);
+            }
+            if ($int <= 0xffff) {
+                return "\xcd".\chr($int >> 8).\chr($int);
+            }
+            if ($int <= 0xffffffff) {
+                return \pack('CN', 0xce, $int);
+            }
 
-        foreach ($map as $key => $val) {
-            $data .= $this->pack($key);
-            $data .= $this->pack($val);
+            return self::packUintInt64(0xcf, $int);
         }
 
-        return $data;
+        if ($int >= -0x20) {
+            return \chr(0xe0 | $int);
+        }
+        if ($int >= -0x80) {
+            return "\xd0".\chr($int);
+        }
+        if ($int >= -0x8000) {
+            return "\xd1".\chr($int >> 8).\chr($int);
+        }
+        if ($int >= -0x80000000) {
+            return \pack('CN', 0xd2, $int);
+        }
+
+        return self::packUintInt64(0xd3, $int);
     }
 
-    public function packMapLength($length)
+    public function packFloat($float)
     {
-        if ($length <= 0xf) {
-            return \chr(0x80 | $length);
-        }
-        if ($length <= 0xffff) {
-            return "\xde".\chr($length >> 8).\chr($length);
-        }
-
-        return \pack('CN', 0xdf, $length);
+        return $this->isForceFloat32
+            ? "\xca".\strrev(\pack('f', $float))
+            : "\xcb".\strrev(\pack('d', $float));
     }
 
     public function packStr($str)
@@ -188,6 +191,53 @@ class Packer
         return \pack('CN', 0xc6, $length).$str;
     }
 
+    public function packArray(array $array)
+    {
+        $data = $this->packArrayHeader(\count($array));
+
+        foreach ($array as $val) {
+            $data .= $this->pack($val);
+        }
+
+        return $data;
+    }
+
+    public function packArrayHeader($size)
+    {
+        if ($size <= 0xf) {
+            return \chr(0x90 | $size);
+        }
+        if ($size <= 0xffff) {
+            return "\xdc".\chr($size >> 8).\chr($size);
+        }
+
+        return \pack('CN', 0xdd, $size);
+    }
+
+    public function packMap(array $map)
+    {
+        $data = $this->packMapHeader(\count($map));
+
+        foreach ($map as $key => $val) {
+            $data .= $this->pack($key);
+            $data .= $this->pack($val);
+        }
+
+        return $data;
+    }
+
+    public function packMapHeader($size)
+    {
+        if ($size <= 0xf) {
+            return \chr(0x80 | $size);
+        }
+        if ($size <= 0xffff) {
+            return "\xde".\chr($size >> 8).\chr($size);
+        }
+
+        return \pack('CN', 0xdf, $size);
+    }
+
     public function packExt($type, $data)
     {
         $length = \strlen($data);
@@ -210,65 +260,10 @@ class Packer
         return \pack('CNC', 0xc9, $length, $type).$data;
     }
 
-    public function packNil()
+    private static function packUintInt64($code, $int)
     {
-        return "\xc0";
-    }
-
-    public function packBool($val)
-    {
-        return $val ? "\xc3" : "\xc2";
-    }
-
-    public function packFloat32($num)
-    {
-        return "\xca".\strrev(\pack('f', $num));
-    }
-
-    public function packFloat64($num)
-    {
-        return "\xcb".\strrev(\pack('d', $num));
-    }
-
-    public function packInt($num)
-    {
-        if ($num >= 0) {
-            if ($num <= 0x7f) {
-                return \chr($num);
-            }
-            if ($num <= 0xff) {
-                return "\xcc".\chr($num);
-            }
-            if ($num <= 0xffff) {
-                return "\xcd".\chr($num >> 8).\chr($num);
-            }
-            if ($num <= 0xffffffff) {
-                return \pack('CN', 0xce, $num);
-            }
-
-            return self::packUint64(0xcf, $num);
-        }
-
-        if ($num >= -0x20) {
-            return \chr(0xe0 | $num);
-        }
-        if ($num >= -0x80) {
-            return "\xd0".\chr($num);
-        }
-        if ($num >= -0x8000) {
-            return "\xd1".\chr($num >> 8).\chr($num);
-        }
-        if ($num >= -0x80000000) {
-            return \pack('CN', 0xd2, $num);
-        }
-
-        return self::packUint64(0xd3, $num);
-    }
-
-    private static function packUint64($code, $num)
-    {
-        $hi = ($num & 0xffffffff00000000) >> 32;
-        $lo = $num & 0x00000000ffffffff;
+        $hi = ($int & 0xffffffff00000000) >> 32;
+        $lo = $int & 0x00000000ffffffff;
 
         return \pack('CNN', $code, $hi, $lo);
     }

@@ -33,8 +33,6 @@ class DateTimeTransformer implements Extension
 
     public function unpack(BufferUnpacker $unpacker, $extLength)
     {
-        $unpacker->skip(1);
-
-        return new \DateTime($unpacker->unpackStr($extLength - 1));
+        return new \DateTime($unpacker->unpackStr());
     }
 }

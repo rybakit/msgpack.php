@@ -30,7 +30,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideUnpackData
      */
-    public function testUnpack($title, $raw, $packed)
+    public function testUnpack($raw, $packed)
     {
         $this->unpacker->reset($packed);
         $isOrHasObject = \is_object($raw) || \is_array($raw);
@@ -158,13 +158,6 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertTrue($this->unpacker->unpack());
     }
 
-    public function testSkip()
-    {
-        $this->unpacker->append("\xc2\xc2\xc3")->skip(2);
-
-        self::assertTrue($this->unpacker->unpack());
-    }
-
     public function testTryUnpack()
     {
         $foo = [1, 2];
@@ -270,62 +263,236 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider provideUnpackArrayLengthData
+     * @dataProvider \MessagePack\Tests\DataProvider::provideNilData
      */
-    public function testUnpackArrayLength($length, $buffer)
+    public function testUnpackNil($raw, $packed)
     {
-        $this->unpacker->reset($buffer);
-
-        self::assertSame($length, $this->unpacker->unpackArrayLength());
+        self::assertNull($this->unpacker->reset($packed)->unpackNil());
     }
 
-    public function provideUnpackArrayLengthData()
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientNil()
     {
-        return [
-            [0, "\x90"],
-            [3, "\x93"],
-            [16, "\xdc\x00\x10"],
-            [65535, "\xdc\xff\xff"],
-            [65536, "\xdd\x00\x01\x00\x00"],
-        ];
+        $this->unpacker->unpackNil();
     }
 
     /**
      * @expectedException \MessagePack\Exception\UnpackingFailedException
-     * @expectedExceptionMessage Unknown array header code: 0x80.
+     * @expectedExceptionMessage Invalid nil code: 0xc1.
      */
-    public function testUnpackInvalidArrayLength()
+    public function testUnpackInvalidNil()
     {
-        $this->unpacker->reset("\x80")->unpackArrayLength();
+        $this->unpacker->reset("\xc1")->unpackNil();
     }
 
     /**
-     * @dataProvider provideUnpackMapLengthData
+     * @dataProvider \MessagePack\Tests\DataProvider::provideBoolData
      */
-    public function testUnpackMapLength($length, $buffer)
+    public function testUnpackBool($raw, $packed)
     {
-        $this->unpacker->reset($buffer);
-
-        self::assertSame($length, $this->unpacker->unpackMapLength());
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackBool());
     }
 
-    public function provideUnpackMapLengthData()
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientBool()
     {
-        return [
-            [0, "\x80"],
-            [3, "\x83"],
-            [16, "\xde\x00\x10"],
-            [65535, "\xde\xff\xff"],
-            [65536, "\xdf\x00\x01\x00\x00"],
-        ];
+        $this->unpacker->unpackBool();
     }
 
     /**
      * @expectedException \MessagePack\Exception\UnpackingFailedException
-     * @expectedExceptionMessage Unknown map header code: 0x90.
+     * @expectedExceptionMessage Invalid bool code: 0xc1.
      */
-    public function testUnpackInvalidMapLength()
+    public function testUnpackInvalidBool()
     {
-        $this->unpacker->reset("\x90")->unpackMapLength();
+        $this->unpacker->reset("\xc1")->unpackBool();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideIntUnpackData
+     */
+    public function testUnpackInt($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackInt());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientInt()
+    {
+        $this->unpacker->unpackInt();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Invalid int code: 0xc1.
+     */
+    public function testUnpackInvalidInt()
+    {
+        $this->unpacker->reset("\xc1")->unpackInt();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideFloatUnpackData
+     */
+    public function testUnpackFloat($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackFloat());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientFloat()
+    {
+        $this->unpacker->unpackFloat();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Invalid float code: 0xc1.
+     */
+    public function testUnpackInvalidFloat()
+    {
+        $this->unpacker->reset("\xc1")->unpackFloat();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideStrData
+     */
+    public function testUnpackStr($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackStr());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientStr()
+    {
+        $this->unpacker->unpackStr();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Invalid str code: 0xc1.
+     */
+    public function testUnpackInvalidStr()
+    {
+        $this->unpacker->reset("\xc1")->unpackStr();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideBinData
+     */
+    public function testUnpackBin($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackBin());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientBin()
+    {
+        $this->unpacker->unpackBin();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Invalid bin code: 0xc1.
+     */
+    public function testUnpackInvalidBin()
+    {
+        $this->unpacker->reset("\xc1")->unpackBin();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideArrayData
+     */
+    public function testUnpackArray($raw, $packed)
+    {
+        self::assertEquals($raw, $this->unpacker->reset($packed)->unpackArray());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientArray()
+    {
+        $this->unpacker->unpackArray();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Invalid array header code: 0xc1.
+     */
+    public function testUnpackInvalidArray()
+    {
+        $this->unpacker->reset("\xc1")->unpackArray();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideMapUnpackData
+     */
+    public function testUnpackMap($raw, $packed)
+    {
+        self::assertEquals($raw, $this->unpacker->reset($packed)->unpackMap());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientMap()
+    {
+        $this->unpacker->unpackMap();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Invalid map header code: 0xc1.
+     */
+    public function testUnpackInvalidMap()
+    {
+        $this->unpacker->reset("\xc1")->unpackMap();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideExtData
+     */
+    public function testUnpackExt($raw, $packed)
+    {
+        self::assertEquals($raw, $this->unpacker->reset($packed)->unpackExt());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientExt()
+    {
+        $this->unpacker->unpackExt();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedExceptionMessage Invalid ext header code: 0xc1.
+     */
+    public function testUnpackInvalidExt()
+    {
+        $this->unpacker->reset("\xc1")->unpackExt();
     }
 }

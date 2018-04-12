@@ -27,31 +27,30 @@ class PackedMapTransformer implements Extension
         }
 
         $data = '';
-        $length = 0;
+        $size = 0;
         foreach ($value->map as $item) {
             foreach ($value->schema as $key => $type) {
                 $data .= $packer->{'pack'.$type}($item[$key]);
             }
-            ++$length;
+            ++$size;
         }
 
         return $packer->packExt($this->type,
-            $packer->packArray(\array_keys($value->schema)).
-            $packer->packArrayLength($length).
+            $packer->packMap($value->schema).
+            $packer->packArrayHeader($size).
             $data
         );
     }
 
     public function unpack(BufferUnpacker $unpacker, $extLength)
     {
-        $schema = $unpacker->unpackArray($unpacker->unpackArrayLength());
+        $schema = $unpacker->unpackMap();
+        $size = $unpacker->unpackArrayHeader();
 
-        $length = $unpacker->unpackArrayLength();
         $items = [];
-
-        for ($i = 0; $i < $length; ++$i) {
-            foreach ($schema as $key) {
-                $items[$i][$key] = $unpacker->unpack();
+        for ($i = 0; $i < $size; ++$i) {
+            foreach ($schema as $key => $type) {
+                $items[$i][$key] = $unpacker->{'unpack'.$type}();
             }
         }
 
