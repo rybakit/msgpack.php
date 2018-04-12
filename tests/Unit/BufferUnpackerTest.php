@@ -82,8 +82,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Unknown code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackUnknownCode()
     {
@@ -280,8 +281,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid nil code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidNil()
     {
@@ -306,8 +308,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid bool code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidBool()
     {
@@ -332,8 +335,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid int code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidInt()
     {
@@ -358,8 +362,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid float code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidFloat()
     {
@@ -384,8 +389,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid str code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidStr()
     {
@@ -410,8 +416,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid bin code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidBin()
     {
@@ -436,8 +443,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid array header code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidArray()
     {
@@ -462,8 +470,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid map header code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidMap()
     {
@@ -488,8 +497,9 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Invalid ext header code: 0xc1.
+     * @expectedExceptionCode 193
      */
     public function testUnpackInvalidExt()
     {
