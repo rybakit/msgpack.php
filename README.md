@@ -93,15 +93,14 @@ $mpMap = $packer->packMap([1, 2]); // {0: 1, 1: 2}
 Here is a list of all low-level packer methods:
 
 ```php
-$packer->packArray([1, 2]);  // MP array
-$packer->packMap([1, 2]);    // MP map
-$packer->packStr('foo');     // MP str
-$packer->packBin("\x80");    // MP bin
-$packer->packFloat32(M_PI);  // MP float 32
-$packer->packFloat64(M_PI);  // MP float 64
-$packer->packInt(42);        // MP int
 $packer->packNil();          // MP nil
 $packer->packBool(true);     // MP bool
+$packer->packInt(42);        // MP int
+$packer->packFloat(M_PI);    // MP float
+$packer->packStr('foo');     // MP str
+$packer->packBin("\x80");    // MP bin
+$packer->packArray([1, 2]);  // MP array
+$packer->packMap([1, 2]);    // MP map
 $packer->packExt(1, "\xaa"); // MP ext
 ```
 
