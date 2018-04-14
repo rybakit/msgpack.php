@@ -45,8 +45,8 @@ class Runner
         $this->writer->open($benchmark->getInfo(), $targets);
 
         $result = [];
-        foreach ($this->testData as $row) {
-            $test = new Test($row[0], $row[1], $row[2]);
+        foreach ($this->testData as $name => $row) {
+            $test = new Test($name, $row[0], $row[1]);
 
             $stats = [];
             foreach ($targets as $target) {

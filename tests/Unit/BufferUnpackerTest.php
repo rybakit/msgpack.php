@@ -17,8 +17,6 @@ use MessagePack\UnpackOptions;
 
 class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 {
-    use TransformerUtils;
-
     /**
      * @var BufferUnpacker
      */
@@ -32,7 +30,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideUnpackData
      */
-    public function testUnpack($title, $raw, $packed)
+    public function testUnpack($raw, $packed)
     {
         $this->unpacker->reset($packed);
         $isOrHasObject = \is_object($raw) || \is_array($raw);
@@ -84,10 +82,11 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MessagePack\Exception\UnpackingFailedException
+     * @expectedException \MessagePack\Exception\InvalidCodeException
      * @expectedExceptionMessage Unknown code: 0xc1.
+     * @expectedExceptionCode 193
      */
-    public function testUnknownCodeThrowsException()
+    public function testUnpackUnknownCode()
     {
         $this->unpacker->reset("\xc1")->unpack();
     }
@@ -141,7 +140,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
             self::assertInstanceOf('GMP', $uint64);
         }
 
-        self::assertSame('18446744073709551615', gmp_strval($uint64));
+        self::assertSame('18446744073709551615', \gmp_strval($uint64));
     }
 
     /**
@@ -248,26 +247,262 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame([4 => 2], $raw);
     }
 
-    public function testSetGetTransformers()
-    {
-        $coll = $this->getTransformerCollectionMock();
-
-        self::assertNull($this->unpacker->getTransformers());
-        $this->unpacker->setTransformers($coll);
-        self::assertSame($coll, $this->unpacker->getTransformers());
-    }
-
     public function testUnpackCustomType()
     {
         $obj = new \stdClass();
+        $type = 5;
 
-        $transformer = $this->getTransformerMock(5);
-        $transformer->expects(self::once())->method('reverseTransform')->willReturn($obj);
+        $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\Extension')->getMock();
+        $transformer->expects(self::any())->method('getType')->willReturn($type);
+        $transformer->expects(self::once())->method('unpack')
+            ->with($this->unpacker, 1)
+            ->willReturn($obj);
 
-        $coll = $this->getTransformerCollectionMock([$transformer]);
-        $coll->expects(self::once())->method('find')->with(5);
-        $this->unpacker->setTransformers($coll);
+        $this->unpacker->registerTransformer($transformer);
 
         self::assertSame($obj, $this->unpacker->reset("\xd4\x05\x01")->unpack());
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideNilData
+     */
+    public function testUnpackNil($raw, $packed)
+    {
+        self::assertNull($this->unpacker->reset($packed)->unpackNil());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientNil()
+    {
+        $this->unpacker->unpackNil();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid nil code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidNil()
+    {
+        $this->unpacker->reset("\xc1")->unpackNil();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideBoolData
+     */
+    public function testUnpackBool($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackBool());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientBool()
+    {
+        $this->unpacker->unpackBool();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid bool code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidBool()
+    {
+        $this->unpacker->reset("\xc1")->unpackBool();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideIntUnpackData
+     */
+    public function testUnpackInt($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackInt());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientInt()
+    {
+        $this->unpacker->unpackInt();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid int code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidInt()
+    {
+        $this->unpacker->reset("\xc1")->unpackInt();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideFloatUnpackData
+     */
+    public function testUnpackFloat($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackFloat());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientFloat()
+    {
+        $this->unpacker->unpackFloat();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid float code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidFloat()
+    {
+        $this->unpacker->reset("\xc1")->unpackFloat();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideStrData
+     */
+    public function testUnpackStr($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackStr());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientStr()
+    {
+        $this->unpacker->unpackStr();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid str code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidStr()
+    {
+        $this->unpacker->reset("\xc1")->unpackStr();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideBinData
+     */
+    public function testUnpackBin($raw, $packed)
+    {
+        self::assertSame($raw, $this->unpacker->reset($packed)->unpackBin());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientBin()
+    {
+        $this->unpacker->unpackBin();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid bin code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidBin()
+    {
+        $this->unpacker->reset("\xc1")->unpackBin();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideArrayData
+     */
+    public function testUnpackArray($raw, $packed)
+    {
+        self::assertEquals($raw, $this->unpacker->reset($packed)->unpackArray());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientArray()
+    {
+        $this->unpacker->unpackArray();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid array header code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidArray()
+    {
+        $this->unpacker->reset("\xc1")->unpackArray();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideMapUnpackData
+     */
+    public function testUnpackMap($raw, $packed)
+    {
+        self::assertEquals($raw, $this->unpacker->reset($packed)->unpackMap());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientMap()
+    {
+        $this->unpacker->unpackMap();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid map header code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidMap()
+    {
+        $this->unpacker->reset("\xc1")->unpackMap();
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideExtData
+     */
+    public function testUnpackExt($raw, $packed)
+    {
+        self::assertEquals($raw, $this->unpacker->reset($packed)->unpackExt());
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testUnpackInsufficientExt()
+    {
+        $this->unpacker->unpackExt();
+    }
+
+    /**
+     * @expectedException \MessagePack\Exception\InvalidCodeException
+     * @expectedExceptionMessage Invalid ext header code: 0xc1.
+     * @expectedExceptionCode 193
+     */
+    public function testUnpackInvalidExt()
+    {
+        $this->unpacker->reset("\xc1")->unpackExt();
     }
 }
