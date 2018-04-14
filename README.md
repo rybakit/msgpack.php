@@ -12,7 +12,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
    including **bin**, **str** and **ext** types
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
- * Supports [object serialization](#custom-types)
+ * Supports [object serialization](#type-transformers)
  * Works with PHP 5.4-7.x and HHVM 3.9+
  * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
  * [Relatively fast](#performance)
@@ -27,7 +27,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
    * [Unpacking](#unpacking)
      * [Unpacking options](#unpacking-options)
  * [Extensions](#extensions)
- * [Custom types](#custom-types)
+ * [Type transformers](#type-transformers)
  * [Exceptions](#exceptions)
  * [Tests](#tests)
     * [Performance](#performance)
@@ -47,7 +47,7 @@ $ composer require rybakit/msgpack
 
 ### Packing
 
-To pack values you can either use an instance of `Packer`:
+To pack values you can either use an instance of a `Packer`:
 
 ```php
 use MessagePack\Packer;
@@ -59,7 +59,7 @@ $packer = new Packer();
 $packed = $packer->pack($value);
 ```
 
-or call the static method on the `MessagePack` class:
+or call a static method on the `MessagePack` class:
 
 ```php
 use MessagePack\MessagePack;
@@ -69,11 +69,10 @@ use MessagePack\MessagePack;
 $packed = MessagePack::pack($value);
 ```
 
-In the examples above, the method `pack` automatically packs a value depending on its type.
-But not all PHP types can be uniquely translated to MessagePack types. For example,
-MessagePack format defines `map` and `array` types, which are represented by a single `array`
-type in PHP. By default, the packer will pack a PHP array as a MessagePack array if it
-has sequential numeric keys, starting from `0` and as a MessagePack map otherwise:
+In the examples above, the method `pack` automatically packs a value depending on its type. But not all PHP types 
+can be uniquely translated to MessagePack types. For example, the MessagePack format defines `map` and `array` types, 
+which are represented by a single `array` type in PHP. By default, the packer will pack a PHP array as a MessagePack 
+array if it has sequential numeric keys, starting from `0` and as a MessagePack map otherwise:
 
 ```php
 $mpArr1 = $packer->pack([1, 2]);                   // MP array [1, 2]
@@ -90,7 +89,7 @@ To do this, use the `packMap` method:
 $mpMap = $packer->packMap([1, 2]); // {0: 1, 1: 2}
 ```
 
-Here is a list of all low-level packer methods:
+Here is a list of type-specific packing methods:
 
 ```php
 $packer->packNil();          // MP nil
@@ -104,7 +103,7 @@ $packer->packMap([1, 2]);    // MP map
 $packer->packExt(1, "\xaa"); // MP ext
 ```
 
-> *Check ["Custom types"](#custom-types) section below on how to pack arbitrary PHP objects.*
+> *Check the ["Type transformers"](#type-transformers) section below on how to pack arbitrary PHP objects.*
 
 
 #### Packing options
@@ -125,11 +124,12 @@ process (defaults are in bold):
 | FORCE_FLOAT32      | Forces PHP floats to be packed as 32-bits MessagePack floats  |
 | **FORCE_FLOAT64**  | Forces PHP floats to be packed as 64-bits MessagePack floats  |
 
-> *Automatically detecting which MessagePack type to use to pack a value (the `DETECT_STR_BIN`/`DETECT_ARR_MAP` mode) 
-> adds some overhead which can be noticed when you pack large (16- and 32-bit) arrays or strings.
-> However, if you know the value type in advance (for example, you only work with UTF-8 strings 
-> or/and associative arrays), you can eliminate this overhead by forcing the packer to use 
-> the appropriate type, which will save it from running the auto detection routine.*
+> *The type detection mode (`DETECT_STR_BIN`/`DETECT_ARR_MAP`) adds some overhead which can be noticed when you pack 
+> large (16- and 32-bit) arrays or strings. However, if you know the value type in advance (for example, you only 
+> work with UTF-8 strings or/and associative arrays), you can eliminate this overhead by forcing the packer to use 
+> the appropriate type, which will save it from running the auto-detection routine. Another option is to explicitly 
+> specify the value type. The library provides 2 auxiliary classes for this, `Map` and `Binary`.
+> Check the ["Type transformers"](#type-transformers) section below for details.*
 
 Examples:
 
@@ -152,7 +152,7 @@ $packer = new Packer(PackOptions::FORCE_FLOAT32 | PackOptions::FORCE_FLOAT64);
 
 ### Unpacking
 
-To unpack data you can either use an instance of `BufferUnpacker`:
+To unpack data you can either use an instance of a `BufferUnpacker`:
 
 ```php
 use MessagePack\BufferUnpacker;
@@ -165,7 +165,7 @@ $unpacker->reset($packed);
 $value = $unpacker->unpack();
 ```
 
-or call the static method on the `MessagePack` class:
+or call a static method on the `MessagePack` class:
 
 ```php
 use MessagePack\MessagePack;
@@ -175,8 +175,8 @@ use MessagePack\MessagePack;
 $value = MessagePack::unpack($packed);
 ```
 
-If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack`
-method, which attempts to unpack data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
+If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts 
+to unpack data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
 
 ```php
 while ($chunk = ...) {
@@ -187,11 +187,25 @@ while ($chunk = ...) {
 }
 ```
 
+Besides the above methods `BufferUnpacker` provides type-specific unpacking methods, namely:
+
+```php
+$unpacker->unpackNil();   // PHP null
+$unpacker->unpackBool();  // PHP bool
+$unpacker->unpackInt();   // PHP int
+$unpacker->unpackFloat(); // PHP float
+$unpacker->unpackStr();   // PHP UTF-8 string
+$unpacker->unpackBin();   // PHP binary string
+$unpacker->unpackArray(); // PHP sequential array
+$unpacker->unpackMap();   // PHP associative array
+$unpacker->unpackExt();   // PHP Ext class
+```
+
 
 #### Unpacking options
 
-The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning 
-the unpacking process (defaults are in bold):
+The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning the unpacking process (defaults 
+are in bold):
 
 | Name                | Description                                                |
 | ------------------- | ---------------------------------------------------------- |
@@ -240,79 +254,135 @@ var_dump($ext->data === "\xaa"); // bool(true)
 ```
 
 
-### Custom types
+### Type transformers
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
-the library provides functionality to serialize and deserialize arbitrary types. To do this, you need 
-to create a transformer, that converts your type to a type, which can be handled by MessagePack.
+the library provides functionality to serialize and deserialize arbitrary types. In order to support a custom type 
+you need to create and register a transformer. The transformer must either implement the `Packable` or `Extension` 
+interface.
 
-For example, the code below shows how to add `DateTime` object support:
+The purpose of `Packable` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
+example of such a transformer is the `MapTransformer` that comes with the library. It serializes `Map` objects (which 
+are simple wrappers around PHP arrays) to MessagePack maps. This is useful when you want to explicitly mark that 
+a given PHP array must be packed as a MessagePack map, without triggering the type's auto-detection routine.
+
+> *More types and type transformers can be found in [src/Type](src/Type) 
+> and [src/TypeTransformer](src/TypeTransformer) directories.*
+
+The implementation is trivial:
 
 ```php
-use MessagePack\TypeTransformer\TypeTransformer;
+namespace MessagePack\TypeTransformer;
 
-class DateTimeTransformer implements TypeTransformer
+use MessagePack\Packer;
+use MessagePack\Type\Map;
+
+class MapTransformer implements Packable
 {
-    private $id;
-
-    public function __construct($id)
+    public function pack(Packer $packer, $value)
     {
-        $this->id = $id;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function supports($value)
-    {
-        return $value instanceof \DateTime;
-    }
-
-    public function transform($value)
-    {
-        return $value->format(\DateTime::RFC3339);
-    }
-
-    public function reverseTransform($data)
-    {
-        return new \DateTime($data);
+        return $value instanceof Map
+            ? $packer->packMap($value->map)
+            : null;
     }
 }
 ```
 
+Once `MapTransformer` is registered, you can pack `Map` objects:
+
+```php
+use MessagePack\Packer;
+use MessagePack\PackOptions;
+use MessagePack\Type\Map;
+use MessagePack\TypeTransformer\MapTransformer;
+
+$packer = new Packer(PackOptions::FORCE_ARR);
+$packer->registerTransformer(new MapTransformer());
+
+$packed = $packer->pack([
+    [1, 2, 3],          // MP array
+    new Map([1, 2, 3]), // MP map
+]);
+```
+
+Transformers implementing the `Extension` interface are intended for packing *and* unpacking application-specific types 
+using the MessagePack's [Extension type](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
+For example, the code below shows how to create a transformer that allows you to work transparently with `DateTime` 
+objects:
+
 ```php
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Collection;
+use MessagePack\TypeTransformer\Extension;
+
+class DateTimeTransformer implements Extension
+{
+    private $type;
+
+    public function __construct($type)
+    {
+        $this->type = $type;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function pack(Packer $packer, $value)
+    {
+        if (!$value instanceof \DateTimeInterface && !$value instanceof \DateTime) {
+            return null;
+        }
+
+        return $packer->packExt($this->type,
+            $packer->packStr($value->format(\DateTime::RFC3339))
+        );
+    }
+
+    public function unpack(BufferUnpacker $unpacker, $extLength)
+    {
+        return new \DateTime($unpacker->unpackStr());
+    }
+}
+```
+
+Register `DateTimeTransformer` for both the packer and the unpacker with a unique extension type (an integer 
+between 0 and 127) and you are ready to go:
+
+```php
+use App\MessagePack\DateTimeTransformer;
+use MessagePack\BufferUnpacker;
+use MessagePack\Packer;
+
+$transformer = new DateTimeTransformer(42);
 
 $packer = new Packer();
+$packer->registerTransformer($transformer);
+
 $unpacker = new BufferUnpacker();
+$unpacker->registerTransformer($transformer);
 
-$coll = new Collection([new DateTimeTransformer(5)]);
-// $coll->add(new AnotherTypeTransformer(42));
-
-$packer->setTransformers($coll);
-$unpacker->setTransformers($coll);
-
-$packed = $packer->pack(['foo' => new DateTime(), 'bar' => 'baz']);
-$value = $unpacker->reset($packed)->unpack();
+$packed = $packer->pack(new DateTime());
+$date = $unpacker->reset($packed)->unpack();
 ```
+
+> *More type transformer examples can be found in the [examples](examples) directory.* 
 
 
 ## Exceptions
 
-If an error occurs during packing/unpacking, a `PackingFailedException` or `UnpackingFailedException`
-will be thrown, respectively.
+If an error occurs during packing/unpacking, a `PackingFailedException` or `UnpackingFailedException` will be thrown, 
+respectively.
 
-In addition, there are two more exceptions that can be thrown during unpacking:
+In addition, there are three more exceptions that can be thrown during unpacking:
 
  * `InsufficientDataException`
  * `IntegerOverflowException`
+ * `InvalidCodeException`
 
-The `InvalidOptionException` will be thrown in case of an invalid option (or a combination 
-of mutually exclusive options) is used.
+An `InvalidOptionException` will be thrown in case an invalid option (or a combination of mutually exclusive options) 
+is used.
 
 
 ## Tests
