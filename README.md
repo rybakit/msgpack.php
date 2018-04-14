@@ -262,7 +262,7 @@ you need to create and register a transformer. The transformer must either imple
 interface.
 
 The purpose of `Packable` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
-example of such a transformer is the `MapTransformer` that comes with the library. It serializes `Map` objects (which 
+example of such a transformer is a `MapTransformer` that comes with the library. It serializes `Map` objects (which 
 are simple wrappers around PHP arrays) to MessagePack maps. This is useful when you want to explicitly mark that 
 a given PHP array must be packed as a MessagePack map, without triggering the type's auto-detection routine.
 
