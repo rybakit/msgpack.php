@@ -10,6 +10,8 @@ require __DIR__.'/autoload.php';
 $packer = new Packer(PackOptions::FORCE_ARR);
 $packer->registerTransformer(new MapTransformer());
 
-$packed = $packer->pack([1, new Map([1, 2, 3]), 2]);
+$packedArray = $packer->pack([1, 2, 3]);
+$packedMap = $packer->pack(new Map([1, 2, 3]));
 
-echo  \implode(' ', \str_split(\bin2hex($packed), 2))."\n";
+printf("Packed array: %s\n", \implode(' ', \str_split(\bin2hex($packedArray), 2)));
+printf("Packed map:   %s\n", \implode(' ', \str_split(\bin2hex($packedMap), 2)));
