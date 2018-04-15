@@ -257,9 +257,9 @@ var_dump($ext->data === "\xaa"); // bool(true)
 ### Type transformers
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
-the library provides functionality to serialize and deserialize arbitrary types. In order to support a custom type 
-you need to create and register a transformer. The transformer must either implement the `Packable` or `Extension` 
-interface.
+the library provides functionality to serialize and deserialize arbitrary types. In order to support a custom 
+type you need to create and register a transformer. The transformer should either implement the `Packable` 
+or the `Extension` interface.
 
 The purpose of `Packable` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
 example of such a transformer is a `MapTransformer` that comes with the library. It serializes `Map` objects (which 
