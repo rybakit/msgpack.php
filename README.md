@@ -347,8 +347,8 @@ class DateTimeTransformer implements Extension
 }
 ```
 
-Register `DateTimeTransformer` for both the packer and the unpacker with a unique extension type (an integer 
-between 0 and 127) and you are ready to go:
+Register `DateTimeTransformer` for both the packer and the unpacker with a unique extension type (an integer from 0 
+to 127) and you are ready to go:
 
 ```php
 use App\MessagePack\DateTimeTransformer;
