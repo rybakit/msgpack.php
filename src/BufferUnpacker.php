@@ -48,15 +48,22 @@ class BufferUnpacker
         $this->buffer = $buffer;
     }
 
-    public function registerTransformer(Extension $ext)
+    /**
+     * @param Extension $transformer
+     *
+     * @return self
+     */
+    public function registerTransformer(Extension $transformer)
     {
-        $this->transformers[$ext->getType()] = $ext;
+        $this->transformers[$transformer->getType()] = $transformer;
+
+        return $this;
     }
 
     /**
      * @param string $data
      *
-     * @return $this
+     * @return self
      */
     public function append($data)
     {
@@ -68,7 +75,7 @@ class BufferUnpacker
     /**
      * @param string $buffer
      *
-     * @return $this
+     * @return self
      */
     public function reset($buffer = '')
     {

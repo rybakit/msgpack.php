@@ -57,9 +57,16 @@ class Packer
         $this->isForceFloat32 = $options->isForceFloat32Mode();
     }
 
+    /**
+     * @param Packable $transformer
+     *
+     * @return self
+     */
     public function registerTransformer(Packable $transformer)
     {
         $this->transformers[] = $transformer;
+
+        return $this;
     }
 
     public function pack($value)
