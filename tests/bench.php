@@ -81,9 +81,9 @@ $targetFactories = [
     'pecl_p' => function () { return new PeclFunctionPackTarget(); },
     'pecl_u' => function () { return new PeclFunctionUnpackTarget(); },
     'pure_p' => function () { return new PackerTarget('Packer'); },
-    'pure_ps' => function () { return new PackerTarget('Packer (str)', new Packer(PackOptions::FORCE_STR)); },
-    'pure_pa' => function () { return new PackerTarget('Packer (arr)', new Packer(PackOptions::FORCE_ARR)); },
-    'pure_psa' => function () { return new PackerTarget('Packer (str/arr)', new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_ARR)); },
+    'pure_ps' => function () { return new PackerTarget('Packer (force_str)', new Packer(PackOptions::FORCE_STR)); },
+    'pure_pa' => function () { return new PackerTarget('Packer (force_arr)', new Packer(PackOptions::FORCE_ARR)); },
+    'pure_psa' => function () { return new PackerTarget('Packer (force_str|force_arr)', new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_ARR)); },
     'pure_bu' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
 ];
 
