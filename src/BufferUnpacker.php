@@ -78,6 +78,12 @@ class BufferUnpacker
         return $this;
     }
 
+    public function __clone()
+    {
+        $this->buffer = '';
+        $this->offset = 0;
+    }
+
     /**
      * @return array
      */

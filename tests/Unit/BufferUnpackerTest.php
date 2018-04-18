@@ -159,6 +159,18 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertTrue($this->unpacker->unpack());
     }
 
+    /**
+     * @expectedException \MessagePack\Exception\InsufficientDataException
+     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
+     */
+    public function testClone()
+    {
+        $this->unpacker->reset("\xc3");
+
+        $clone = clone $this->unpacker;
+        $clone->unpack();
+    }
+
     public function testTryUnpack()
     {
         $foo = [1, 2];
