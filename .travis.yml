@@ -22,10 +22,10 @@ install:
   - ./dockerfile.sh | tee /dev/tty | docker build -t msgpack -
 
 script:
-  - docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack -e PHPUNIT_OPTS="$PHPUNIT_OPTS" msgpack
+  - docker run --rm -v $(pwd):/msgpack -w /msgpack -e PHPUNIT_OPTS="$PHPUNIT_OPTS" msgpack
 
 after_script:
   - if [[ -f coverage.clover ]]; then
       curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
-      php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
+      docker run --rm -v $(pwd):/coverage -w /coverage msgpack php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
     fi
