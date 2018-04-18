@@ -86,10 +86,10 @@ class Packer
             return $this->isForceArr ? $this->packArray($value) : $this->packMap($value);
         }
         if (null === $value) {
-            return $this->packNil();
+            return "\xc0";
         }
         if (\is_bool($value)) {
-            return $this->packBool($value);
+            return $value ? "\xc3" : "\xc2";
         }
         if (\is_float($value)) {
             return $this->packFloat($value);
