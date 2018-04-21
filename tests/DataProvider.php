@@ -20,7 +20,7 @@ use MessagePack\Ext;
 
 class DataProvider
 {
-    public static function provideData()
+    public static function provideData() : array
     {
         return \array_merge(
             self::provideNilData(),
@@ -35,7 +35,7 @@ class DataProvider
         );
     }
 
-    public static function provideUnpackData()
+    public static function provideUnpackData() : array
     {
         return \array_merge(
             self::provideNilData(),
@@ -50,14 +50,14 @@ class DataProvider
         );
     }
 
-    public static function provideNilData()
+    public static function provideNilData() : array
     {
         return [
             'nil' => [null, "\xc0"],
         ];
     }
 
-    public static function provideBoolData()
+    public static function provideBoolData() : array
     {
         return [
             'false' => [false, "\xc2"],
@@ -65,7 +65,7 @@ class DataProvider
         ];
     }
 
-    public static function provideIntData()
+    public static function provideIntData() : array
     {
         return [
             '7-bit uint #1' => [0x00, "\x00"],
@@ -110,7 +110,7 @@ class DataProvider
         ];
     }
 
-    public static function provideIntUnpackData()
+    public static function provideIntUnpackData() : array
     {
         return \array_merge(self::provideIntData(), [
             '8-bit int #4' => [0x7f, "\xd0\x7f"],
@@ -121,7 +121,7 @@ class DataProvider
         ]);
     }
 
-    public static function provideFloatData()
+    public static function provideFloatData() : array
     {
         return [
             '64-bit float #1' => [0.0, "\xcb"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
@@ -130,7 +130,7 @@ class DataProvider
         ];
     }
 
-    public static function provideFloatUnpackData()
+    public static function provideFloatUnpackData() : array
     {
         return \array_merge(self::provideFloatData(), [
             '32-bit float #1' => [0.0, "\xca"."\x00\x00\x00\x00"],
@@ -138,7 +138,7 @@ class DataProvider
         ]);
     }
 
-    public static function provideStrData()
+    public static function provideStrData() : array
     {
         return [
             'fix string #1' => ['', "\xa0"],
@@ -158,7 +158,7 @@ class DataProvider
         ];
     }
 
-    public static function provideBinData()
+    public static function provideBinData() : array
     {
         return [
             '8-bit binary #1' => ["\x80", "\xc4\x01"."\x80"],
@@ -169,7 +169,7 @@ class DataProvider
         ];
     }
 
-    public static function provideArrayData()
+    public static function provideArrayData() : array
     {
         return [
             'fix array #1' => [[], "\x90"],
@@ -181,7 +181,7 @@ class DataProvider
         ];
     }
 
-    public static function provideMapData()
+    public static function provideMapData() : array
     {
         return [
             'fix map #1' => [[1 => true, 2 => 'abc', 3 => "\x80", 4 => null], "\x84\x01\xc3\x02\xa3\x61\x62\x63\x03\xc4\x01\x80\x04\xc0"],
@@ -195,7 +195,7 @@ class DataProvider
         ];
     }
 
-    public static function provideMapUnpackData()
+    public static function provideMapUnpackData() : array
     {
         return \array_merge(self::provideMapData(), [
             'fix map #5' => [[], "\x80"],
@@ -204,7 +204,7 @@ class DataProvider
         ]);
     }
 
-    public static function provideExtData()
+    public static function provideExtData() : array
     {
         return [
             'fixext 1' => [new Ext(5, "\x80"), "\xd4\x05"."\x80"],
@@ -228,7 +228,7 @@ class DataProvider
         ];
     }
 
-    public static function getPeclIncompatibleTestNames()
+    public static function getPeclIncompatibleTestNames() : array
     {
         return [
             '8-bit binary #1',

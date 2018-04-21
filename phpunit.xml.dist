@@ -10,7 +10,7 @@
      stopOnFailure="false"
      syntaxCheck="false"
      verbose="true"
-     bootstrap="tests/bootstrap.php"
+     bootstrap="vendor/autoload.php"
 >
     <php>
         <ini name="date.timezone" value="UTC" />

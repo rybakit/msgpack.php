@@ -36,9 +36,11 @@ class BufferUnpacker
      *
      * @throws InvalidOptionException
      */
-    public function __construct($buffer = '', $options = null)
+    public function __construct(string $buffer = '', $options = null)
     {
-        if (!$options instanceof UnpackOptions) {
+        if (null === $options) {
+            $options = UnpackOptions::fromDefaults();
+        } elseif (!$options instanceof PackOptions) {
             $options = UnpackOptions::fromBitmask($options);
         }
 
@@ -48,36 +50,21 @@ class BufferUnpacker
         $this->buffer = $buffer;
     }
 
-    /**
-     * @param Extension $transformer
-     *
-     * @return self
-     */
-    public function registerTransformer(Extension $transformer)
+    public function registerTransformer(Extension $transformer) : self
     {
         $this->transformers[$transformer->getType()] = $transformer;
 
         return $this;
     }
 
-    /**
-     * @param string $data
-     *
-     * @return self
-     */
-    public function append($data)
+    public function append(string $data) : self
     {
         $this->buffer .= $data;
 
         return $this;
     }
 
-    /**
-     * @param string $buffer
-     *
-     * @return self
-     */
-    public function reset($buffer = '')
+    public function reset(string $buffer = '') : self
     {
         $this->buffer = $buffer;
         $this->offset = 0;
@@ -91,10 +78,7 @@ class BufferUnpacker
         $this->offset = 0;
     }
 
-    /**
-     * @return array
-     */
-    public function tryUnpack()
+    public function tryUnpack() : array
     {
         $data = [];
         $offset = $this->offset;

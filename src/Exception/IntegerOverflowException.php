@@ -15,7 +15,7 @@ class IntegerOverflowException extends UnpackingFailedException
 {
     private $value;
 
-    public function __construct($value, $code = null, \Exception $previous = null)
+    public function __construct(int $value, int $code = null, \Exception $previous = null)
     {
         $message = \sprintf('The value is too big: %u.', $value);
 
@@ -24,7 +24,7 @@ class IntegerOverflowException extends UnpackingFailedException
         $this->value = $value;
     }
 
-    public function getValue()
+    public function getValue() : int
     {
         return $this->value;
     }

@@ -11,17 +11,21 @@
 
 namespace MessagePack\Tests\Unit;
 
+use MessagePack\Exception\InvalidOptionException;
+use MessagePack\Exception\PackingFailedException;
 use MessagePack\Packer;
 use MessagePack\PackOptions;
+use MessagePack\TypeTransformer\Packable;
+use PHPUnit\Framework\TestCase;
 
-class PackerTest extends \PHPUnit_Framework_TestCase
+final class PackerTest extends TestCase
 {
     /**
      * @var Packer
      */
     private $packer;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->packer = new Packer();
     }
@@ -29,22 +33,23 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideData
      */
-    public function testPack($raw, $packed)
+    public function testPack($raw, string $packed) : void
     {
         self::assertSame($packed, $this->packer->pack($raw));
     }
 
     /**
      * @dataProvider provideUnsupportedValues
-     * @expectedException \MessagePack\Exception\PackingFailedException
-     * @expectedExceptionMessage Unsupported type.
      */
-    public function testPackUnsupportedType($value)
+    public function testPackUnsupportedType($value) : void
     {
+        $this->expectException(PackingFailedException::class);
+        $this->expectExceptionMessage('Unsupported type.');
+
         $this->packer->pack($value);
     }
 
-    public function provideUnsupportedValues()
+    public function provideUnsupportedValues() : array
     {
         return [
             [\tmpfile()],
@@ -55,12 +60,12 @@ class PackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideOptionsData
      */
-    public function testConstructorSetOptions($options, $raw, $packed)
+    public function testConstructorSetOptions($options, $raw, string $packed) : void
     {
         self::assertSame($packed, (new Packer($options))->pack($raw));
     }
 
-    public function provideOptionsData()
+    public function provideOptionsData() : array
     {
         return [
             [null, "\x80", "\xc4\x01\x80"],
@@ -87,15 +92,16 @@ class PackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideInvalidOptionsData
-     * @expectedException \MessagePack\Exception\InvalidOptionException
-     * @expectedExceptionMessageRegExp /Invalid option .+?, use .+?\./
      */
-    public function testConstructorThrowsErrorOnInvalidOptions($options)
+    public function testConstructorThrowsErrorOnInvalidOptions($options) : void
     {
+        $this->expectException(InvalidOptionException::class);
+        $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?\./');
+
         new Packer($options);
     }
 
-    public function provideInvalidOptionsData()
+    public function provideInvalidOptionsData() : array
     {
         return [
             [PackOptions::FORCE_STR | PackOptions::FORCE_BIN],
@@ -106,12 +112,12 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testPackCustomType()
+    public function testPackCustomType() : void
     {
         $obj = new \stdClass();
         $packed = 'packed';
 
-        $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\Packable')->getMock();
+        $transformer = $this->createMock(Packable::class);
         $transformer->expects(self::once())->method('pack')
             ->with($this->packer, $obj)
             ->willReturn($packed);
@@ -121,15 +127,14 @@ class PackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame($packed, $this->packer->pack($obj));
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\PackingFailedException
-     * @expectedExceptionMessage Unsupported type.
-     */
-    public function testPackCustomUnsupportedType()
+    public function testPackCustomUnsupportedType() : void
     {
+        $this->expectException(PackingFailedException::class);
+        $this->expectExceptionMessage('Unsupported type.');
+
         $obj = new \stdClass();
 
-        $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\Packable')->getMock();
+        $transformer = $this->createMock(Packable::class);
         $transformer->expects(self::atLeastOnce())->method('pack')
             ->with($this->packer, $obj)
             ->willReturn(null);

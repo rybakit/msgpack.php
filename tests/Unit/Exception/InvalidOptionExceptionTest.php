@@ -12,20 +12,21 @@
 namespace MessagePack\Tests\Unit\Exception;
 
 use MessagePack\Exception\InvalidOptionException;
+use PHPUnit\Framework\TestCase;
 
-class InvalidOptionExceptionTest extends \PHPUnit_Framework_TestCase
+final class InvalidOptionExceptionTest extends TestCase
 {
     /**
      * @dataProvider provideFromValidOptionsData
      */
-    public function testFromValidOptions($invalidOption, array $validOptions, $message)
+    public function testFromValidOptions(string $invalidOption, array $validOptions, string $message) : void
     {
         $exception = InvalidOptionException::fromValidOptions($invalidOption, $validOptions);
 
         self::assertSame($message, $exception->getMessage());
     }
 
-    public function provideFromValidOptionsData()
+    public function provideFromValidOptionsData() : array
     {
         return [
             ['foobar', ['foo'], 'Invalid option foobar, use foo.'],

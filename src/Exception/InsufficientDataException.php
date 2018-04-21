@@ -13,7 +13,7 @@ namespace MessagePack\Exception;
 
 class InsufficientDataException extends UnpackingFailedException
 {
-    public static function fromOffset($buffer, $offset, $expectedLength)
+    public static function fromOffset(string $buffer, int $offset, int $expectedLength) : self
     {
         $actualLength = \strlen($buffer) - $offset;
         $message = "Not enough data to unpack: expected $expectedLength, got $actualLength.";

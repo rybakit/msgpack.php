@@ -15,9 +15,9 @@ use MessagePack\Exception\InvalidOptionException;
 
 final class UnpackOptions
 {
-    const BIGINT_AS_STR       = 0b001;
-    const BIGINT_AS_GMP       = 0b010;
-    const BIGINT_AS_EXCEPTION = 0b100;
+    public const BIGINT_AS_STR       = 0b001;
+    public const BIGINT_AS_GMP       = 0b010;
+    public const BIGINT_AS_EXCEPTION = 0b100;
 
     private $bigIntMode;
 
@@ -25,11 +25,19 @@ final class UnpackOptions
     {
     }
 
-    public static function fromBitmask($options)
+    public static function fromDefaults() : self
+    {
+        $self = new self();
+        $self->bigIntMode = self::BIGINT_AS_STR;
+
+        return $self;
+    }
+
+    public static function fromBitmask(int $bitmask) : self
     {
         $self = new self();
 
-        $self->bigIntMode = self::getSingleOption('bigint', $options,
+        $self->bigIntMode = self::getSingleOption('bigint', $bitmask,
             self::BIGINT_AS_STR |
             self::BIGINT_AS_GMP |
             self::BIGINT_AS_EXCEPTION
@@ -38,19 +46,19 @@ final class UnpackOptions
         return $self;
     }
 
-    public function isBigIntAsStrMode()
+    public function isBigIntAsStrMode() : bool
     {
         return self::BIGINT_AS_STR === $this->bigIntMode;
     }
 
-    public function isBigIntAsGmpMode()
+    public function isBigIntAsGmpMode() : bool
     {
         return self::BIGINT_AS_GMP === $this->bigIntMode;
     }
 
-    private static function getSingleOption($name, $options, $mask)
+    private static function getSingleOption(string $name, int $bitmask, int $validBitmask) : int
     {
-        $option = $options & $mask;
+        $option = $bitmask & $validBitmask;
         if ($option === ($option & -$option)) {
             return $option;
         }
@@ -62,7 +70,7 @@ final class UnpackOptions
         ];
 
         $validOptions = [];
-        for ($i = $mask & -$mask; $i <= $mask; $i <<= 1) {
+        for ($i = $validBitmask & -$validBitmask; $i <= $validBitmask; $i <<= 1) {
             $validOptions[] = __CLASS__.'::'.$map[$i];
         }
 

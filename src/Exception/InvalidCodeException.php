@@ -13,12 +13,12 @@ namespace MessagePack\Exception;
 
 class InvalidCodeException extends UnpackingFailedException
 {
-    public static function fromUnknownCode($code)
+    public static function fromUnknownCode(int $code) : self
     {
         return new self(\sprintf('Unknown code: 0x%x.', $code), $code);
     }
 
-    public static function fromExpectedType($type, $code)
+    public static function fromExpectedType(string $type, int $code) : self
     {
         return new self(\sprintf('Invalid %s code: 0x%x.', $type, $code), $code);
     }

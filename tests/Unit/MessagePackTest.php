@@ -14,25 +14,26 @@ namespace MessagePack\Tests\Unit;
 use MessagePack\MessagePack;
 use MessagePack\PackOptions;
 use MessagePack\UnpackOptions;
+use PHPUnit\Framework\TestCase;
 
-class MessagePackTest extends \PHPUnit_Framework_TestCase
+final class MessagePackTest extends TestCase
 {
-    public function testPack()
+    public function testPack() : void
     {
         self::assertSame("\x91\x01", MessagePack::pack([0 => 1]));
     }
 
-    public function testPackWithOptions()
+    public function testPackWithOptions() : void
     {
         self::assertSame("\x81\x00\x01", MessagePack::pack([0 => 1], PackOptions::FORCE_MAP));
     }
 
-    public function testUnpack()
+    public function testUnpack() : void
     {
         self::assertSame('abc', MessagePack::unpack("\xa3\x61\x62\x63"));
     }
 
-    public function testUnpackWithOptions()
+    public function testUnpackWithOptions() : void
     {
         $packed = "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff";
         $unpacked = '18446744073709551615';

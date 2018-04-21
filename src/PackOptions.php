@@ -15,14 +15,14 @@ use MessagePack\Exception\InvalidOptionException;
 
 final class PackOptions
 {
-    const FORCE_STR         = 0b00000001;
-    const FORCE_BIN         = 0b00000010;
-    const DETECT_STR_BIN    = 0b00000100;
-    const FORCE_ARR         = 0b00001000;
-    const FORCE_MAP         = 0b00010000;
-    const DETECT_ARR_MAP    = 0b00100000;
-    const FORCE_FLOAT32     = 0b01000000;
-    const FORCE_FLOAT64     = 0b10000000;
+    public const FORCE_STR         = 0b00000001;
+    public const FORCE_BIN         = 0b00000010;
+    public const DETECT_STR_BIN    = 0b00000100;
+    public const FORCE_ARR         = 0b00001000;
+    public const FORCE_MAP         = 0b00010000;
+    public const DETECT_ARR_MAP    = 0b00100000;
+    public const FORCE_FLOAT32     = 0b01000000;
+    public const FORCE_FLOAT64     = 0b10000000;
 
     private $strBinMode;
     private $arrMapMode;
@@ -32,23 +32,33 @@ final class PackOptions
     {
     }
 
-    public static function fromBitmask($options)
+    public static function fromDefaults() : self
+    {
+        $self = new self();
+        $self->strBinMode = self::DETECT_STR_BIN;
+        $self->arrMapMode = self::DETECT_ARR_MAP;
+        $self->floatMode = self::FORCE_FLOAT64;
+
+        return $self;
+    }
+
+    public static function fromBitmask(int $bitmask): self
     {
         $self = new self();
 
-        $self->strBinMode = self::getSingleOption('str/bin', $options,
+        $self->strBinMode = self::getSingleOption('str/bin', $bitmask,
             self::FORCE_STR |
             self::FORCE_BIN |
             self::DETECT_STR_BIN
         ) ?: self::DETECT_STR_BIN;
 
-        $self->arrMapMode = self::getSingleOption('arr/map', $options,
+        $self->arrMapMode = self::getSingleOption('arr/map', $bitmask,
             self::FORCE_ARR |
             self::FORCE_MAP |
             self::DETECT_ARR_MAP
         ) ?: self::DETECT_ARR_MAP;
 
-        $self->floatMode = self::getSingleOption('float', $options,
+        $self->floatMode = self::getSingleOption('float', $bitmask,
             self::FORCE_FLOAT32 |
             self::FORCE_FLOAT64
         ) ?: self::FORCE_FLOAT64;
@@ -56,34 +66,34 @@ final class PackOptions
         return $self;
     }
 
-    public function isDetectStrBinMode()
+    public function isDetectStrBinMode() : bool
     {
         return self::DETECT_STR_BIN === $this->strBinMode;
     }
 
-    public function isForceStrMode()
+    public function isForceStrMode() : bool
     {
         return self::FORCE_STR === $this->strBinMode;
     }
 
-    public function isDetectArrMapMode()
+    public function isDetectArrMapMode() : bool
     {
         return self::DETECT_ARR_MAP === $this->arrMapMode;
     }
 
-    public function isForceArrMode()
+    public function isForceArrMode() : bool
     {
         return self::FORCE_ARR === $this->arrMapMode;
     }
 
-    public function isForceFloat32Mode()
+    public function isForceFloat32Mode() : bool
     {
         return self::FORCE_FLOAT32 === $this->floatMode;
     }
 
-    private static function getSingleOption($name, $options, $mask)
+    private static function getSingleOption(string $name, int $bitmask, int $validBitmask) : int
     {
-        $option = $options & $mask;
+        $option = $bitmask & $validBitmask;
         if ($option === ($option & -$option)) {
             return $option;
         }
@@ -100,7 +110,7 @@ final class PackOptions
         ];
 
         $validOptions = [];
-        for ($i = $mask & -$mask; $i <= $mask; $i <<= 1) {
+        for ($i = $validBitmask & -$validBitmask; $i <= $validBitmask; $i <<= 1) {
             $validOptions[] = __CLASS__.'::'.$map[$i];
         }
 

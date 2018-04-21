@@ -13,7 +13,7 @@ namespace MessagePack\Exception;
 
 class InvalidOptionException extends \InvalidArgumentException
 {
-    public static function fromValidOptions($invalidOption, array $validOptions)
+    public static function fromValidOptions(string $invalidOption, array $validOptions) : self
     {
         $use = \count($validOptions) > 2
             ? \sprintf('one of %2$s or %1$s', \array_pop($validOptions), \implode(', ', $validOptions))

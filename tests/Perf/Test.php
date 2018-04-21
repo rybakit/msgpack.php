@@ -17,41 +17,29 @@ final class Test
     private $raw;
     private $packed;
 
-    public function __construct($name, $raw, $packed)
+    public function __construct(string $name, $raw, string $packed)
     {
         $this->name = $name;
         $this->raw = $raw;
         $this->packed = $packed;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRaw()
     {
         return $this->raw;
     }
 
-    /**
-     * @return string
-     */
-    public function getPacked()
+    public function getPacked() : string
     {
         return $this->packed;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString() : string
     {
         return $this->getName();
     }

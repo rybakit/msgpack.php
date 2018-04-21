@@ -13,16 +13,23 @@ namespace MessagePack\Tests\Unit;
 
 use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
+use MessagePack\Exception\IntegerOverflowException;
+use MessagePack\Exception\InvalidCodeException;
+use MessagePack\Exception\InvalidOptionException;
+use MessagePack\Ext;
+use MessagePack\TypeTransformer\Extension;
 use MessagePack\UnpackOptions;
+use PHPUnit\Framework\Error\Warning;
+use PHPUnit\Framework\TestCase;
 
-class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
+final class BufferUnpackerTest extends TestCase
 {
     /**
      * @var BufferUnpacker
      */
     private $unpacker;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->unpacker = new BufferUnpacker();
     }
@@ -30,7 +37,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideUnpackData
      */
-    public function testUnpack($raw, $packed)
+    public function testUnpack($raw, string $packed) : void
     {
         $this->unpacker->reset($packed);
         $isOrHasObject = \is_object($raw) || \is_array($raw);
@@ -43,7 +50,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideInsufficientData
      */
-    public function testUnpackInsufficientData($data, $expectedLength, $actualLength)
+    public function testUnpackInsufficientData(string $data, int $expectedLength, int $actualLength) : void
     {
         try {
             $this->unpacker->reset($data)->unpack();
@@ -53,10 +60,10 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        self::fail('InsufficientDataException was not thrown.');
+        self::fail(InsufficientDataException::class.' was not thrown.');
     }
 
-    public function provideInsufficientData()
+    public function provideInsufficientData() : array
     {
         return [
             'str'       => ['', 1, 0],
@@ -81,22 +88,20 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Unknown code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackUnknownCode()
+    public function testUnpackUnknownCode() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Unknown code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpack();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\IntegerOverflowException
-     * @expectedExceptionMessage The value is too big: 18446744073709551615.
-     */
-    public function testUnpackBigIntAsException()
+    public function testUnpackBigIntAsException() : void
     {
+        $this->expectException(IntegerOverflowException::class);
+        $this->expectExceptionMessage('The value is too big: 18446744073709551615.');
+
         $unpacker = new BufferUnpacker(
             "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
             UnpackOptions::BIGINT_AS_EXCEPTION
@@ -105,7 +110,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         $unpacker->unpack();
     }
 
-    public function testUnpackBigIntAsString()
+    public function testUnpackBigIntAsString() : void
     {
         $unpacker = new BufferUnpacker(
             "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
@@ -115,7 +120,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame('18446744073709551615', $unpacker->unpack());
     }
 
-    public function testUnpackBigIntDefaultModeString()
+    public function testUnpackBigIntDefaultModeString() : void
     {
         $unpacker = new BufferUnpacker("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
@@ -125,7 +130,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @requires extension gmp
      */
-    public function testUnpackBigIntAsGmp()
+    public function testUnpackBigIntAsGmp() : void
     {
         $unpacker = new BufferUnpacker(
             "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
@@ -143,35 +148,33 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame('18446744073709551615', \gmp_strval($uint64));
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testReset()
+    public function testReset() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->append("\xc3")->reset()->unpack();
     }
 
-    public function testResetWithBuffer()
+    public function testResetWithBuffer() : void
     {
         $this->unpacker->append("\xc2")->reset("\xc3");
 
         self::assertTrue($this->unpacker->unpack());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testClone()
+    public function testClone() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->reset("\xc3");
 
         $clone = clone $this->unpacker;
         $clone->unpack();
     }
 
-    public function testTryUnpack()
+    public function testTryUnpack() : void
     {
         $foo = [1, 2];
         $bar = 'bar';
@@ -193,7 +196,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame([$bar], $this->unpacker->tryUnpack());
     }
 
-    public function testTryUnpackReturnsAllUnpackedData()
+    public function testTryUnpackReturnsAllUnpackedData() : void
     {
         $foo = [1, 2];
         $bar = 'bar';
@@ -203,7 +206,7 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame([$foo, $bar], $this->unpacker->tryUnpack());
     }
 
-    public function testTryUnpackTruncatesBuffer()
+    public function testTryUnpackTruncatesBuffer() : void
     {
         $this->unpacker->append("\xc3");
 
@@ -222,15 +225,16 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideInvalidOptionsData
-     * @expectedException \MessagePack\Exception\InvalidOptionException
-     * @expectedExceptionMessageRegExp /Invalid option .+?, use .+?\./
      */
     public function testConstructorThrowsErrorOnInvalidOptions($options)
     {
+        $this->expectException(InvalidOptionException::class);
+        $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?\./');
+
         new BufferUnpacker('', $options);
     }
 
-    public function provideInvalidOptionsData()
+    public function provideInvalidOptionsData() : array
     {
         return [
             [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP],
@@ -240,18 +244,17 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessage Illegal offset type
-     */
-    public function testBadKeyTypeThrowsWarning()
+    public function testBadKeyTypeThrowsWarning() : void
     {
+        $this->expectException(Warning::class);
+        $this->expectExceptionMessage('Illegal offset type');
+
         $this->unpacker->reset("\x81\x82\x00\x01\x01\x02\x00"); // [[1, 2] => 0]
 
         $this->unpacker->unpack();
     }
 
-    public function testBadKeyTypeIsIgnored()
+    public function testBadKeyTypeIsIgnored() : void
     {
         $this->unpacker->reset("\x82\x82\x00\x01\x01\x02\x00\x04\x02"); // [[1, 2] => 0, 4 => 2]
         $raw = @$this->unpacker->unpack();
@@ -259,12 +262,12 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
         self::assertSame([4 => 2], $raw);
     }
 
-    public function testUnpackCustomType()
+    public function testUnpackCustomType() : void
     {
         $obj = new \stdClass();
         $type = 5;
 
-        $transformer = $this->getMockBuilder('MessagePack\TypeTransformer\Extension')->getMock();
+        $transformer = $this->createMock(Extension::class);
         $transformer->expects(self::any())->method('getType')->willReturn($type);
         $transformer->expects(self::once())->method('unpack')
             ->with($this->unpacker, 1)
@@ -278,243 +281,225 @@ class BufferUnpackerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideNilData
      */
-    public function testUnpackNil($raw, $packed)
+    public function testUnpackNil($raw, string $packed) : void
     {
         self::assertNull($this->unpacker->reset($packed)->unpackNil());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientNil()
+    public function testUnpackInsufficientNil() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackNil();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid nil code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidNil()
+    public function testUnpackInvalidNil() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid nil code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackNil();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideBoolData
      */
-    public function testUnpackBool($raw, $packed)
+    public function testUnpackBool(bool $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackBool());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientBool()
+    public function testUnpackInsufficientBool() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackBool();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid bool code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidBool()
+    public function testUnpackInvalidBool() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid bool code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackBool();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideIntUnpackData
      */
-    public function testUnpackInt($raw, $packed)
+    public function testUnpackInt(int $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackInt());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientInt()
+    public function testUnpackInsufficientInt() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackInt();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid int code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidInt()
+    public function testUnpackInvalidInt() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid int code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackInt();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideFloatUnpackData
      */
-    public function testUnpackFloat($raw, $packed)
+    public function testUnpackFloat(float $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackFloat());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientFloat()
+    public function testUnpackInsufficientFloat() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackFloat();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid float code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidFloat()
+    public function testUnpackInvalidFloat() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid float code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackFloat();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideStrData
      */
-    public function testUnpackStr($raw, $packed)
+    public function testUnpackStr(string $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackStr());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientStr()
+    public function testUnpackInsufficientStr() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackStr();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid str code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidStr()
+    public function testUnpackInvalidStr() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid str code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackStr();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideBinData
      */
-    public function testUnpackBin($raw, $packed)
+    public function testUnpackBin(string $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackBin());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientBin()
+    public function testUnpackInsufficientBin() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackBin();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid bin code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidBin()
+    public function testUnpackInvalidBin() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid bin code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackBin();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideArrayData
      */
-    public function testUnpackArray($raw, $packed)
+    public function testUnpackArray(array $raw, string $packed) : void
     {
         self::assertEquals($raw, $this->unpacker->reset($packed)->unpackArray());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientArray()
+    public function testUnpackInsufficientArray() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackArray();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid array header code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidArray()
+    public function testUnpackInvalidArray() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid array header code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackArray();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideMapUnpackData
      */
-    public function testUnpackMap($raw, $packed)
+    public function testUnpackMap(array $raw, string $packed) : void
     {
         self::assertEquals($raw, $this->unpacker->reset($packed)->unpackMap());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientMap()
+    public function testUnpackInsufficientMap() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackMap();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid map header code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidMap()
+    public function testUnpackInvalidMap() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid map header code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackMap();
     }
 
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideExtData
      */
-    public function testUnpackExt($raw, $packed)
+    public function testUnpackExt(Ext $raw, string $packed) : void
     {
         self::assertEquals($raw, $this->unpacker->reset($packed)->unpackExt());
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InsufficientDataException
-     * @expectedExceptionMessage Not enough data to unpack: expected 1, got 0.
-     */
-    public function testUnpackInsufficientExt()
+    public function testUnpackInsufficientExt() : void
     {
+        $this->expectException(InsufficientDataException::class);
+        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+
         $this->unpacker->unpackExt();
     }
 
-    /**
-     * @expectedException \MessagePack\Exception\InvalidCodeException
-     * @expectedExceptionMessage Invalid ext header code: 0xc1.
-     * @expectedExceptionCode 193
-     */
-    public function testUnpackInvalidExt()
+    public function testUnpackInvalidExt() : void
     {
+        $this->expectException(InvalidCodeException::class);
+        $this->expectExceptionMessage('Invalid ext header code: 0xc1.');
+        $this->expectExceptionCode(193);
+
         $this->unpacker->reset("\xc1")->unpackExt();
     }
 }

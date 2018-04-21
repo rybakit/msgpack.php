@@ -16,9 +16,6 @@ use MessagePack\Tests\Perf\Test;
 
 class DurationBenchmark implements Benchmark
 {
-    /**
-     * @var float
-     */
     private $duration;
 
     public function __construct($duration)
@@ -41,15 +38,12 @@ class DurationBenchmark implements Benchmark
         return $iterations + $extraIterations;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getInfo()
+    public function getInfo() : array
     {
         return ['Duration' => $this->duration];
     }
 
-    private function measurePerform(Target $target, Test $test)
+    private function measurePerform(Target $target, Test $test) : int
     {
         $iterations = 0;
         $time = \microtime(true) + $this->duration;
@@ -62,7 +56,7 @@ class DurationBenchmark implements Benchmark
         return $iterations;
     }
 
-    private function measureOverhead(Target $target, Test $test, $iterations)
+    private function measureOverhead(Target $target, Test $test, $iterations) : float
     {
         $time = \microtime(true);
 

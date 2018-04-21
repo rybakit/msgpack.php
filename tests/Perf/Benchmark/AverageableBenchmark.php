@@ -16,25 +16,15 @@ use MessagePack\Tests\Perf\Test;
 
 class AverageableBenchmark implements Benchmark
 {
-    /**
-     * @var Benchmark
-     */
     private $benchmark;
-
-    /**
-     * @var int
-     */
     private $rounds;
 
-    public function __construct(Benchmark $benchmark, $rounds = null)
+    public function __construct(Benchmark $benchmark, int $rounds = 3)
     {
         $this->benchmark = $benchmark;
-        $this->rounds = $rounds ?: 3;
+        $this->rounds = $rounds;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function benchmark(Target $target, Test $test)
     {
         $sum = 0;
@@ -46,10 +36,7 @@ class AverageableBenchmark implements Benchmark
         return $sum / $this->rounds;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getInfo()
+    public function getInfo() : array
     {
         return ['Rounds' => $this->rounds] + $this->benchmark->getInfo();
     }

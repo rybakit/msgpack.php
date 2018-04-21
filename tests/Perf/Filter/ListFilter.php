@@ -32,7 +32,7 @@ class ListFilter implements Filter
         }
     }
 
-    public static function fromBlacklist(array $blacklist)
+    public static function fromBlacklist(array $blacklist) : self
     {
         $self = new self([]);
         $self->blacklist = $blacklist;
@@ -40,7 +40,7 @@ class ListFilter implements Filter
         return $self;
     }
 
-    public static function fromWhitelist(array $whitelist)
+    public static function fromWhitelist(array $whitelist) : self
     {
         $self = new self([]);
         $self->whitelist = $whitelist;
@@ -48,13 +48,13 @@ class ListFilter implements Filter
         return $self;
     }
 
-    public function reset()
+    public function reset() : void
     {
         $this->whitelist = [];
         $this->blacklist = [];
     }
 
-    public function isAccepted(Test $test)
+    public function isAccepted(Test $test) : bool
     {
         if (\in_array($test->getName(), $this->blacklist, true)) {
             return false;

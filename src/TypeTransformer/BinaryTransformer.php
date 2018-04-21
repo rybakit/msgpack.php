@@ -16,7 +16,7 @@ use MessagePack\Type\Binary;
 
 class BinaryTransformer implements Packable
 {
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
         return $value instanceof Binary
             ? $packer->packBin($value->data)

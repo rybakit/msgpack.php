@@ -17,7 +17,7 @@ use MessagePack\TypeTransformer\Packable;
 
 class Packer
 {
-    const UTF8_REGEX = '/\A(?:
+    private const UTF8_REGEX = '/\A(?:
           [\x00-\x7F]++                      # ASCII
         | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
         |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
@@ -46,7 +46,9 @@ class Packer
      */
     public function __construct($options = null)
     {
-        if (!$options instanceof PackOptions) {
+        if (null === $options) {
+            $options = PackOptions::fromDefaults();
+        } elseif (!$options instanceof PackOptions) {
             $options = PackOptions::fromBitmask($options);
         }
 
@@ -57,12 +59,7 @@ class Packer
         $this->isForceFloat32 = $options->isForceFloat32Mode();
     }
 
-    /**
-     * @param Packable $transformer
-     *
-     * @return self
-     */
-    public function registerTransformer(Packable $transformer)
+    public function registerTransformer(Packable $transformer) : self
     {
         $this->transformers[] = $transformer;
 

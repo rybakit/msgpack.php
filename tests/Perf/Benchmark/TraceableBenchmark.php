@@ -16,14 +16,7 @@ use MessagePack\Tests\Perf\Test;
 
 class TraceableBenchmark implements Benchmark
 {
-    /**
-     * @var Benchmark
-     */
     private $benchmark;
-
-    /**
-     * @var callable
-     */
     private $trace;
 
     public function __construct(Benchmark $benchmark, callable $trace)
@@ -32,9 +25,6 @@ class TraceableBenchmark implements Benchmark
         $this->trace = $trace;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function benchmark(Target $target, Test $test)
     {
         $result = $this->benchmark->benchmark($target, $test);
@@ -45,10 +35,7 @@ class TraceableBenchmark implements Benchmark
         return $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getInfo()
+    public function getInfo() : array
     {
         return $this->benchmark->getInfo();
     }

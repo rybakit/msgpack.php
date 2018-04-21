@@ -12,20 +12,12 @@
 namespace MessagePack\Tests\Perf;
 
 use MessagePack\Tests\Perf\Benchmark\Benchmark;
-use MessagePack\Tests\Perf\Target\Target;
 use MessagePack\Tests\Perf\Writer\TableWriter;
 use MessagePack\Tests\Perf\Writer\Writer;
 
 class Runner
 {
-    /**
-     * @var array
-     */
     private $testData;
-
-    /**
-     * @var Writer
-     */
     private $writer;
 
     public function __construct(array $testData, Writer $writer = null)
@@ -34,13 +26,7 @@ class Runner
         $this->writer = $writer ?: new TableWriter();
     }
 
-    /**
-     * @param Benchmark $benchmark
-     * @param Target[] $targets
-     *
-     * @return array
-     */
-    public function run(Benchmark $benchmark, array $targets)
+    public function run(Benchmark $benchmark, array $targets) : array
     {
         $this->writer->open($benchmark->getInfo(), $targets);
 

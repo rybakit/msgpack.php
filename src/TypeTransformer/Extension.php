@@ -15,16 +15,7 @@ use MessagePack\BufferUnpacker;
 
 interface Extension extends Packable
 {
-    /**
-     * @return int
-     */
-    public function getType();
+    public function getType() : int;
 
-    /**
-     * @param BufferUnpacker $unpacker
-     * @param int $extLength
-     *
-     * @return mixed
-     */
-    public function unpack(BufferUnpacker $unpacker, $extLength);
+    public function unpack(BufferUnpacker $unpacker, int $extLength);
 }
