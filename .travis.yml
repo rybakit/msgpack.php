@@ -8,11 +8,13 @@ services:
 env:
   - PHP_RUNTIME='php:7.1-cli'
   - PHP_RUNTIME='php:7.2-cli' PHPUNIT_OPTS='--coverage-clover=coverage.clover'
-  - PHP_RUNTIME='hhvm/hhvm:3.12-lts-latest'
-  - PHP_RUNTIME='hhvm/hhvm:3.15-lts-latest'
-  - PHP_RUNTIME='hhvm/hhvm:3.18-lts-latest'
-  - PHP_RUNTIME='hhvm/hhvm:3.21-lts-latest'
-  - PHP_RUNTIME='hhvm/hhvm:3.24-lts-latest'
+  - PHP_RUNTIME='hhvm/hhvm:3.25.1'
+  - PHP_RUNTIME='hhvm/hhvm:nightly'
+
+matrix:
+  allow_failures:
+    - env: PHP_RUNTIME='hhvm/hhvm:nightly'
+  fast_finish: true
 
 install:
   - ./dockerfile.sh | tee /dev/tty | docker build -t msgpack -

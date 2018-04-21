@@ -12,6 +12,8 @@ if [[ $PHP_RUNTIME == php* ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && docker-php-ext-install gmp"
     PHPUNIT_VERSION_CONSTRAINT='@stable'
 else
+    RUN_CMDS = "$RUN_CMDS && \\\\\n    echo 'hhvm.php7.all = 1' >> /etc/hhvm/php.ini"
+    # https://github.com/facebook/hhvm/issues/7535
     PHPUNIT_VERSION_CONSTRAINT='<7.0'
 fi
 
@@ -30,5 +32,5 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 ENV PATH=~/.composer/vendor/bin:\$PATH
 
-CMD if [ ! -f composer.lock ]; then composer install; fi && ~/.composer/vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
+CMD if [ ! -f composer.lock ]; then composer install --no-dev; fi && ~/.composer/vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
 "

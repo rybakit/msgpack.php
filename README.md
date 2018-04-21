@@ -13,7 +13,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#type-transformers)
- * Works with PHP 5.4-7.x and HHVM 3.9+
+ * Works with PHP 7.1+ and HHVM 3.25+
  * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
  * [Relatively fast](#performance)
 
