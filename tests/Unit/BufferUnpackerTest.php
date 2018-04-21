@@ -139,12 +139,7 @@ final class BufferUnpackerTest extends TestCase
 
         $uint64 = $unpacker->unpack();
 
-        if (PHP_VERSION_ID < 50600) {
-            self::assertInternalType('resource', $uint64);
-        } else {
-            self::assertInstanceOf('GMP', $uint64);
-        }
-
+        self::assertInstanceOf(\GMP::class, $uint64);
         self::assertSame('18446744073709551615', \gmp_strval($uint64));
     }
 
