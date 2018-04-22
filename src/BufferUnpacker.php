@@ -432,10 +432,10 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 4);
         }
 
-        $num = \substr($this->buffer, $this->offset, 4);
+        $num = \unpack('N', $this->buffer, $this->offset)[1];
         $this->offset += 4;
 
-        return \unpack('N', $num)[1];
+        return $num;
     }
 
     private function unpackUint64()
@@ -444,7 +444,7 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
         }
 
-        $num = \unpack('J', \substr($this->buffer, $this->offset, 8))[1];
+        $num = \unpack('J', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
         // PHP does not support unsigned integers.
@@ -501,12 +501,10 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
         }
 
-        $num = \substr($this->buffer, $this->offset, 8);
+        $num = \unpack('N2', $this->buffer, $this->offset);
         $this->offset += 8;
 
-        $set = \unpack('N2', $num);
-
-        return $set[1] << 32 | $set[2];
+        return $num[1] << 32 | $num[2];
     }
 
     private function unpackFloat32()
