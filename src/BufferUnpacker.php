@@ -463,7 +463,7 @@ class BufferUnpacker
         $num = \ord($this->buffer[$this->offset]);
         ++$this->offset;
 
-        return $num > 0x7f ? $num - 256 : $num;
+        return $num > 0x7f ? $num - 0x100 : $num;
     }
 
     private function unpackInt16()
@@ -476,7 +476,7 @@ class BufferUnpacker
         $lo = \ord($this->buffer[$this->offset + 1]);
         $this->offset += 2;
 
-        return $hi > 0x7f ? $hi << 8 | $lo - 0x010000 : $hi << 8 | $lo;
+        return $hi > 0x7f ? $hi << 8 | $lo - 0x10000 : $hi << 8 | $lo;
     }
 
     private function unpackInt32()
