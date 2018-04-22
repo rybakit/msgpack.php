@@ -13,7 +13,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#type-transformers)
- * Works with PHP 7.1+ and HHVM 3.25+
+ * Works with PHP 7.2+ and HHVM 3.25+
  * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
  * [Relatively fast](#performance)
 
@@ -404,7 +404,7 @@ The command above will create a container named `msgpack` with PHP 7.2 runtime.
 You may change the default runtime by defining the `PHP_RUNTIME` environment variable:
 
 ```sh
-$ PHP_RUNTIME='php:7.1-cli' ./dockerfile.sh | docker build -t msgpack -
+$ PHP_RUNTIME='php:7.3-cli' ./dockerfile.sh | docker build -t msgpack -
 ```
 
 > *See a list of various runtimes [here](.travis.yml#L8).*

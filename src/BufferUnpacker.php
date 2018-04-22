@@ -515,10 +515,10 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 4);
         }
 
-        $num = \substr($this->buffer, $this->offset, 4);
+        $num = \unpack('G', $this->buffer, $this->offset)[1];
         $this->offset += 4;
 
-        return \unpack('f', \strrev($num))[1];
+        return $num;
     }
 
     private function unpackFloat64()
@@ -527,10 +527,10 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
         }
 
-        $num = \substr($this->buffer, $this->offset, 8);
+        $num = \unpack('E', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
-        return \unpack('d', \strrev($num))[1];
+        return $num;
     }
 
     private function unpackStrData($length)

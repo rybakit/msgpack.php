@@ -160,8 +160,8 @@ class Packer
     public function packFloat($float)
     {
         return $this->isForceFloat32
-            ? "\xca".\strrev(\pack('f', $float))
-            : "\xcb".\strrev(\pack('d', $float));
+            ? "\xca".\pack('G', $float)
+            : "\xcb".\pack('E', $float);
     }
 
     public function packStr($str)
