@@ -132,7 +132,7 @@ class BufferUnpacker
         }
         // negfixint
         if ($c >= 0xe0) {
-            return $c - 256;
+            return $c - 0x100;
         }
 
         switch ($c) {
@@ -207,7 +207,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         if (0xc2 === $c) {
             return false;
@@ -225,7 +226,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         // fixint
         if ($c <= 0x7f) {
@@ -233,7 +235,7 @@ class BufferUnpacker
         }
         // negfixint
         if ($c >= 0xe0) {
-            return $c - 256;
+            return $c - 0x100;
         }
 
         switch ($c) {
@@ -259,7 +261,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         if (0xcb === $c) {
             return $this->unpackFloat64();
@@ -277,7 +280,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         if ($c >= 0xa0 && $c <= 0xbf) {
             return ($c & 0x1f) ? $this->unpackStrData($c & 0x1f) : '';
@@ -301,7 +305,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         if (0xc4 === $c) {
             return $this->unpackStrData($this->unpackUint8());
@@ -334,7 +339,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         if ($c >= 0x90 && $c <= 0x9f) {
             return $c & 0xf;
@@ -367,7 +373,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         if ($c >= 0x80 && $c <= 0x8f) {
             return $c & 0xf;
@@ -388,7 +395,8 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        $c = \ord($this->buffer[$this->offset++]);
+        $c = \ord($this->buffer[$this->offset]);
+        ++$this->offset;
 
         switch ($c) {
             case 0xd4: return $this->unpackExtData(1);
@@ -569,7 +577,7 @@ class BufferUnpacker
         $num = \ord($this->buffer[$this->offset]);
         ++$this->offset;
 
-        $type = $num > 0x7f ? $num - 256 : $num;
+        $type = $num > 0x7f ? $num - 0x100 : $num;
 
         if (isset($this->transformers[$type])) {
             return $this->transformers[$type]->unpack($this, $length);
