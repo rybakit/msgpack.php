@@ -435,9 +435,7 @@ class BufferUnpacker
         $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
 
-        $num = \unpack('N', $num);
-
-        return $num[1];
+        return \unpack('N', $num)[1];
     }
 
     private function unpackUint64()
@@ -446,19 +444,14 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
         }
 
-        $num = \substr($this->buffer, $this->offset, 8);
+        $num = \unpack('J', \substr($this->buffer, $this->offset, 8))[1];
         $this->offset += 8;
-
-        //$num = \unpack('J', $num);
-
-        $set = \unpack('N2', $num);
-        $value = $set[1] << 32 | $set[2];
 
         // PHP does not support unsigned integers.
         // If a number is bigger than 2^63, it will be interpreted as a float.
         // @link http://php.net/manual/en/language.types.integer.php#language.types.integer.overflow
 
-        return $value < 0 ? $this->handleIntOverflow($value) : $value;
+        return $num < 0 ? $this->handleIntOverflow($num) : $num;
     }
 
     private function unpackInt8()
@@ -499,9 +492,7 @@ class BufferUnpacker
         $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
 
-        $num = \unpack('i', \strrev($num));
-
-        return $num[1];
+        return \unpack('i', \strrev($num))[1];
     }
 
     private function unpackInt64()
@@ -527,9 +518,7 @@ class BufferUnpacker
         $num = \substr($this->buffer, $this->offset, 4);
         $this->offset += 4;
 
-        $num = \unpack('f', \strrev($num));
-
-        return $num[1];
+        return \unpack('f', \strrev($num))[1];
     }
 
     private function unpackFloat64()
@@ -541,9 +530,7 @@ class BufferUnpacker
         $num = \substr($this->buffer, $this->offset, 8);
         $this->offset += 8;
 
-        $num = \unpack('d', \strrev($num));
-
-        return $num[1];
+        return \unpack('d', \strrev($num))[1];
     }
 
     private function unpackStrData($length)
