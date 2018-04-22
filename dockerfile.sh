@@ -32,5 +32,5 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 ENV PATH=~/.composer/vendor/bin:\$PATH
 
-CMD if [ ! -f composer.lock ]; then $PRE_INSTALL_CMDS ${PRE_INSTALL_CMDS:+&&} composer -vvv install; fi && vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
+CMD if [ ! -f composer.lock ]; then $PRE_INSTALL_CMDS ${PRE_INSTALL_CMDS:+&&} composer install; fi && vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
 "
