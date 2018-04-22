@@ -476,11 +476,7 @@ class BufferUnpacker
         $lo = \ord($this->buffer[$this->offset + 1]);
         $this->offset += 2;
 
-        if ($hi > 0x7f) {
-            return -(0x010000 - ($hi << 8 | $lo));
-        }
-
-        return $hi << 8 | $lo;
+        return $hi > 0x7f ? $hi << 8 | $lo - 0x010000 : $hi << 8 | $lo;
     }
 
     private function unpackInt32()
