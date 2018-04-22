@@ -489,10 +489,10 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 4);
         }
 
-        $num = \substr($this->buffer, $this->offset, 4);
+        $num = \unpack('N', $this->buffer, $this->offset)[1];
         $this->offset += 4;
 
-        return \unpack('i', \strrev($num))[1];
+        return $num > 0x7fffffff ? $num - 0x100000000 : $num;
     }
 
     private function unpackInt64()
