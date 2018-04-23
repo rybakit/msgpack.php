@@ -17,7 +17,7 @@ class RegexpFilter implements Filter
 {
     private $regexp;
 
-    public function __construct($regexp)
+    public function __construct(string $regexp)
     {
         $this->regexp = $regexp;
     }

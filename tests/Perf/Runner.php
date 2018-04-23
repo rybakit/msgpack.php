@@ -20,13 +20,13 @@ class Runner
     private $testData;
     private $writer;
 
-    public function __construct(array $testData, Writer $writer = null)
+    public function __construct(iterable $testData, Writer $writer = null)
     {
         $this->testData = $testData;
         $this->writer = $writer ?: new TableWriter();
     }
 
-    public function run(Benchmark $benchmark, array $targets) : array
+    public function run(Benchmark $benchmark, iterable $targets) : array
     {
         $this->writer->open($benchmark->getInfo(), $targets);
 
