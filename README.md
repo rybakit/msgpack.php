@@ -281,7 +281,7 @@ use MessagePack\Type\Map;
 
 class MapTransformer implements Packable
 {
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
         return $value instanceof Map
             ? $packer->packMap($value->map)
@@ -321,19 +321,19 @@ class DateTimeTransformer implements Extension
 {
     private $type;
 
-    public function __construct($type)
+    public function __construct(int $type)
     {
         $this->type = $type;
     }
 
-    public function getType()
+    public function getType() : int
     {
         return $this->type;
     }
 
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof \DateTimeInterface && !$value instanceof \DateTime) {
+        if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
@@ -342,7 +342,7 @@ class DateTimeTransformer implements Extension
         );
     }
 
-    public function unpack(BufferUnpacker $unpacker, $extLength)
+    public function unpack(BufferUnpacker $unpacker, int $extLength)
     {
         return new \DateTime($unpacker->unpackStr());
     }
@@ -541,9 +541,13 @@ $ php -n tests/bench.php
 
 Another example, benchmarking both the library and the [msgpack pecl extension](https://pecl.php.net/package/msgpack):
 
-```
+```sh
 $ MP_BENCH_TARGETS=pure_ps,pure_bu,pecl_p,pecl_u php -n -dextension=msgpack.so tests/bench.php
+```
 
+Output:
+
+```
 Filter: MessagePack\Tests\Perf\Filter\ListFilter
 Rounds: 3
 Iterations: 100000

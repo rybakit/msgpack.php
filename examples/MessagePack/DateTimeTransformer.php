@@ -10,7 +10,7 @@ class DateTimeTransformer implements Extension
 {
     private $type;
 
-    public function __construct($type)
+    public function __construct(int $type)
     {
         $this->type = $type;
     }
@@ -22,7 +22,7 @@ class DateTimeTransformer implements Extension
 
     public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof \DateTimeInterface && !$value instanceof \DateTime) {
+        if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
