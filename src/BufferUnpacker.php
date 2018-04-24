@@ -140,41 +140,41 @@ class BufferUnpacker
             case 0xc2: return false;
             case 0xc3: return true;
 
-            // MP_BIN
+            // bin
             case 0xc4: return $this->unpackStrData($this->unpackUint8());
             case 0xc5: return $this->unpackStrData($this->unpackUint16());
             case 0xc6: return $this->unpackStrData($this->unpackUint32());
 
-            // MP_FLOAT
+            // float
             case 0xca: return $this->unpackFloat32();
             case 0xcb: return $this->unpackFloat64();
 
-            // MP_UINT
+            // uint
             case 0xcc: return $this->unpackUint8();
             case 0xcd: return $this->unpackUint16();
             case 0xce: return $this->unpackUint32();
             case 0xcf: return $this->unpackUint64();
 
-            // MP_INT
+            // int
             case 0xd0: return $this->unpackInt8();
             case 0xd1: return $this->unpackInt16();
             case 0xd2: return $this->unpackInt32();
             case 0xd3: return $this->unpackInt64();
 
-            // MP_STR
+            // str
             case 0xd9: return $this->unpackStrData($this->unpackUint8());
             case 0xda: return $this->unpackStrData($this->unpackUint16());
             case 0xdb: return $this->unpackStrData($this->unpackUint32());
 
-            // MP_ARRAY
+            // array
             case 0xdc: return $this->unpackArrayData($this->unpackUint16());
             case 0xdd: return $this->unpackArrayData($this->unpackUint32());
 
-            // MP_MAP
+            // map
             case 0xde: return $this->unpackMapData($this->unpackUint16());
             case 0xdf: return $this->unpackMapData($this->unpackUint32());
 
-            // MP_EXT
+            // ext
             case 0xd4: return $this->unpackExtData(1);
             case 0xd5: return $this->unpackExtData(2);
             case 0xd6: return $this->unpackExtData(4);
@@ -194,11 +194,13 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 1);
         }
 
-        if (0xc0 === \ord($this->buffer[$this->offset++])) {
+        if ("\xc0" === $this->buffer[$this->offset]) {
+            ++$this->offset;
+
             return null;
         }
 
-        throw InvalidCodeException::fromExpectedType('nil', \ord($this->buffer[$this->offset - 1]));
+        throw InvalidCodeException::fromExpectedType('nil', \ord($this->buffer[$this->offset++]));
     }
 
     public function unpackBool()
@@ -239,13 +241,13 @@ class BufferUnpacker
         }
 
         switch ($c) {
-            // MP_UINT
+            // uint
             case 0xcc: return $this->unpackUint8();
             case 0xcd: return $this->unpackUint16();
             case 0xce: return $this->unpackUint32();
             case 0xcf: return $this->unpackUint64();
 
-            // MP_INT
+            // int
             case 0xd0: return $this->unpackInt8();
             case 0xd1: return $this->unpackInt16();
             case 0xd2: return $this->unpackInt32();
