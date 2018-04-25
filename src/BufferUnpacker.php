@@ -457,10 +457,6 @@ class BufferUnpacker
         $num = \unpack('J', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
-        // PHP does not support unsigned integers.
-        // If a number is bigger than 2^63, it will be interpreted as a float.
-        // @link http://php.net/manual/en/language.types.integer.php#language.types.integer.overflow
-
         return $num < 0 ? $this->handleIntOverflow($num) : $num;
     }
 
@@ -507,10 +503,10 @@ class BufferUnpacker
             throw InsufficientDataException::fromOffset($this->buffer, $this->offset, 8);
         }
 
-        $num = \unpack('N2', $this->buffer, $this->offset);
+        $num = \unpack('J', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
-        return $num[1] << 32 | $num[2];
+        return $num;
     }
 
     private function unpackFloat32()
