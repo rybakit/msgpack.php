@@ -138,7 +138,7 @@ class Packer
                 return \pack('CN', 0xce, $int);
             }
 
-            return self::packUintInt64(0xcf, $int);
+            return \pack('CJ', 0xcf, $int);
         }
 
         if ($int >= -0x20) {
@@ -154,7 +154,7 @@ class Packer
             return \pack('CN', 0xd2, $int);
         }
 
-        return self::packUintInt64(0xd3, $int);
+        return \pack('CJ', 0xd3, $int);
     }
 
     public function packFloat($float)
@@ -262,13 +262,5 @@ class Packer
         }
 
         return \pack('CNC', 0xc9, $length, $type).$data;
-    }
-
-    private static function packUintInt64($code, $int)
-    {
-        $hi = ($int & 0xffffffff00000000) >> 32;
-        $lo = $int & 0x00000000ffffffff;
-
-        return \pack('CNN', $code, $hi, $lo);
     }
 }
