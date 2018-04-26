@@ -640,10 +640,6 @@ Ignored                               17              17             0          
 support **ext**, **bin** and UTF-8 **str** types.*
 
 
-And a less synthetic benchmark:
-
-
-
 ## License
 
 The library is released under the MIT License. See the bundled [LICENSE](LICENSE) file for details.
