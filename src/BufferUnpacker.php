@@ -14,8 +14,6 @@ namespace MessagePack;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\InvalidCodeException;
-use MessagePack\Exception\InvalidOptionException;
-use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\TypeTransformer\Extension;
 
 class BufferUnpacker
@@ -34,7 +32,7 @@ class BufferUnpacker
      * @param string $buffer
      * @param UnpackOptions|int|null $options
      *
-     * @throws InvalidOptionException
+     * @throws \MessagePack\Exception\InvalidOptionException
      */
     public function __construct(string $buffer = '', $options = null)
     {
@@ -100,11 +98,6 @@ class BufferUnpacker
         return $data;
     }
 
-    /**
-     * @throws UnpackingFailedException
-     *
-     * @return mixed
-     */
     public function unpack()
     {
         if (!isset($this->buffer[$this->offset])) {
