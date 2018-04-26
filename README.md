@@ -105,7 +105,7 @@ $packer->packMap([1, 2]);    // MP map
 $packer->packExt(1, "\xaa"); // MP ext
 ```
 
-> *Check the ["Type transformers"](#type-transformers) section below on how to pack arbitrary PHP objects.*
+> *Check the ["Type transformers"](#type-transformers) section below on how to pack custom types.*
 
 
 #### Packing options
@@ -139,11 +139,11 @@ Examples:
 use MessagePack\Packer;
 use MessagePack\PackOptions;
 
-// cast PHP strings to MP strings, PHP arrays to MP maps 
+// pack PHP strings to MP strings, PHP arrays to MP maps 
 // and PHP 64-bit floats (doubles) to MP 32-bit floats
 $packer = new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_MAP | PackOptions::FORCE_FLOAT32);
 
-// cast PHP strings to MP binaries and PHP arrays to MP arrays
+// pack PHP strings to MP binaries and PHP arrays to MP arrays
 $packer = new Packer(PackOptions::FORCE_BIN | PackOptions::FORCE_ARR);
 
 // these will throw MessagePack\Exception\InvalidOptionException
@@ -638,6 +638,10 @@ Ignored                               17              17             0          
 
 > *Note, that this is not a fair comparison as the msgpack extension (0.5.2+, 2.0) doesn't
 support **ext**, **bin** and UTF-8 **str** types.*
+
+
+And a less synthetic benchmark:
+
 
 
 ## License
