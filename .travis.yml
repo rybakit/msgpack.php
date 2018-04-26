@@ -7,7 +7,7 @@ services:
 
 env:
   - PHP_RUNTIME='php:7.1-cli'
-  - PHP_RUNTIME='php:7.2-cli' PHPUNIT_OPTS='--coverage-clover=coverage.clover'
+  - PHP_RUNTIME='php:7.2-cli' PHPUNIT_OPTS='--coverage-text --coverage-clover=clover.xml'
   - PHP_RUNTIME='hhvm/hhvm:nightly'
 
 matrix:
@@ -22,7 +22,7 @@ script:
   - docker run --rm -v $(pwd):/msgpack -w /msgpack -e PHPUNIT_OPTS="$PHPUNIT_OPTS" msgpack
 
 after_script:
-  - if [[ -f coverage.clover ]]; then
+  - if [[ -f clover.xml ]]; then
       curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
-      docker run --rm -v $(pwd):/coverage -w /coverage msgpack php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
+      docker run --rm -v $(pwd):/coverage -w /coverage msgpack php ocular.phar code-coverage:upload --format=php-clover clover.xml;
     fi
