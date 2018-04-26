@@ -19,40 +19,28 @@ class BufferUnpackerTarget implements Target
     private $name;
     private $bufferUnpacker;
 
-    public function __construct($name = null, BufferUnpacker $bufferUnpacker = null)
+    public function __construct(string $name = null, BufferUnpacker $bufferUnpacker = null)
     {
         $this->bufferUnpacker = $bufferUnpacker ?: new BufferUnpacker();
         $this->name = $name ?: \get_class($this->bufferUnpacker);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function sanitize(Test $test)
+    public function sanitize(Test $test) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function perform(Test $test)
+    public function perform(Test $test) : void
     {
         $this->bufferUnpacker->reset($test->getPacked());
         $this->bufferUnpacker->unpack();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function calibrate(Test $test)
+    public function calibrate(Test $test) : void
     {
         $test->getPacked();
     }

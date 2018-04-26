@@ -13,7 +13,6 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#type-transformers)
- * Works with PHP 5.4-7.x and HHVM 3.9+
  * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
  * [Relatively fast](#performance)
 
@@ -41,6 +40,9 @@ The recommended way to install the library is through [Composer](http://getcompo
 ```sh
 $ composer require rybakit/msgpack
 ```
+
+> *`rybakit/msgpack` requires PHP >= 7.1.1. For older PHP versions or HHVM please use 
+> the [0.3.1](https://github.com/rybakit/msgpack.php/tree/v0.3.1) version of this library.*
 
 
 ## Usage
@@ -103,7 +105,7 @@ $packer->packMap([1, 2]);    // MP map
 $packer->packExt(1, "\xaa"); // MP ext
 ```
 
-> *Check the ["Type transformers"](#type-transformers) section below on how to pack arbitrary PHP objects.*
+> *Check the ["Type transformers"](#type-transformers) section below on how to pack custom types.*
 
 
 #### Packing options
@@ -137,11 +139,11 @@ Examples:
 use MessagePack\Packer;
 use MessagePack\PackOptions;
 
-// cast PHP strings to MP strings, PHP arrays to MP maps 
+// pack PHP strings to MP strings, PHP arrays to MP maps 
 // and PHP 64-bit floats (doubles) to MP 32-bit floats
 $packer = new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_MAP | PackOptions::FORCE_FLOAT32);
 
-// cast PHP strings to MP binaries and PHP arrays to MP arrays
+// pack PHP strings to MP binaries and PHP arrays to MP arrays
 $packer = new Packer(PackOptions::FORCE_BIN | PackOptions::FORCE_ARR);
 
 // these will throw MessagePack\Exception\InvalidOptionException
@@ -279,7 +281,7 @@ use MessagePack\Type\Map;
 
 class MapTransformer implements Packable
 {
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
         return $value instanceof Map
             ? $packer->packMap($value->map)
@@ -319,19 +321,19 @@ class DateTimeTransformer implements Extension
 {
     private $type;
 
-    public function __construct($type)
+    public function __construct(int $type)
     {
         $this->type = $type;
     }
 
-    public function getType()
+    public function getType() : int
     {
         return $this->type;
     }
 
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof \DateTimeInterface && !$value instanceof \DateTime) {
+        if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
@@ -340,7 +342,7 @@ class DateTimeTransformer implements Extension
         );
     }
 
-    public function unpack(BufferUnpacker $unpacker, $extLength)
+    public function unpack(BufferUnpacker $unpacker, int $extLength)
     {
         return new \DateTime($unpacker->unpackStr());
     }
@@ -539,9 +541,13 @@ $ php -n tests/bench.php
 
 Another example, benchmarking both the library and the [msgpack pecl extension](https://pecl.php.net/package/msgpack):
 
-```
+```sh
 $ MP_BENCH_TARGETS=pure_ps,pure_bu,pecl_p,pecl_u php -n -dextension=msgpack.so tests/bench.php
+```
 
+Output:
+
+```
 Filter: MessagePack\Tests\Perf\Filter\ListFilter
 Rounds: 3
 Iterations: 100000

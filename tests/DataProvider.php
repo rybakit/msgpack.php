@@ -20,7 +20,7 @@ use MessagePack\Ext;
 
 class DataProvider
 {
-    public static function provideData()
+    public static function provideData() : array
     {
         return \array_merge(
             self::provideNilData(),
@@ -35,7 +35,7 @@ class DataProvider
         );
     }
 
-    public static function provideUnpackData()
+    public static function provideUnpackData() : array
     {
         return \array_merge(
             self::provideNilData(),
@@ -50,14 +50,14 @@ class DataProvider
         );
     }
 
-    public static function provideNilData()
+    public static function provideNilData() : array
     {
         return [
             'nil' => [null, "\xc0"],
         ];
     }
 
-    public static function provideBoolData()
+    public static function provideBoolData() : array
     {
         return [
             'false' => [false, "\xc2"],
@@ -65,31 +65,32 @@ class DataProvider
         ];
     }
 
-    public static function provideIntData()
+    public static function provideIntData() : array
     {
         return [
-            '7-bit uint #1' => [0x00, "\x00"],
-            '7-bit uint #2' => [0x10, "\x10"],
-            '7-bit uint #3' => [0x7f, "\x7f"],
+            '7-bit uint #1' => [0, "\x00"],
+            '7-bit uint #2' => [16, "\x10"],
+            '7-bit uint #3' => [127, "\x7f"],
 
             '5-bit sint #1' => [-1, "\xff"],
             '5-bit sint #2' => [-16, "\xf0"],
             '5-bit sint #3' => [-32, "\xe0"],
 
-            '8-bit uint #1' => [0x80, "\xcc\x80"],
-            '8-bit uint #2' => [0xf0, "\xcc\xf0"],
-            '8-bit uint #3' => [0xff, "\xcc\xff"],
+            '8-bit uint #1' => [128, "\xcc\x80"],
+            '8-bit uint #2' => [240, "\xcc\xf0"],
+            '8-bit uint #3' => [255, "\xcc\xff"],
 
-            '16-bit uint #1' => [0x100, "\xcd\x01\x00"],
-            '16-bit uint #2' => [0x2000, "\xcd\x20\x00"],
-            '16-bit uint #3' => [0xffff, "\xcd\xff\xff"],
+            '16-bit uint #1' => [256, "\xcd\x01\x00"],
+            '16-bit uint #2' => [8192, "\xcd\x20\x00"],
+            '16-bit uint #3' => [65535, "\xcd\xff\xff"],
 
-            '32-bit uint #1' => [0x10000, "\xce\x00\x01\x00\x00"],
-            '32-bit uint #2' => [0x200000, "\xce\x00\x20\x00\x00"],
-            '32-bit uint #3' => [0xffffffff, "\xce\xff\xff\xff\xff"],
+            '32-bit uint #1' => [65536, "\xce\x00\x01\x00\x00"],
+            '32-bit uint #2' => [2097152, "\xce\x00\x20\x00\x00"],
+            '32-bit uint #3' => [4294967295, "\xce\xff\xff\xff\xff"],
 
-            '64-bit uint #1' => [0x100000000, "\xcf"."\x00\x00\x00\x01"."\x00\x00\x00\x00"],
-            '64-bit uint #2' => [0x7fffffffffffffff, "\xcf"."\x7f\xff\xff\xff"."\xff\xff\xff\xff"],
+            '64-bit uint #1' => [4294967296, "\xcf"."\x00\x00\x00\x01"."\x00\x00\x00\x00"],
+            '64-bit uint #2' => [281474976710656, "\xcf"."\x00\x01\x00\x00"."\x00\x00\x00\x00"],
+            '64-bit uint #3' => [9223372036854775807, "\xcf"."\x7f\xff\xff\xff"."\xff\xff\xff\xff"],
 
             '8-bit int #1' => [-33, "\xd0\xdf"],
             '8-bit int #2' => [-100, "\xd0\x9c"],
@@ -104,33 +105,40 @@ class DataProvider
             '32-bit int #3' => [-2147483648, "\xd2\x80\x00\x00\x00"],
 
             '64-bit int #1' => [-2147483649, "\xd3"."\xff\xff\xff\xff"."\x7f\xff\xff\xff"],
-            '64-bit int #2' => [-1000000000000000002, "\xd3"."\xf2\x1f\x49\x4c"."\x58\x9b\xff\xfe"],
+            '64-bit int #2' => [-4294967296, "\xd3"."\xff\xff\xff\xff"."\x00\x00\x00\x00"],
+            '64-bit int #3' => [-281474976710656, "\xd3"."\xff\xff\x00\x00"."\x00\x00\x00\x00"],
             // https://bugs.php.net/bug.php?id=53934
-            '64-bit int #3' => [(int) '-9223372036854775808', "\xd3"."\x80\x00\x00\x00"."\x00\x00\x00\x00"],
+            '64-bit int #4' => [(int) '-9223372036854775808', "\xd3"."\x80\x00\x00\x00"."\x00\x00\x00\x00"],
         ];
     }
 
-    public static function provideIntUnpackData()
+    public static function provideIntUnpackData() : array
     {
         return \array_merge(self::provideIntData(), [
-            '8-bit int #4' => [0x7f, "\xd0\x7f"],
-            '16-bit int #4' => [0x7fff, "\xd1\x7f\xff"],
-            '32-bit int #4' => [0x7fffffff, "\xd2\x7f\xff\xff\xff"],
-            '64-bit int #4' => [0x7fffffffffffffff, "\xd3"."\x7f\xff\xff\xff"."\xff\xff\xff\xff"],
-            '64-bit uint #3' => [0, "\xcf"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
+            '64-bit uint #4' => [0, "\xcf"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
+
+            '8-bit int #4' => [127, "\xd0\x7f"],
+
+            '16-bit int #4' => [32767, "\xd1\x7f\xff"],
+
+            '32-bit int #4' => [2147483647, "\xd2\x7f\xff\xff\xff"],
+
+            '64-bit int #5' => [4294967296, "\xd3"."\x00\x00\x00\x01"."\x00\x00\x00\x00"],
+            '64-bit int #6' => [281474976710656, "\xd3"."\x00\x01\x00\x00"."\x00\x00\x00\x00"],
+            '64-bin int #7' => [9223372036854775807, "\xd3"."\x7f\xff\xff\xff"."\xff\xff\xff\xff"],
         ]);
     }
 
-    public static function provideFloatData()
+    public static function provideFloatData() : array
     {
         return [
             '64-bit float #1' => [0.0, "\xcb"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
             '64-bit float #2' => [2.5, "\xcb"."\x40\x04\x00\x00"."\x00\x00\x00\x00"],
-            '64-bit float #3' => [\pow(10, 35), "\xcb"."\x47\x33\x42\x61"."\x72\xc7\x4d\x82"],
+            '64-bit float #3' => [10 ** 35, "\xcb"."\x47\x33\x42\x61"."\x72\xc7\x4d\x82"],
         ];
     }
 
-    public static function provideFloatUnpackData()
+    public static function provideFloatUnpackData() : array
     {
         return \array_merge(self::provideFloatData(), [
             '32-bit float #1' => [0.0, "\xca"."\x00\x00\x00\x00"],
@@ -138,7 +146,7 @@ class DataProvider
         ]);
     }
 
-    public static function provideStrData()
+    public static function provideStrData() : array
     {
         return [
             'fix string #1' => ['', "\xa0"],
@@ -158,7 +166,7 @@ class DataProvider
         ];
     }
 
-    public static function provideBinData()
+    public static function provideBinData() : array
     {
         return [
             '8-bit binary #1' => ["\x80", "\xc4\x01"."\x80"],
@@ -169,7 +177,7 @@ class DataProvider
         ];
     }
 
-    public static function provideArrayData()
+    public static function provideArrayData() : array
     {
         return [
             'fix array #1' => [[], "\x90"],
@@ -181,7 +189,7 @@ class DataProvider
         ];
     }
 
-    public static function provideMapData()
+    public static function provideMapData() : array
     {
         return [
             'fix map #1' => [[1 => true, 2 => 'abc', 3 => "\x80", 4 => null], "\x84\x01\xc3\x02\xa3\x61\x62\x63\x03\xc4\x01\x80\x04\xc0"],
@@ -195,7 +203,7 @@ class DataProvider
         ];
     }
 
-    public static function provideMapUnpackData()
+    public static function provideMapUnpackData() : array
     {
         return \array_merge(self::provideMapData(), [
             'fix map #5' => [[], "\x80"],
@@ -204,7 +212,7 @@ class DataProvider
         ]);
     }
 
-    public static function provideExtData()
+    public static function provideExtData() : array
     {
         return [
             'fixext 1' => [new Ext(5, "\x80"), "\xd4\x05"."\x80"],
@@ -218,7 +226,7 @@ class DataProvider
         ];
     }
 
-    public static function getSlowTestNames()
+    public static function getSlowTestNames() : array
     {
         return [
             '16-bit array #2',
@@ -228,7 +236,7 @@ class DataProvider
         ];
     }
 
-    public static function getPeclIncompatibleTestNames()
+    public static function getPeclIncompatibleTestNames() : array
     {
         return [
             '8-bit binary #1',

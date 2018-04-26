@@ -17,12 +17,12 @@ class RegexpFilter implements Filter
 {
     private $regexp;
 
-    public function __construct($regexp)
+    public function __construct(string $regexp)
     {
         $this->regexp = $regexp;
     }
 
-    public function isAccepted(Test $test)
+    public function isAccepted(Test $test) : bool
     {
         return 1 === \preg_match($this->regexp, $test->getName());
     }

@@ -11,17 +11,19 @@
 
 namespace MessagePack\Tests\Unit\TypeTransformer;
 
+use MessagePack\Packer;
 use MessagePack\Type\Binary;
 use MessagePack\TypeTransformer\BinaryTransformer;
+use PHPUnit\Framework\TestCase;
 
-class BinaryTransformerTest extends \PHPUnit_Framework_TestCase
+final class BinaryTransformerTest extends TestCase
 {
-    public function testPackBinary()
+    public function testPackBinary() : void
     {
         $raw = 'abc';
         $packed = "\xc4\x03\x61\x62\x63";
 
-        $packer = $this->getMockBuilder('MessagePack\Packer')->getMock();
+        $packer = $this->createMock(Packer::class);
         $packer->expects(self::any())->method('packBin')
             ->with($raw)
             ->willReturn($packed);
@@ -32,12 +34,12 @@ class BinaryTransformerTest extends \PHPUnit_Framework_TestCase
         self::assertSame($packed, $transformer->pack($packer, $binary));
     }
 
-    public function testPackNonBinary()
+    public function testPackNonBinary() : void
     {
         $raw = 'abc';
         $packed = "\xc4\x03\x61\x62\x63";
 
-        $packer = $this->getMockBuilder('MessagePack\Packer')->getMock();
+        $packer = $this->createMock(Packer::class);
         $packer->expects(self::any())->method('packBin')
             ->with($raw)
             ->willReturn($packed);

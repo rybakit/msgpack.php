@@ -16,7 +16,7 @@ use MessagePack\Type\Map;
 
 class MapTransformer implements Packable
 {
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
         return $value instanceof Map
             ? $packer->packMap($value->map)

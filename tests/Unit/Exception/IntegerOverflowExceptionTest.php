@@ -12,10 +12,11 @@
 namespace MessagePack\Tests\Unit\Exception;
 
 use MessagePack\Exception\IntegerOverflowException;
+use PHPUnit\Framework\TestCase;
 
-class IntegerOverflowExceptionTest extends \PHPUnit_Framework_TestCase
+final class IntegerOverflowExceptionTest extends TestCase
 {
-    public function testConstructor()
+    public function testConstructor() : void
     {
         $value = -1;
         $errorCode = 42;

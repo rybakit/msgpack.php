@@ -15,12 +15,12 @@ class ArrayIteratorTransformer implements Extension
         $this->type = $type;
     }
 
-    public function getType()
+    public function getType() : int
     {
         return $this->type;
     }
 
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \ArrayIterator) {
             return null;
@@ -39,7 +39,7 @@ class ArrayIteratorTransformer implements Extension
         );
     }
 
-    public function unpack(BufferUnpacker $unpacker, $extLength)
+    public function unpack(BufferUnpacker $unpacker, int $extLength)
     {
         $size = $unpacker->unpackArrayHeader();
 

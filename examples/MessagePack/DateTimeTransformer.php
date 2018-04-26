@@ -10,19 +10,19 @@ class DateTimeTransformer implements Extension
 {
     private $type;
 
-    public function __construct($type)
+    public function __construct(int $type)
     {
         $this->type = $type;
     }
 
-    public function getType()
+    public function getType() : int
     {
         return $this->type;
     }
 
-    public function pack(Packer $packer, $value)
+    public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof \DateTimeInterface && !$value instanceof \DateTime) {
+        if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
@@ -31,7 +31,7 @@ class DateTimeTransformer implements Extension
         );
     }
 
-    public function unpack(BufferUnpacker $unpacker, $extLength)
+    public function unpack(BufferUnpacker $unpacker, int $extLength)
     {
         return new \DateTime($unpacker->unpackStr());
     }

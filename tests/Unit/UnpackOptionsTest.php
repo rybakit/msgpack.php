@@ -13,28 +13,29 @@ namespace MessagePack\Tests\Unit;
 
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\UnpackOptions;
+use PHPUnit\Framework\TestCase;
 
-class UnpackOptionsTest extends \PHPUnit_Framework_TestCase
+final class UnpackOptionsTest extends TestCase
 {
     /**
      * @dataProvider provideIsserData
      */
-    public function testFromBitmask($isserName, $expectedResult, $options)
+    public function testFromBitmask(string $isserName, bool $expectedResult, int $bitmask) : void
     {
-        $options = UnpackOptions::fromBitmask($options);
+        $options = UnpackOptions::fromBitmask($bitmask);
 
         self::assertSame($expectedResult, $options->{$isserName}());
     }
 
-    public function provideIsserData()
+    public function provideIsserData() : array
     {
         return [
-            ['isBigIntAsStrMode', true, null],
+            ['isBigIntAsStrMode', true, 0],
             ['isBigIntAsStrMode', true, UnpackOptions::BIGINT_AS_STR],
             ['isBigIntAsStrMode', false, UnpackOptions::BIGINT_AS_GMP],
             ['isBigIntAsStrMode', false, UnpackOptions::BIGINT_AS_EXCEPTION],
 
-            ['isBigIntAsGmpMode', false, null],
+            ['isBigIntAsGmpMode', false, 0],
             ['isBigIntAsGmpMode', false, UnpackOptions::BIGINT_AS_STR],
             ['isBigIntAsGmpMode', true, UnpackOptions::BIGINT_AS_GMP],
             ['isBigIntAsGmpMode', false, UnpackOptions::BIGINT_AS_EXCEPTION],
@@ -44,26 +45,24 @@ class UnpackOptionsTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideInvalidOptionsData
      */
-    public function testFromBitmaskWithInvalidOptions($options, $errorMessage)
+    public function testFromBitmaskWithInvalidOptions(int $bitmask, string $errorMessage) : void
     {
         try {
-            UnpackOptions::fromBitmask($options);
+            UnpackOptions::fromBitmask($bitmask);
         } catch (InvalidOptionException $e) {
             self::assertSame($e->getMessage(), $errorMessage);
 
             return;
         }
 
-        self::fail('InvalidOptionException was not thrown.');
+        self::fail(InvalidOptionException::class.' was not thrown.');
     }
 
-    public function provideInvalidOptionsData()
+    public function provideInvalidOptionsData() : iterable
     {
-        return [
-            [
-                UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_STR,
-                'Invalid option bigint, use one of MessagePack\UnpackOptions::BIGINT_AS_STR, MessagePack\UnpackOptions::BIGINT_AS_GMP or MessagePack\UnpackOptions::BIGINT_AS_EXCEPTION.',
-            ],
+        yield [
+            UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_STR,
+            'Invalid option bigint, use one of MessagePack\UnpackOptions::BIGINT_AS_STR, MessagePack\UnpackOptions::BIGINT_AS_GMP or MessagePack\UnpackOptions::BIGINT_AS_EXCEPTION.',
         ];
     }
 }

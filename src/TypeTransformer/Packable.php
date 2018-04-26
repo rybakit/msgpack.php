@@ -15,11 +15,5 @@ use MessagePack\Packer;
 
 interface Packable
 {
-    /**
-     * @param Packer $packer
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public function pack(Packer $packer, $value);
+    public function pack(Packer $packer, $value) : ?string;
 }

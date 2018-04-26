@@ -16,7 +16,7 @@ final class Ext
     public $type;
     public $data;
 
-    public function __construct($type, $data)
+    public function __construct(int $type, string $data)
     {
         $this->type = $type;
         $this->data = $data;

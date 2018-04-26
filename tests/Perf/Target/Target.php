@@ -15,25 +15,14 @@ use MessagePack\Tests\Perf\Test;
 
 interface Target
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName() : string;
 
     /**
-     * @param Test $test
-     *
      * @throws \Exception
      */
-    public function sanitize(Test $test);
+    public function sanitize(Test $test) : void;
 
-    /**
-     * @param Test $test
-     */
-    public function perform(Test $test);
+    public function perform(Test $test) : void;
 
-    /**
-     * @param Test $test
-     */
-    public function calibrate(Test $test);
+    public function calibrate(Test $test) : void;
 }

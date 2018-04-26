@@ -11,17 +11,19 @@
 
 namespace MessagePack\Tests\Unit\TypeTransformer;
 
+use MessagePack\Packer;
 use MessagePack\Type\Map;
 use MessagePack\TypeTransformer\MapTransformer;
+use PHPUnit\Framework\TestCase;
 
-class MapTransformerTest extends \PHPUnit_Framework_TestCase
+class MapTransformerTest extends TestCase
 {
-    public function testPackMap()
+    public function testPackMap() : void
     {
         $raw = ['abc' => 5];
         $packed = "\x81\xa3\x61\x62\x63\x05";
 
-        $packer = $this->getMockBuilder('MessagePack\Packer')->getMock();
+        $packer = $this->createMock(Packer::class);
         $packer->expects(self::any())->method('packMap')
             ->with($raw)
             ->willReturn($packed);
@@ -32,12 +34,12 @@ class MapTransformerTest extends \PHPUnit_Framework_TestCase
         self::assertSame($packed, $transformer->pack($packer, $map));
     }
 
-    public function testPackNonMap()
+    public function testPackNonMap() : void
     {
         $raw = ['abc' => 5];
         $packed = "\x81\xa3\x61\x62\x63\x05";
 
-        $packer = $this->getMockBuilder('MessagePack\Packer')->getMock();
+        $packer = $this->createMock(Packer::class);
         $packer->expects(self::any())->method('packMap')
             ->with($raw)
             ->willReturn($packed);

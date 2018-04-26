@@ -19,39 +19,27 @@ class PackerTarget implements Target
     private $name;
     private $packer;
 
-    public function __construct($name = null, Packer $packer = null)
+    public function __construct(string $name = null, Packer $packer = null)
     {
         $this->packer = $packer ?: new Packer();
         $this->name = $name ?: \get_class($this->packer);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function sanitize(Test $test)
+    public function sanitize(Test $test) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function perform(Test $test)
+    public function perform(Test $test) : void
     {
         $this->packer->pack($test->getRaw());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function calibrate(Test $test)
+    public function calibrate(Test $test) : void
     {
         $test->getRaw();
     }

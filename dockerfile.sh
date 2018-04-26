@@ -10,9 +10,8 @@ if [[ $PHP_RUNTIME == php* ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install zip mbstring"
     RUN_CMDS="$RUN_CMDS && \\\\\n    apt-get install -y libgmp-dev"
     RUN_CMDS="$RUN_CMDS && \\\\\n    ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && docker-php-ext-install gmp"
-    PHPUNIT_VERSION_CONSTRAINT='@stable'
 else
-    PHPUNIT_VERSION_CONSTRAINT='<7.0'
+    RUN_CMDS="$RUN_CMDS && \\\\\n    echo 'hhvm.php7.all = 1' >> /etc/hhvm/php.ini"
 fi
 
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
@@ -25,10 +24,9 @@ FROM $PHP_RUNTIME
 
 RUN apt-get update && apt-get install -y git curl zlib1g-dev${RUN_CMDS}
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \\
-    composer global require 'phpunit/phpunit:$PHPUNIT_VERSION_CONSTRAINT'
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 ENV PATH=~/.composer/vendor/bin:\$PATH
 
-CMD if [ ! -f composer.lock ]; then composer install; fi && ~/.composer/vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
+CMD if [ ! -f composer.lock ]; then composer install; fi && vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
 "

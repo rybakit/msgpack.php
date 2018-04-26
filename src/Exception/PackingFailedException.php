@@ -15,7 +15,7 @@ class PackingFailedException extends \RuntimeException
 {
     private $value;
 
-    public function __construct($value, $message = null, $code = null, \Exception $previous = null)
+    public function __construct($value, string $message = null, int $code = null, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 

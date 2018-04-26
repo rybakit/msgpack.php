@@ -17,15 +17,9 @@ use MessagePack\Tests\Perf\Test;
 interface Benchmark
 {
     /**
-     * @param Target $target
-     * @param Test $test
-     *
      * @return int|float
      */
     public function benchmark(Target $target, Test $test);
 
-    /**
-     * @return array
-     */
-    public function getInfo();
+    public function getInfo() : array;
 }

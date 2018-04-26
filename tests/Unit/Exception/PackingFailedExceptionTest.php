@@ -12,10 +12,11 @@
 namespace MessagePack\Tests\Unit\Exception;
 
 use MessagePack\Exception\PackingFailedException;
+use PHPUnit\Framework\TestCase;
 
-class PackingFailedExceptionTest extends \PHPUnit_Framework_TestCase
+final class PackingFailedExceptionTest extends TestCase
 {
-    public function testConstructor()
+    public function testConstructor() : void
     {
         $value = (object) ['foo' => 'bar'];
         $errorMessage = 'Error message';

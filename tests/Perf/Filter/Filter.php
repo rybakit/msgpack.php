@@ -15,10 +15,5 @@ use MessagePack\Tests\Perf\Test;
 
 interface Filter
 {
-    /**
-     * @param Test $test
-     *
-     * @return bool
-     */
-    public function isAccepted(Test $test);
+    public function isAccepted(Test $test) : bool;
 }

@@ -15,36 +15,24 @@ use MessagePack\Tests\Perf\Test;
 
 class PeclFunctionPackTarget implements Target
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return 'msgpack_pack';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function sanitize(Test $test)
+    public function sanitize(Test $test) : void
     {
         if ($test->getPacked() !== \msgpack_pack($test->getRaw())) {
             throw new \UnexpectedValueException('$packed !== msgpack_pack($raw)');
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function perform(Test $test)
+    public function perform(Test $test) : void
     {
         \msgpack_pack($test->getRaw());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function calibrate(Test $test)
+    public function calibrate(Test $test) : void
     {
         $test->getRaw();
     }

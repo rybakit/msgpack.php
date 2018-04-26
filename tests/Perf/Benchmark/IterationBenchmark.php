@@ -16,9 +16,6 @@ use MessagePack\Tests\Perf\Test;
 
 class IterationBenchmark implements Benchmark
 {
-    /**
-     * @var int
-     */
     private $iterations;
 
     public function __construct($iterations)
@@ -26,9 +23,6 @@ class IterationBenchmark implements Benchmark
         $this->iterations = $iterations;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function benchmark(Target $target, Test $test)
     {
         $target->sanitize($test);
@@ -39,15 +33,12 @@ class IterationBenchmark implements Benchmark
         return $performTime - $overheadTime;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getInfo()
+    public function getInfo() : array
     {
         return ['Iterations' => $this->iterations];
     }
 
-    private function measurePerform(Target $target, Test $test)
+    private function measurePerform(Target $target, Test $test) : float
     {
         $time = \microtime(true);
 
@@ -58,7 +49,7 @@ class IterationBenchmark implements Benchmark
         return \microtime(true) - $time;
     }
 
-    private function measureOverhead(Target $target, Test $test)
+    private function measureOverhead(Target $target, Test $test) : float
     {
         $time = \microtime(true);
 

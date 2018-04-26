@@ -17,14 +17,14 @@ use MessagePack\Tests\Perf\TestSkippedException;
 
 class TableWriter implements Writer
 {
-    const COLUMN_WIDTH_MIN = 9;
-    const COLUMN_WIDTH_FIRST = 20;
+    private const COLUMN_WIDTH_MIN = 9;
+    private const COLUMN_WIDTH_FIRST = 20;
 
-    const STATUS_SKIPPED = 'S';
-    const STATUS_FAILED = 'F';
-    const STATUS_IGNORED = 'I';
+    private const STATUS_SKIPPED = 'S';
+    private const STATUS_FAILED = 'F';
+    private const STATUS_IGNORED = 'I';
 
-    private $ignoreIncomplete = true;
+    private $ignoreIncomplete;
     private $width;
     private $widths = [];
 
@@ -35,16 +35,12 @@ class TableWriter implements Writer
         'ingored' => [],
     ];
 
-    public function __construct($ignoreIncomplete = null)
+    public function __construct(bool $ignoreIncomplete = null)
     {
         $this->ignoreIncomplete = null === $ignoreIncomplete ? true : $ignoreIncomplete;
     }
 
-    /**
-     * @param array $benchmarkInfo
-     * @param Target[] $targets
-     */
-    public function open(array $benchmarkInfo, array $targets)
+    public function open(array $benchmarkInfo, array $targets) : void
     {
         $this->widths = [self::COLUMN_WIDTH_FIRST];
 
@@ -72,7 +68,7 @@ class TableWriter implements Writer
         echo \str_repeat('-', $this->width)."\n";
     }
 
-    public function write(Test $test, array $stats)
+    public function write(Test $test, array $stats) : void
     {
         $cells = [$test];
         $isIncomplete = false;
@@ -112,7 +108,7 @@ class TableWriter implements Writer
         $this->writeRow($cells, '.');
     }
 
-    public function close()
+    public function close() : void
     {
         echo \str_repeat('=', $this->width)."\n";
 
@@ -125,7 +121,7 @@ class TableWriter implements Writer
         $this->writeSummary('Ignored', 'ignored');
     }
 
-    private function writeSummary($title, $name, \Closure $formatter = null)
+    private function writeSummary(string $title, string $name, \Closure $formatter = null) : void
     {
         $cells = [$title];
 
@@ -136,7 +132,7 @@ class TableWriter implements Writer
         $this->writeRow($cells);
     }
 
-    private function writeRow(array $cells, $padChar = ' ')
+    private function writeRow(array $cells, string $padChar = ' ') : void
     {
         $title = \array_shift($cells);
 

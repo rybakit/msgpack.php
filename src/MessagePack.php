@@ -29,7 +29,7 @@ final class MessagePack
      *
      * @return string
      */
-    public static function pack($value, $options = null)
+    public static function pack($value, $options = null) : string
     {
         return (new Packer($options))->pack($value);
     }
@@ -43,7 +43,7 @@ final class MessagePack
      *
      * @return mixed
      */
-    public static function unpack($data, $options = null)
+    public static function unpack(string $data, $options = null)
     {
         return (new BufferUnpacker($data, $options))->unpack();
     }
