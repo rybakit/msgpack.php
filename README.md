@@ -13,7 +13,6 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#type-transformers)
- * Works with PHP 7.1+ and HHVM 3.25+
  * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
  * [Relatively fast](#performance)
 
@@ -42,7 +41,7 @@ The recommended way to install the library is through [Composer](http://getcompo
 $ composer require rybakit/msgpack
 ```
 
-> *`rybakit/msgpack` requires PHP >= 7.2. For older PHP and HHVM versions please use 
+> *`rybakit/msgpack` requires PHP >= 7.1.1. For older PHP versions or HHVM please use 
 > the [0.3.1](https://github.com/rybakit/msgpack.php/tree/v0.3.1) version of this library.*
 
 
