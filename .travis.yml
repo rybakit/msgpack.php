@@ -6,7 +6,9 @@ services:
   - docker
 
 env:
+  - PHP_RUNTIME='php:7.1-cli'
   - PHP_RUNTIME='php:7.2-cli' PHPUNIT_OPTS='--coverage-clover=coverage.clover'
+  - PHP_RUNTIME='hhvm/hhvm:3.25.1'
   - PHP_RUNTIME='hhvm/hhvm:nightly'
 
 matrix:
