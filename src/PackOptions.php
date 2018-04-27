@@ -42,7 +42,7 @@ final class PackOptions
         return $self;
     }
 
-    public static function fromBitmask(int $bitmask): self
+    public static function fromBitmask(int $bitmask) : self
     {
         $self = new self();
 
