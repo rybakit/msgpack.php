@@ -13,6 +13,7 @@ namespace MessagePack\Tests\Unit;
 
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
+use MessagePack\Ext;
 use MessagePack\Packer;
 use MessagePack\PackOptions;
 use MessagePack\TypeTransformer\Packable;
@@ -141,5 +142,77 @@ final class PackerTest extends TestCase
 
         $this->packer->registerTransformer($transformer);
         $this->packer->pack($obj);
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideNilData
+     */
+    public function testPackNil($raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packNil());
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideBoolData()
+     */
+    public function testPackBool($raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packBool($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideIntData
+     */
+    public function testPackInt(int $raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packInt($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideFloatData
+     */
+    public function testPackFloat(float $raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packFloat($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideStrData
+     */
+    public function testPackStr(string $raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packStr($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideBinData
+     */
+    public function testPackBin(string $raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packBin($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideArrayData
+     */
+    public function testPackArray(array $raw, string $packed) : void
+    {
+        self::assertEquals($packed, $this->packer->packArray($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideMapData
+     */
+    public function testPackMap(array $raw, string $packed) : void
+    {
+        self::assertEquals($packed, $this->packer->packMap($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideExtData
+     */
+    public function testPackExt(Ext $raw, string $packed) : void
+    {
+        self::assertEquals($packed, $this->packer->packExt($raw->type, $raw->data));
     }
 }
