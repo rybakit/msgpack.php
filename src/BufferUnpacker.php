@@ -423,8 +423,8 @@ class BufferUnpacker
         }
 
         $hi = \ord($this->buffer[$this->offset]);
-        $lo = \ord($this->buffer[$this->offset + 1]);
-        $this->offset += 2;
+        $lo = \ord($this->buffer[++$this->offset]);
+        ++$this->offset;
 
         return $hi << 8 | $lo;
     }
@@ -472,8 +472,8 @@ class BufferUnpacker
         }
 
         $hi = \ord($this->buffer[$this->offset]);
-        $lo = \ord($this->buffer[$this->offset + 1]);
-        $this->offset += 2;
+        $lo = \ord($this->buffer[++$this->offset]);
+        ++$this->offset;
 
         return $hi > 0x7f ? $hi << 8 | $lo - 0x10000 : $hi << 8 | $lo;
     }
