@@ -109,7 +109,7 @@ class Packer
             }
         }
 
-        throw new PackingFailedException($value, 'Unsupported type.');
+        throw PackingFailedException::unsupportedType($value);
     }
 
     public function packNil()

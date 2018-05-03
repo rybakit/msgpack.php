@@ -114,6 +114,6 @@ final class PackOptions
             $validOptions[] = __CLASS__.'::'.$map[$i];
         }
 
-        throw InvalidOptionException::fromValidOptions($name, $validOptions);
+        throw InvalidOptionException::outOfRange($name, $validOptions);
     }
 }

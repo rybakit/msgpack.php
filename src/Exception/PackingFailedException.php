@@ -15,9 +15,9 @@ class PackingFailedException extends \RuntimeException
 {
     private $value;
 
-    public function __construct($value, string $message = null, int $code = null, \Exception $previous = null)
+    public function __construct($value, string $message = '', \Throwable $previous = null)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, 0, $previous);
 
         $this->value = $value;
     }
@@ -25,5 +25,14 @@ class PackingFailedException extends \RuntimeException
     public function getValue()
     {
         return $this->value;
+    }
+
+    public static function unsupportedType($value) : self
+    {
+        $message = \sprintf('Unsupported type: %s.',
+            \is_object($value) ? \get_class($value) : \gettype($value)
+        );
+
+        return new self($value, $message);
     }
 }

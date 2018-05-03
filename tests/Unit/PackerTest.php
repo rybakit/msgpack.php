@@ -40,21 +40,21 @@ final class PackerTest extends TestCase
     }
 
     /**
-     * @dataProvider provideUnsupportedValues
+     * @dataProvider provideUnsupportedTypeData
      */
-    public function testPackUnsupportedType($value) : void
+    public function testPackUnsupportedType($value, string $type) : void
     {
         $this->expectException(PackingFailedException::class);
-        $this->expectExceptionMessage('Unsupported type.');
+        $this->expectExceptionMessage("Unsupported type: $type.");
 
         $this->packer->pack($value);
     }
 
-    public function provideUnsupportedValues() : array
+    public function provideUnsupportedTypeData() : array
     {
         return [
-            [\tmpfile()],
-            [new \stdClass()],
+            [\tmpfile(), 'resource'],
+            [new \stdClass(), 'stdClass'],
         ];
     }
 
@@ -131,7 +131,7 @@ final class PackerTest extends TestCase
     public function testPackCustomUnsupportedType() : void
     {
         $this->expectException(PackingFailedException::class);
-        $this->expectExceptionMessage('Unsupported type.');
+        $this->expectExceptionMessage('Unsupported type: stdClass.');
 
         $obj = new \stdClass();
 

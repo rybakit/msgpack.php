@@ -17,16 +17,16 @@ use PHPUnit\Framework\TestCase;
 final class InvalidOptionExceptionTest extends TestCase
 {
     /**
-     * @dataProvider provideFromValidOptionsData
+     * @dataProvider provideOutOfRangeData
      */
-    public function testFromValidOptions(string $invalidOption, array $validOptions, string $message) : void
+    public function testOutOfRange(string $invalidOption, array $validOptions, string $message) : void
     {
-        $exception = InvalidOptionException::fromValidOptions($invalidOption, $validOptions);
+        $exception = InvalidOptionException::outOfRange($invalidOption, $validOptions);
 
         self::assertSame($message, $exception->getMessage());
     }
 
-    public function provideFromValidOptionsData() : array
+    public function provideOutOfRangeData() : array
     {
         return [
             ['foobar', ['foo'], 'Invalid option foobar, use foo.'],

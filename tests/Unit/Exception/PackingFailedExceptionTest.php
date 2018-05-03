@@ -20,14 +20,13 @@ final class PackingFailedExceptionTest extends TestCase
     {
         $value = (object) ['foo' => 'bar'];
         $errorMessage = 'Error message';
-        $errorCode = 42;
         $prevException = new \Exception();
 
-        $exception = new PackingFailedException($value, $errorMessage, $errorCode, $prevException);
+        $exception = new PackingFailedException($value, $errorMessage, $prevException);
 
         self::assertSame($value, $exception->getValue());
         self::assertSame($errorMessage, $exception->getMessage());
-        self::assertSame($errorCode, $exception->getCode());
+        self::assertSame(0, $exception->getCode());
         self::assertSame($prevException, $exception->getPrevious());
     }
 }
