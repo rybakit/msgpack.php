@@ -11,7 +11,6 @@
 
 namespace MessagePack\Tests\Perf\Writer;
 
-use MessagePack\Tests\Perf\Target\Target;
 use MessagePack\Tests\Perf\Test;
 use MessagePack\Tests\Perf\TestSkippedException;
 
@@ -28,16 +27,14 @@ class TableWriter implements Writer
     private $width;
     private $widths = [];
 
-    private $summary = [
-        'total' => [],
-        'skipped' => [],
-        'failed' => [],
-        'ingored' => [],
-    ];
+    private $total = [];
+    private $skipped = [];
+    private $failed = [];
+    private $ignored = [];
 
     public function __construct(bool $ignoreIncomplete = null)
     {
-        $this->ignoreIncomplete = null === $ignoreIncomplete ? true : $ignoreIncomplete;
+        $this->ignoreIncomplete = $ignoreIncomplete ?? true;
     }
 
     public function open(array $benchmarkInfo, array $targets) : void
@@ -50,10 +47,10 @@ class TableWriter implements Writer
             $this->widths[] = \max(\strlen($targetName) + 2, self::COLUMN_WIDTH_MIN);
             $cells[] = $targetName;
 
-            $this->summary['total'][$targetName] = 0;
-            $this->summary['skipped'][$targetName] = 0;
-            $this->summary['failed'][$targetName] = 0;
-            $this->summary['ignored'][$targetName] = 0;
+            $this->total[$targetName] = 0;
+            $this->skipped[$targetName] = 0;
+            $this->failed[$targetName] = 0;
+            $this->ignored[$targetName] = 0;
         }
 
         $this->width = \array_sum($this->widths);
@@ -75,7 +72,7 @@ class TableWriter implements Writer
 
         foreach ($stats as $targetName => $result) {
             if (!$result instanceof \Exception) {
-                $this->summary['total'][$targetName] += $result;
+                $this->total[$targetName] += $result;
                 $cells[$targetName] = \sprintf('%.4f', $result);
                 continue;
             }
@@ -83,10 +80,10 @@ class TableWriter implements Writer
             $isIncomplete = true;
 
             if ($result instanceof TestSkippedException) {
-                ++$this->summary['skipped'][$targetName];
+                ++$this->skipped[$targetName];
                 $cells[$targetName] = self::STATUS_SKIPPED;
             } else {
-                ++$this->summary['failed'][$targetName];
+                ++$this->failed[$targetName];
                 $cells[$targetName] = self::STATUS_FAILED;
             }
         }
@@ -100,8 +97,8 @@ class TableWriter implements Writer
                 }
 
                 $cells[$targetName] = self::STATUS_IGNORED;
-                $this->summary['total'][$targetName] -= $result;
-                ++$this->summary['ignored'][$targetName];
+                $this->total[$targetName] -= $result;
+                ++$this->ignored[$targetName];
             }
         }
 
@@ -112,20 +109,20 @@ class TableWriter implements Writer
     {
         echo \str_repeat('=', $this->width)."\n";
 
-        $this->writeSummary('Total', 'total', function ($value) {
+        $this->writeSummary('Total', $this->total, function ($value) {
             return \sprintf('%.4f', $value);
         });
 
-        $this->writeSummary('Skipped', 'skipped');
-        $this->writeSummary('Failed', 'failed');
-        $this->writeSummary('Ignored', 'ignored');
+        $this->writeSummary('Skipped', $this->skipped);
+        $this->writeSummary('Failed', $this->failed);
+        $this->writeSummary('Ignored', $this->ignored);
     }
 
-    private function writeSummary(string $title, string $name, \Closure $formatter = null) : void
+    private function writeSummary(string $title, array $values, \Closure $formatter = null) : void
     {
         $cells = [$title];
 
-        foreach ($this->summary[$name] as $value) {
+        foreach ($values as $value) {
             $cells[] = $formatter ? $formatter($value) : $value;
         }
 
