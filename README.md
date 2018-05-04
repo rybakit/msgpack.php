@@ -377,11 +377,10 @@ $date = $unpacker->reset($packed)->unpack();
 If an error occurs during packing/unpacking, a `PackingFailedException` or `UnpackingFailedException` will be thrown, 
 respectively.
 
-In addition, there are three more exceptions that can be thrown during unpacking:
+In addition, there are two more exceptions that can be thrown during unpacking:
 
  * `InsufficientDataException`
  * `IntegerOverflowException`
- * `InvalidCodeException`
 
 An `InvalidOptionException` will be thrown in case an invalid option (or a combination of mutually exclusive options) 
 is used.

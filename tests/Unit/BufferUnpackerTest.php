@@ -14,8 +14,8 @@ namespace MessagePack\Tests\Unit;
 use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
-use MessagePack\Exception\InvalidCodeException;
 use MessagePack\Exception\InvalidOptionException;
+use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Ext;
 use MessagePack\TypeTransformer\Extension;
 use MessagePack\UnpackOptions;
@@ -90,9 +90,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackUnknownCode() : void
     {
-        $this->expectException(InvalidCodeException::class);
+        $this->expectException(UnpackingFailedException::class);
         $this->expectExceptionMessage('Unknown code: 0xc1.');
-        $this->expectExceptionCode(193);
 
         $this->unpacker->reset("\xc1")->unpack();
     }
@@ -291,9 +290,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidNil() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid nil code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected nil code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackNil();
     }
@@ -316,9 +314,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidBool() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid bool code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected bool code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackBool();
     }
@@ -341,9 +338,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidInt() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid int code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected int code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackInt();
     }
@@ -366,9 +362,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidFloat() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid float code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected float code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackFloat();
     }
@@ -391,9 +386,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidStr() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid str code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected str code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackStr();
     }
@@ -416,9 +410,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidBin() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid bin code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected bin code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackBin();
     }
@@ -441,9 +434,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidArray() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid array header code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected array header code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackArray();
     }
@@ -466,9 +458,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidMap() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid map header code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected map header code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackMap();
     }
@@ -491,9 +482,8 @@ final class BufferUnpackerTest extends TestCase
 
     public function testUnpackInvalidExt() : void
     {
-        $this->expectException(InvalidCodeException::class);
-        $this->expectExceptionMessage('Invalid ext header code: 0xc1.');
-        $this->expectExceptionCode(193);
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Unexpected ext header code: 0xc1.');
 
         $this->unpacker->reset("\xc1")->unpackExt();
     }

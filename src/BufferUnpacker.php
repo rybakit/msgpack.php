@@ -13,7 +13,7 @@ namespace MessagePack;
 
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
-use MessagePack\Exception\InvalidCodeException;
+use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\TypeTransformer\Extension;
 
 class BufferUnpacker
@@ -178,7 +178,7 @@ class BufferUnpacker
             case 0xc9: return $this->unpackExtData($this->unpackUint32());
         }
 
-        throw InvalidCodeException::unknownCode($c);
+        throw UnpackingFailedException::unknownCode($c);
     }
 
     public function unpackNil()
@@ -193,7 +193,7 @@ class BufferUnpacker
             return null;
         }
 
-        throw InvalidCodeException::mismatchedType('nil', \ord($this->buffer[$this->offset++]));
+        throw UnpackingFailedException::unexpectedCode(\ord($this->buffer[$this->offset++]), 'nil');
     }
 
     public function unpackBool()
@@ -212,7 +212,7 @@ class BufferUnpacker
             return true;
         }
 
-        throw InvalidCodeException::mismatchedType('bool', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'bool');
     }
 
     public function unpackInt()
@@ -247,7 +247,7 @@ class BufferUnpacker
             case 0xd3: return $this->unpackInt64();
         }
 
-        throw InvalidCodeException::mismatchedType('int', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'int');
     }
 
     public function unpackFloat()
@@ -266,7 +266,7 @@ class BufferUnpacker
             return $this->unpackFloat32();
         }
 
-        throw InvalidCodeException::mismatchedType('float', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'float');
     }
 
     public function unpackStr()
@@ -291,7 +291,7 @@ class BufferUnpacker
             return $this->unpackStrData($this->unpackUint32());
         }
 
-        throw InvalidCodeException::mismatchedType('str', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'str');
     }
 
     public function unpackBin()
@@ -313,7 +313,7 @@ class BufferUnpacker
             return $this->unpackStrData($this->unpackUint32());
         }
 
-        throw InvalidCodeException::mismatchedType('bin', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'bin');
     }
 
     public function unpackArray()
@@ -347,7 +347,7 @@ class BufferUnpacker
             return $this->unpackUint32();
         }
 
-        throw InvalidCodeException::mismatchedType('array header', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'array header');
     }
 
     public function unpackMap()
@@ -381,7 +381,7 @@ class BufferUnpacker
             return $this->unpackUint32();
         }
 
-        throw InvalidCodeException::mismatchedType('map header', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'map header');
     }
 
     public function unpackExt()
@@ -404,7 +404,7 @@ class BufferUnpacker
             case 0xc9: return $this->unpackExtData($this->unpackUint32());
         }
 
-        throw InvalidCodeException::mismatchedType('ext header', $c);
+        throw UnpackingFailedException::unexpectedCode($c, 'ext header');
     }
 
     private function unpackUint8()
