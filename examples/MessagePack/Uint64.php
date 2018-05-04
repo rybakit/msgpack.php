@@ -10,4 +10,9 @@ final class Uint64
     {
         $this->value = $value;
     }
+
+    public function __toString() : string
+    {
+        return $this->value;
+    }
 }
