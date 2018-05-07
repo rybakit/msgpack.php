@@ -19,6 +19,6 @@ class InvalidOptionException extends \InvalidArgumentException
             ? \sprintf('one of %2$s or %1$s', \array_pop($validOptions), \implode(', ', $validOptions))
             : \implode(' or ', $validOptions);
 
-        return new self(\sprintf('Invalid option %s, use %s.', $invalidOption, $use));
+        return new self("Invalid option $invalidOption, use $use.");
     }
 }
