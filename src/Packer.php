@@ -72,13 +72,16 @@ class Packer
             return $this->packInt($value);
         }
         if (\is_string($value)) {
+            if ($this->isForceStr) {
+                return $this->packStr($value);
+            }
             if ($this->isDetectStrBin) {
                 return \preg_match(self::UTF8_REGEX, $value)
                     ? $this->packStr($value)
                     : $this->packBin($value);
             }
 
-            return $this->isForceStr ? $this->packStr($value) : $this->packBin($value);
+            return $this->packBin($value);
         }
         if (\is_array($value)) {
             if ($this->isDetectArrMap) {
@@ -222,8 +225,28 @@ class Packer
     {
         $data = $this->packMapHeader(\count($map));
 
+        if ($this->isForceStr) {
+            foreach ($map as $key => $val) {
+                $data .= \is_string($key) ? $this->packStr($key) : $this->packInt($key);
+                $data .= $this->pack($val);
+            }
+
+            return $data;
+        }
+
+        if ($this->isDetectStrBin) {
+            foreach ($map as $key => $val) {
+                $data .= \is_string($key)
+                    ? (\preg_match(self::UTF8_REGEX, $key) ? $this->packStr($key) : $this->packBin($key))
+                    : $this->packInt($key);
+                $data .= $this->pack($val);
+            }
+
+            return $data;
+        }
+
         foreach ($map as $key => $val) {
-            $data .= $this->pack($key);
+            $data .= \is_string($key) ? $this->packBin($key) : $this->packInt($key);
             $data .= $this->pack($val);
         }
 
