@@ -18,5 +18,5 @@ $packer->registerTransformer(new Uint64Transformer());
 $uint64 = new Uint64('18446744073709551615');
 $packed = $packer->pack($uint64);
 
-\printf("Packed (%s): %s\n", $uint64, \bin2hex($packed));
-\printf("Unpacked: %s\n", (new BufferUnpacker($packed))->unpack());
+printf("Packed (%s): %s\n", $uint64, bin2hex($packed));
+printf("Unpacked: %s\n", (new BufferUnpacker($packed))->unpack());

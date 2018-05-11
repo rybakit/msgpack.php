@@ -33,7 +33,7 @@ class DurationBenchmark implements Benchmark
         $iterations = $this->measurePerform($target, $test);
         $overheadTime = $this->measureOverhead($target, $test, $iterations);
 
-        $extraIterations = \round($overheadTime * $iterations / $this->duration);
+        $extraIterations = round($overheadTime * $iterations / $this->duration);
 
         return $iterations + $extraIterations;
     }
@@ -46,9 +46,9 @@ class DurationBenchmark implements Benchmark
     private function measurePerform(Target $target, Test $test) : int
     {
         $iterations = 0;
-        $time = \microtime(true) + $this->duration;
+        $time = microtime(true) + $this->duration;
 
-        while (\microtime(true) <= $time) {
+        while (microtime(true) <= $time) {
             $target->perform($test);
             ++$iterations;
         }
@@ -58,12 +58,12 @@ class DurationBenchmark implements Benchmark
 
     private function measureOverhead(Target $target, Test $test, $iterations) : float
     {
-        $time = \microtime(true);
+        $time = microtime(true);
 
         for ($i = $iterations; $i; --$i) {
             $target->calibrate($test);
         }
 
-        return \microtime(true) - $time;
+        return microtime(true) - $time;
     }
 }

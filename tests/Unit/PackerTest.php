@@ -53,7 +53,7 @@ final class PackerTest extends TestCase
     public function provideUnsupportedTypeData() : array
     {
         return [
-            [\tmpfile(), 'resource'],
+            [tmpfile(), 'resource'],
             [new \stdClass(), 'stdClass'],
         ];
     }

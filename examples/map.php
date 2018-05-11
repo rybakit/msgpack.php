@@ -13,5 +13,5 @@ $packer->registerTransformer(new MapTransformer());
 $packedArray = $packer->pack([1, 2, 3]);
 $packedMap = $packer->pack(new Map([1, 2, 3]));
 
-\printf("Packed array: %s\n", \implode(' ', \str_split(\bin2hex($packedArray), 2)));
-\printf("Packed map:   %s\n", \implode(' ', \str_split(\bin2hex($packedMap), 2)));
+printf("Packed array: %s\n", implode(' ', str_split(bin2hex($packedArray), 2)));
+printf("Packed map:   %s\n", implode(' ', str_split(bin2hex($packedMap), 2)));

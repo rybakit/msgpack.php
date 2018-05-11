@@ -40,23 +40,23 @@ class IterationBenchmark implements Benchmark
 
     private function measurePerform(Target $target, Test $test) : float
     {
-        $time = \microtime(true);
+        $time = microtime(true);
 
         for ($i = $this->iterations; $i; --$i) {
             $target->perform($test);
         }
 
-        return \microtime(true) - $time;
+        return microtime(true) - $time;
     }
 
     private function measureOverhead(Target $target, Test $test) : float
     {
-        $time = \microtime(true);
+        $time = microtime(true);
 
         for ($i = $this->iterations; $i; --$i) {
             $target->calibrate($test);
         }
 
-        return \microtime(true) - $time;
+        return microtime(true) - $time;
     }
 }

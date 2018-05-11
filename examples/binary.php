@@ -14,4 +14,4 @@ $packer->registerTransformer(new BinaryTransformer());
 
 $packed = $packer->pack(['name' => new Binary('value')]);
 
-echo '[', \implode(', ', \unpack('C*', $packed)), "]\n";
+echo '[', implode(', ', unpack('C*', $packed)), "]\n";

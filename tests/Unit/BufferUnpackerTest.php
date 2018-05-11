@@ -40,7 +40,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpack($raw, string $packed) : void
     {
         $this->unpacker->reset($packed);
-        $isOrHasObject = \is_object($raw) || \is_array($raw);
+        $isOrHasObject = is_object($raw) || is_array($raw);
 
         $isOrHasObject
             ? self::assertEquals($raw, $this->unpacker->unpack())
@@ -139,7 +139,7 @@ final class BufferUnpackerTest extends TestCase
         $uint64 = $unpacker->unpack();
 
         self::assertInstanceOf(\GMP::class, $uint64);
-        self::assertSame('18446744073709551615', \gmp_strval($uint64));
+        self::assertSame('18446744073709551615', gmp_strval($uint64));
     }
 
     public function testReset() : void

@@ -1,14 +1,69 @@
 <?php
 
-return PhpCsFixer\Config::create()
+namespace MessagePack;
+
+use PhpCsFixer\Config;
+use PhpCsFixer\Fixer\FixerInterface;
+use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
+use PhpCsFixer\Tokenizer\Tokens;
+
+final class FilterableFixer implements FixerInterface {
+    private $fixer;
+    private $pathRegex;
+
+    public function __construct(FixerInterface $fixer, string $pathRegex)
+    {
+        $this->fixer = $fixer;
+        $this->pathRegex = $pathRegex;
+    }
+
+    public function isCandidate(Tokens $tokens) : bool
+    {
+        return $this->fixer->isCandidate($tokens);
+    }
+
+    public function isRisky() : bool
+    {
+        return $this->fixer->isRisky();
+    }
+
+    public function fix(\SplFileInfo $file, Tokens $tokens) : void
+    {
+        $this->fixer->fix($file, $tokens);
+    }
+
+    public function getName() : string
+    {
+        return 'MessagePack/'.$this->fixer->getName();
+    }
+
+    public function getPriority() : int
+    {
+        return $this->fixer->getPriority();
+    }
+
+    public function supports(\SplFileInfo $file) : bool
+    {
+        if (1 !== preg_match($this->pathRegex, $file->getRealPath())) {
+            return false;
+        }
+
+        return $this->fixer->supports($file);
+    }
+};
+
+return Config::create()
     ->setUsingCache(false)
     ->setRiskyAllowed(true)
+    ->registerCustomFixers([
+        new FilterableFixer(new NativeFunctionInvocationFixer(), '/\bsrc\b/'),
+    ])
     ->setRules([
         '@Symfony' => true,
         '@Symfony:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
         'binary_operator_spaces' => ['operators' => ['=' => null, '=>' => null]],
-        'native_function_invocation' => true,
+        'MessagePack/native_function_invocation' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
         'ordered_imports' => true,

@@ -16,5 +16,5 @@ $packed = $packer->pack($date);
 $unpacker = new BufferUnpacker($packed);
 $unpacker->registerTransformer($transformer);
 
-\printf("Raw:      %s\n", $date->format('r'));
-\printf("Unpacked: %s\n", $unpacker->unpack()->format('r'));
+printf("Raw:      %s\n", $date->format('r'));
+printf("Unpacked: %s\n", $unpacker->unpack()->format('r'));

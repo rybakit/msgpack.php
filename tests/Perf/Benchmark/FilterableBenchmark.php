@@ -38,6 +38,6 @@ class FilterableBenchmark implements Benchmark
 
     public function getInfo() : array
     {
-        return ['Filter' => \get_class($this->filter)] + $this->benchmark->getInfo();
+        return ['Filter' => get_class($this->filter)] + $this->benchmark->getInfo();
     }
 }

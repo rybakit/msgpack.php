@@ -27,7 +27,7 @@ use MessagePack\Tests\Perf\Target\PeclFunctionUnpackTarget;
 
 require __DIR__.'/../vendor/autoload.php';
 
-if (\extension_loaded('xdebug')) {
+if (extension_loaded('xdebug')) {
     echo "The benchmark must be run with xdebug extension disabled.\n";
     exit(42);
 }
@@ -39,12 +39,12 @@ function resolve_filter($testNames)
     }
 
     if ('@' !== $testNames[0] && '@' !== $testNames[1]) {
-        return new ListFilter(\explode(',', $testNames));
+        return new ListFilter(explode(',', $testNames));
     }
 
     $exclude = '-' === $testNames[0];
 
-    switch (\ltrim($testNames, '-@')) {
+    switch (ltrim($testNames, '-@')) {
         case 'slow':
             return $exclude
                 ? ListFilter::fromBlacklist(DataProvider::getSlowTestNames())
@@ -56,18 +56,18 @@ function resolve_filter($testNames)
                 : ListFilter::fromBlacklist(DataProvider::getPeclIncompatibleTestNames());
     }
 
-    throw new \UnexpectedValueException(\sprintf('Unknown test group "%s".', $testNames));
+    throw new \UnexpectedValueException(sprintf('Unknown test group "%s".', $testNames));
 }
 
-\set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
+set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
 
-$targetAliases = \getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_bu';
-$rounds = \getenv('MP_BENCH_ROUNDS') ?: 3;
-$testNames = \getenv('MP_BENCH_TESTS') ?: '-@slow';
+$targetAliases = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_bu';
+$rounds = getenv('MP_BENCH_ROUNDS') ?: 3;
+$testNames = getenv('MP_BENCH_TESTS') ?: '-@slow';
 
-$benchmark = \getenv('MP_BENCH_DURATION')
-    ? new DurationBenchmark(\getenv('MP_BENCH_DURATION'))
-    : new IterationBenchmark(\getenv('MP_BENCH_ITERATIONS') ?: 100000);
+$benchmark = getenv('MP_BENCH_DURATION')
+    ? new DurationBenchmark(getenv('MP_BENCH_DURATION'))
+    : new IterationBenchmark(getenv('MP_BENCH_ITERATIONS') ?: 100000);
 
 if ($rounds) {
     $benchmark = new AverageableBenchmark($benchmark, $rounds);
@@ -88,11 +88,11 @@ $targetFactories = [
 ];
 
 $targets = [];
-foreach (\explode(',', $targetAliases) as $alias) {
-    $targets[] = $targetFactories[\trim($alias)]();
+foreach (explode(',', $targetAliases) as $alias) {
+    $targets[] = $targetFactories[trim($alias)]();
 }
 
 $runner = new Runner(DataProvider::provideData());
 
-\gc_disable();
+gc_disable();
 $runner->run($benchmark, $targets);

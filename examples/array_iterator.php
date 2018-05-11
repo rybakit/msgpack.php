@@ -10,7 +10,7 @@ $transformer = new ArrayIteratorTransformer(1);
 
 $packer = new Packer();
 $packer->registerTransformer($transformer);
-$packed = $packer->pack(new ArrayIterator(\range(1, 10000)));
+$packed = $packer->pack(new ArrayIterator(range(1, 10000)));
 
 $unpacker = new BufferUnpacker($packed);
 $unpacker->registerTransformer($transformer);
