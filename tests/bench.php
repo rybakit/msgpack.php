@@ -18,7 +18,7 @@ use MessagePack\Tests\Perf\Benchmark\DurationBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\IterationBenchmark;
 use MessagePack\Tests\Perf\Filter\ListFilter;
-use MessagePack\Tests\Perf\Filter\RegexpFilter;
+use MessagePack\Tests\Perf\Filter\RegexFilter;
 use MessagePack\Tests\Perf\Runner;
 use MessagePack\Tests\Perf\Target\BufferUnpackerTarget;
 use MessagePack\Tests\Perf\Target\PackerTarget;
@@ -35,7 +35,7 @@ if (extension_loaded('xdebug')) {
 function resolve_filter($testNames)
 {
     if ('/' === $testNames[0]) {
-        return new RegexpFilter($testNames);
+        return new RegexFilter($testNames);
     }
 
     if ('@' !== $testNames[0] && '@' !== $testNames[1]) {

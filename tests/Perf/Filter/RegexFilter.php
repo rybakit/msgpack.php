@@ -13,17 +13,17 @@ namespace MessagePack\Tests\Perf\Filter;
 
 use MessagePack\Tests\Perf\Test;
 
-class RegexpFilter implements Filter
+class RegexFilter implements Filter
 {
-    private $regexp;
+    private $regex;
 
-    public function __construct(string $regexp)
+    public function __construct(string $regex)
     {
-        $this->regexp = $regexp;
+        $this->regex = $regex;
     }
 
     public function isAccepted(Test $test) : bool
     {
-        return 1 === preg_match($this->regexp, $test->getName());
+        return 1 === preg_match($this->regex, $test->getName());
     }
 }
