@@ -16,7 +16,7 @@ use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-if (!\extension_loaded('gmp')) {
+if (!extension_loaded('gmp')) {
     echo "GMP extension is required to run this example.\n";
     exit(1);
 }
