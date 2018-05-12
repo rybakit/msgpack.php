@@ -7,7 +7,8 @@ use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
 use PhpCsFixer\Tokenizer\Tokens;
 
-final class FilterableFixer implements FixerInterface {
+final class FilterableFixer implements FixerInterface
+{
     private $fixer;
     private $pathRegex;
 
@@ -52,6 +53,15 @@ final class FilterableFixer implements FixerInterface {
     }
 };
 
+$header = <<<EOF
+This file is part of the rybakit/msgpack.php package.
+
+(c) Eugene Leonovich <gen.work@gmail.com>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+EOF;
+
 return Config::create()
     ->setUsingCache(false)
     ->setRiskyAllowed(true)
@@ -71,5 +81,10 @@ return Config::create()
         'phpdoc_align' => false,
         'return_type_declaration' => ['space_before' => 'one'],
         'strict_comparison' => true,
+        'header_comment' => [
+            'header' => $header,
+            'location' => 'after_declare_strict',
+            'separate' => 'both',
+        ],
     ])
 ;
