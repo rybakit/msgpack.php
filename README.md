@@ -38,7 +38,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
 The recommended way to install the library is through [Composer](http://getcomposer.org):
 
 ```sh
-$ composer require rybakit/msgpack
+composer require rybakit/msgpack
 ```
 
 > *`rybakit/msgpack` requires PHP >= 7.1.1. For older PHP versions or HHVM please use 
@@ -391,21 +391,21 @@ is used.
 Run tests as follows:
 
 ```sh
-$ phpunit
+vendor/bin/phpunit
 ```
 
 Also, if you already have Docker installed, you can run the tests in a docker container.
 First, create a container:
 
 ```sh
-$ ./dockerfile.sh | docker build -t msgpack -
+./dockerfile.sh | docker build -t msgpack -
 ```
 
 The command above will create a container named `msgpack` with PHP 7.2 runtime.
 You may change the default runtime by defining the `PHP_RUNTIME` environment variable:
 
 ```sh
-$ PHP_RUNTIME='php:7.1-cli' ./dockerfile.sh | docker build -t msgpack -
+PHP_RUNTIME='php:7.1-cli' ./dockerfile.sh | docker build -t msgpack -
 ```
 
 > *See a list of various runtimes [here](.travis.yml#L8).*
@@ -413,7 +413,7 @@ $ PHP_RUNTIME='php:7.1-cli' ./dockerfile.sh | docker build -t msgpack -
 Then run the unit tests:
 
 ```sh
-$ docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
+docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
 ```
 
 
@@ -422,7 +422,7 @@ $ docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
 To check performance, run:
 
 ```sh
-$ php -n -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
+php -n -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
 ```
 
 This command will output something like:
@@ -528,23 +528,23 @@ You may change default benchmark settings by defining the following environment 
 For example:
 
 ```sh
-$ export MP_BENCH_TARGETS=pure_p
-$ export MP_BENCH_ITERATIONS=1000000
-$ export MP_BENCH_ROUNDS=5
-$ # a comma separated list of test names
-$ export MP_BENCH_TESTS='complex array, complex map'
-$ # or a group name
-$ # export MP_BENCH_TESTS='-@slow' // @pecl_comp
-$ # or a regexp
-$ # export MP_BENCH_TESTS='/complex (array|map)/'
-$ php -n tests/bench.php
+export MP_BENCH_TARGETS=pure_p
+export MP_BENCH_ITERATIONS=1000000
+export MP_BENCH_ROUNDS=5
+# a comma separated list of test names
+export MP_BENCH_TESTS='complex array, complex map'
+# or a group name
+# export MP_BENCH_TESTS='-@slow' // @pecl_comp
+# or a regexp
+# export MP_BENCH_TESTS='/complex (array|map)/'
+php -n -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
 ```
 
 Another example, benchmarking both the library and the [msgpack pecl extension](https://pecl.php.net/package/msgpack):
 
 ```sh
-$ MP_BENCH_TARGETS=pure_ps,pure_bu,pecl_p,pecl_u \
-  php -n -dextension=msgpack.so -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
+MP_BENCH_TARGETS=pure_ps,pure_bu,pecl_p,pecl_u \
+php -n -dextension=msgpack.so -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
 ```
 
 Output:
