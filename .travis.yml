@@ -6,7 +6,7 @@ services:
   - docker
 
 env:
-  - PHP_RUNTIME='php:7.1-cli'
+  - PHP_RUNTIME='php:7.1-cli' CHECK_CS=1
   - PHP_RUNTIME='php:7.2-cli' PHPUNIT_OPTS='--coverage-text --coverage-clover=coverage.clover'
   - PHP_RUNTIME='hhvm/hhvm:nightly'
 
@@ -20,6 +20,9 @@ install:
 
 script:
   - docker run --rm -v $(pwd):/msgpack -w /msgpack -e PHPUNIT_OPTS="$PHPUNIT_OPTS" msgpack
+  - if [[ -n "$CHECK_CS" ]]; then
+      docker run --rm -v $(pwd):/msgpack -w /msgpack msgpack php vendor/bin/php-cs-fixer fix --dry-run --diff --verbose .;
+    fi
 
 after_script:
   - if [[ -f coverage.clover ]]; then
