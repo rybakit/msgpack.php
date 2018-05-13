@@ -198,7 +198,7 @@ class Packer
         return \pack('CN', 0xc6, $length).$str;
     }
 
-    public function packArray(array $array)
+    public function packArray($array)
     {
         $data = $this->packArrayHeader(\count($array));
 
@@ -221,7 +221,7 @@ class Packer
         return \pack('CN', 0xdd, $size);
     }
 
-    public function packMap(array $map)
+    public function packMap($map)
     {
         $data = $this->packMapHeader(\count($map));
 
