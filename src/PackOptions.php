@@ -76,6 +76,11 @@ final class PackOptions
         return self::FORCE_STR === $this->strBinMode;
     }
 
+    public function isForceBinMode() : bool
+    {
+        return self::FORCE_BIN === $this->strBinMode;
+    }
+
     public function isDetectArrMapMode() : bool
     {
         return self::DETECT_ARR_MAP === $this->arrMapMode;
@@ -84,6 +89,11 @@ final class PackOptions
     public function isForceArrMode() : bool
     {
         return self::FORCE_ARR === $this->arrMapMode;
+    }
+
+    public function isForceMapMode() : bool
+    {
+        return self::FORCE_MAP === $this->arrMapMode;
     }
 
     public function isForceFloat32Mode() : bool

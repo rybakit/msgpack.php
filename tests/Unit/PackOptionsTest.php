@@ -40,6 +40,11 @@ final class PackOptionsTest extends TestCase
             ['isForceStrMode', false, PackOptions::FORCE_BIN],
             ['isForceStrMode', false, PackOptions::DETECT_STR_BIN],
 
+            ['isForceBinMode', false, 0],
+            ['isForceBinMode', false, PackOptions::FORCE_STR],
+            ['isForceBinMode', true, PackOptions::FORCE_BIN],
+            ['isForceBinMode', false, PackOptions::DETECT_STR_BIN],
+
             ['isDetectArrMapMode', true, 0],
             ['isDetectArrMapMode', false, PackOptions::FORCE_ARR],
             ['isDetectArrMapMode', false, PackOptions::FORCE_MAP],
@@ -49,6 +54,11 @@ final class PackOptionsTest extends TestCase
             ['isForceArrMode', true, PackOptions::FORCE_ARR],
             ['isForceArrMode', false, PackOptions::FORCE_MAP],
             ['isForceArrMode', false, PackOptions::DETECT_ARR_MAP],
+
+            ['isForceMapMode', false, 0],
+            ['isForceMapMode', false, PackOptions::FORCE_ARR],
+            ['isForceMapMode', true, PackOptions::FORCE_MAP],
+            ['isForceMapMode', false, PackOptions::DETECT_ARR_MAP],
 
             ['isForceFloat32Mode', false, 0],
             ['isForceFloat32Mode', true, PackOptions::FORCE_FLOAT32],

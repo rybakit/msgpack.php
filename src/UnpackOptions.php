@@ -56,6 +56,11 @@ final class UnpackOptions
         return self::BIGINT_AS_GMP === $this->bigIntMode;
     }
 
+    public function isBigIntAsExceptionMode() : bool
+    {
+        return self::BIGINT_AS_EXCEPTION === $this->bigIntMode;
+    }
+
     private static function getSingleOption(string $name, int $bitmask, int $validBitmask) : int
     {
         $option = $bitmask & $validBitmask;

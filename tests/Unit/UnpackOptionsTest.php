@@ -39,6 +39,11 @@ final class UnpackOptionsTest extends TestCase
             ['isBigIntAsGmpMode', false, UnpackOptions::BIGINT_AS_STR],
             ['isBigIntAsGmpMode', true, UnpackOptions::BIGINT_AS_GMP],
             ['isBigIntAsGmpMode', false, UnpackOptions::BIGINT_AS_EXCEPTION],
+
+            ['isBigIntAsExceptionMode', false, 0],
+            ['isBigIntAsExceptionMode', false, UnpackOptions::BIGINT_AS_STR],
+            ['isBigIntAsExceptionMode', false, UnpackOptions::BIGINT_AS_GMP],
+            ['isBigIntAsExceptionMode', true, UnpackOptions::BIGINT_AS_EXCEPTION],
         ];
     }
 
