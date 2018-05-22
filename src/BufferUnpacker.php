@@ -565,10 +565,12 @@ class BufferUnpacker
         }
 
         // int8
-        $num = \ord($this->buffer[$this->offset]);
+        $type = \ord($this->buffer[$this->offset]);
         ++$this->offset;
 
-        $type = $num > 0x7f ? $num - 0x100 : $num;
+        if ($type > 0x7f) {
+            $type -= 0x100;
+        }
 
         if (isset($this->transformers[$type])) {
             return $this->transformers[$type]->unpack($this, $length);
