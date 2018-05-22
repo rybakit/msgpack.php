@@ -423,7 +423,7 @@ docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
 To check performance, run:
 
 ```sh
-php -n -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
+php -n -dpcre.jit=1 -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
 ```
 
 This command will output something like:
@@ -538,14 +538,14 @@ export MP_BENCH_TESTS='complex array, complex map'
 # export MP_BENCH_TESTS='-@slow' // @pecl_comp
 # or a regexp
 # export MP_BENCH_TESTS='/complex (array|map)/'
-php -n -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
+php -n -dpcre.jit=1 -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
 ```
 
 Another example, benchmarking both the library and the [msgpack pecl extension](https://pecl.php.net/package/msgpack):
 
 ```sh
 MP_BENCH_TARGETS=pure_ps,pure_bu,pecl_p,pecl_u \
-php -n -dextension=msgpack.so -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
+php -n -dpcre.jit=1 -dextension=msgpack.so -dzend_extension=opcache.so -dopcache.enable_cli=1 tests/bench.php
 ```
 
 Output:
