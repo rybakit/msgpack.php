@@ -13,7 +13,7 @@ namespace MessagePack\TypeTransformer;
 
 use MessagePack\BufferUnpacker;
 
-interface Extension extends Packable
+interface Unpackable
 {
     public function getType() : int;
 

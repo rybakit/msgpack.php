@@ -24,3 +24,7 @@ $packer->registerTransformer(new BinaryTransformer());
 $packed = $packer->pack(['name' => new Binary('value')]);
 
 echo '[', implode(', ', unpack('C*', $packed)), "]\n";
+
+/* OUTPUT
+[129, 164, 110, 97, 109, 101, 196, 5, 118, 97, 108, 117, 101]
+*/

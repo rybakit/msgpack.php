@@ -13,9 +13,10 @@ namespace App\MessagePack;
 
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Extension;
+use MessagePack\TypeTransformer\Packable;
+use MessagePack\TypeTransformer\Unpackable;
 
-class ArrayIteratorTransformer implements Extension
+class ArrayIteratorTransformer implements Packable, Unpackable
 {
     private $type;
 

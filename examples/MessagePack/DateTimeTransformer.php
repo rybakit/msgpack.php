@@ -13,9 +13,10 @@ namespace App\MessagePack;
 
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Extension;
+use MessagePack\TypeTransformer\Packable;
+use MessagePack\TypeTransformer\Unpackable;
 
-class DateTimeTransformer implements Extension
+class DateTimeTransformer implements Packable, Unpackable
 {
     private $type;
 

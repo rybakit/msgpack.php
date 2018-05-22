@@ -29,3 +29,8 @@ $packed = $packer->pack($uint64);
 
 printf("Packed (%s): %s\n", $uint64, bin2hex($packed));
 printf("Unpacked: %s\n", (new BufferUnpacker($packed))->unpack());
+
+/* OUTPUT
+Packed (18446744073709551615): cfffffffffffffffff
+Unpacked: 18446744073709551615
+*/

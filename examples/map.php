@@ -24,3 +24,8 @@ $packedMap = $packer->pack(new Map([1, 2, 3]));
 
 printf("Packed array: %s\n", implode(' ', str_split(bin2hex($packedArray), 2)));
 printf("Packed map:   %s\n", implode(' ', str_split(bin2hex($packedMap), 2)));
+
+/* OUTPUT
+Packed array: 93 01 02 03
+Packed map:   83 00 01 01 02 02 03
+*/

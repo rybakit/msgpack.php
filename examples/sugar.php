@@ -17,3 +17,7 @@ $packed = MessagePack::pack('foobar');
 $unpacked = MessagePack::unpack($packed);
 
 echo "$unpacked\n";
+
+/* OUTPUT
+foobar
+*/

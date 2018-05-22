@@ -15,7 +15,7 @@ use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$date = new DateTime();
+$date = new DateTime('2000-01-01');
 $transformer = new DateTimeTransformer(2);
 
 $packer = new Packer();
@@ -27,3 +27,8 @@ $unpacker->registerTransformer($transformer);
 
 printf("Raw:      %s\n", $date->format('r'));
 printf("Unpacked: %s\n", $unpacker->unpack()->format('r'));
+
+/* OUTPUT
+Raw:      Sat, 01 Jan 2000 00:00:00 +0000
+Unpacked: Sat, 01 Jan 2000 00:00:00 +0000
+*/

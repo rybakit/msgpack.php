@@ -24,6 +24,13 @@ $packed = $packer->pack(new ArrayIterator(range(1, 10000)));
 $unpacker = new BufferUnpacker($packed);
 $unpacker->registerTransformer($transformer);
 
+$sum = 0;
 foreach ($unpacker->unpack() as $i) {
-    echo "$i\n";
+    $sum += $i;
 }
+
+echo "Sum: $sum\n";
+
+/* OUTPUT
+Sum: 50005000
+*/

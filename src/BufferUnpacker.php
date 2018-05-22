@@ -14,7 +14,7 @@ namespace MessagePack;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\UnpackingFailedException;
-use MessagePack\TypeTransformer\Extension;
+use MessagePack\TypeTransformer\Unpackable;
 
 class BufferUnpacker
 {
@@ -24,7 +24,7 @@ class BufferUnpacker
     private $isBigIntAsGmp;
 
     /**
-     * @var Extension[]|null
+     * @var Unpackable[]|null
      */
     private $transformers;
 
@@ -48,7 +48,7 @@ class BufferUnpacker
         $this->buffer = $buffer;
     }
 
-    public function registerTransformer(Extension $transformer) : self
+    public function registerTransformer(Unpackable $transformer) : self
     {
         $this->transformers[$transformer->getType()] = $transformer;
 

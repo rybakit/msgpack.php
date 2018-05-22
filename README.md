@@ -260,8 +260,8 @@ var_dump($ext->data === "\xaa"); // bool(true)
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
 the library provides functionality to serialize and deserialize arbitrary types. In order to support a custom 
-type you need to create and register a transformer. The transformer should either implement the `Packable` 
-or the `Extension` interface.
+type you need to create and register a transformer. The transformer should implement either or both the `Packable` 
+and/or the `Unpackable` interface.
 
 The purpose of `Packable` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
 example of such a transformer is a `MapTransformer` that comes with the library. It serializes `Map` objects (which 
@@ -307,17 +307,18 @@ $packed = $packer->pack([
 ]);
 ```
 
-Transformers implementing the `Extension` interface are intended for packing *and* unpacking application-specific types 
-using the MessagePack's [Extension type](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
+Transformers implementing the `Unpackable` interface are intended for unpacking 
+[extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
 For example, the code below shows how to create a transformer that allows you to work transparently with `DateTime` 
 objects:
 
 ```php
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Extension;
+use MessagePack\TypeTransformer\Packable;
+use MessagePack\TypeTransformer\Unpackable;
 
-class DateTimeTransformer implements Extension
+class DateTimeTransformer implements Packable, Unpackable 
 {
     private $type;
 

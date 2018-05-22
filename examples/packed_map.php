@@ -25,9 +25,9 @@ $schema = [
 $profiles = [];
 for ($i = 0; $i < 1000; ++$i) {
     $profiles[] = [
-        'id' => $id = random_int(0, 999),
-        'first_name' => sprintf('first_name_%03s', $id),
-        'last_name' => sprintf('last_name_%03s', $id),
+        'id' => $i,
+        'first_name' => sprintf('first_name_%03s', $i),
+        'last_name' => sprintf('last_name_%03s', $i),
     ];
 }
 
@@ -52,3 +52,9 @@ if (($unpackedMap !== $profiles) || ($unpackedPackedMap !== $profiles)) {
 printf("Map size:       %dB\n", strlen($packedMap));
 printf("PackedMap size: %dB\n", strlen($packedPackedMap));
 printf("Space savings:  %.2F%%\n", 1 - strlen($packedPackedMap) / strlen($packedMap));
+
+/* OUTPUT
+Map size:       56619B
+PackedMap size: 31660B
+Space savings:  0.44%
+*/
