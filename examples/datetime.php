@@ -15,7 +15,7 @@ use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$date = new DateTime('2000-01-01');
+$date = new DateTimeImmutable('2000-01-01');
 $transformer = new DateTimeTransformer(2);
 
 $packer = new Packer();

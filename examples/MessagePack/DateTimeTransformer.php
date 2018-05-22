@@ -43,6 +43,6 @@ class DateTimeTransformer implements Packable, Unpackable
 
     public function unpack(BufferUnpacker $unpacker, int $extLength)
     {
-        return new \DateTime($unpacker->unpackStr());
+        return new \DateTimeImmutable($unpacker->unpackStr());
     }
 }
