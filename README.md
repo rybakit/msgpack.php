@@ -366,7 +366,7 @@ $packer->registerTransformer($transformer);
 $unpacker = new BufferUnpacker();
 $unpacker->registerTransformer($transformer);
 
-$packed = $packer->pack(new DateTime());
+$packed = $packer->pack(new DateTimeImmutable());
 $date = $unpacker->reset($packed)->unpack();
 ```
 
