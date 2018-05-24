@@ -181,7 +181,8 @@ class DataProvider
     {
         return [
             'fix array #1' => [[], "\x90"],
-            'fix array #2' => [[5, 'abc', true], "\x93\x05\xa3\x61\x62\x63\xc3"],
+            'fix array #2' => [[null, null], "\x92\xc0\xc0"],
+            'fix array #3' => [[5, 'abc', true], "\x93\x05\xa3\x61\x62\x63\xc3"],
             '16-bit array #1' => [array_fill(0, 16, 0x05), "\xdc\x00\x10".str_repeat("\x05", 16)],
             '16-bit array #2' => [array_fill(0, 65535, 0x05), "\xdc\xff\xff".str_repeat("\x05", 65535)],
             '32-bit array' => [array_fill(0, 65536, 0x05), "\xdd\x00\x01\x00\x00".str_repeat("\x05", 65536)],

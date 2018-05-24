@@ -85,7 +85,7 @@ class Packer
         }
         if (\is_array($value)) {
             if ($this->isDetectArrMap) {
-                if (!isset($value[0]) || !\array_key_exists(0, $value)) {
+                if (!isset($value[0]) && !\array_key_exists(0, $value)) {
                     return empty($value) ? "\x90" : $this->packMap($value);
                 }
 
