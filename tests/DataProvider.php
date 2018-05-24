@@ -244,9 +244,6 @@ class DataProvider
             '8-bit binary #3',
             '16-bit binary',
             '32-bit binary',
-            '8-bit ext',
-            '16-bit ext',
-            '32-bit ext',
             '16-bit array #2',
             '32-bit array',
             'complex array',
@@ -255,11 +252,17 @@ class DataProvider
             'fix map #1',
             'fix map #3',
             'fix map #4',
+            'fix map #5',
+            'fix map #6',
+            'fix map #7',
             'fixext 1',
             'fixext 2',
             'fixext 4',
             'fixext 8',
             'fixext 16',
+            '8-bit ext',
+            '16-bit ext',
+            '32-bit ext',
         ];
     }
 }
