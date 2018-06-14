@@ -70,6 +70,19 @@ class BufferUnpacker
         return $this;
     }
 
+    public function seek($offset)
+    {
+        $this->offset = (int) $offset;
+    }
+
+    public function pos()
+    {
+        if (!isset($this->buffer[$this->offset])) {
+            return -1;
+        }
+        return $this->offset;
+    }
+
     public function __clone()
     {
         $this->buffer = '';
