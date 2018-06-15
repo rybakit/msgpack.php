@@ -70,9 +70,22 @@ class BufferUnpacker
         return $this;
     }
 
-    public function seek($offset)
+    public function seek(int $offset, int $whence = \SEEK_SET) : self
     {
-        $this->offset = (int) $offset;
+        if (\SEEK_CUR === $whence) {
+            $offset += $this->offset;
+        } elseif (\SEEK_END === $whence) {
+            $offset += \strlen($this->buffer);
+        } elseif (\SEEK_SET !== $whence) {
+            throw new \InvalidArgumentException("Invalid seek origin $whence, use SEEK_SET, SEEK_CUR or SEEK_END.");
+        }
+
+        if (!isset($this->buffer[$offset])) {
+            throw new \OutOfBoundsException("Invalid seek position $offset.");
+        }
+
+        $this->offset = $offset;
+
         return $this;
     }
 

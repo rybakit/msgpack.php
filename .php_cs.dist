@@ -3,6 +3,7 @@
 namespace MessagePack;
 
 use PhpCsFixer\Config;
+use PhpCsFixer\Fixer\ConstantNotation\NativeConstantInvocationFixer;
 use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
 use PhpCsFixer\Tokenizer\Tokens;
@@ -66,6 +67,7 @@ return Config::create()
     ->setUsingCache(false)
     ->setRiskyAllowed(true)
     ->registerCustomFixers([
+        new FilterableFixer(new NativeConstantInvocationFixer(), '/\bsrc\b/'),
         new FilterableFixer(new NativeFunctionInvocationFixer(), '/\bsrc\b/'),
     ])
     ->setRules([
@@ -73,6 +75,7 @@ return Config::create()
         '@Symfony:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
         'binary_operator_spaces' => ['operators' => ['=' => null, '=>' => null]],
+        'MessagePack/native_constant_invocation' => true,
         'MessagePack/native_function_invocation' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,

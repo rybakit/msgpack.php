@@ -157,6 +157,53 @@ final class BufferUnpackerTest extends TestCase
         self::assertTrue($this->unpacker->unpack());
     }
 
+    public function testSeek() : void
+    {
+        $this->unpacker->append("\xc2\xc2\xc3")->seek(2);
+
+        self::assertTrue($this->unpacker->unpack());
+    }
+
+    public function testSeekSet() : void
+    {
+        $this->unpacker->append("\xc2\xc2\xc3")->seek(2, \SEEK_SET);
+
+        self::assertTrue($this->unpacker->unpack());
+    }
+
+    public function testSeekCurrent() : void
+    {
+        $this->unpacker->append("\xc2\xc2\xc3");
+        $this->unpacker->unpackBool();
+        $this->unpacker->seek(1, \SEEK_CUR);
+
+        self::assertTrue($this->unpacker->unpack());
+    }
+
+    public function testSeekEnd() : void
+    {
+        $this->unpacker->append("\xc2\xc2\xc3");
+        $this->unpacker->seek(-1, \SEEK_END);
+
+        self::assertTrue($this->unpacker->unpack());
+    }
+
+    public function testSeekInvalidPosition() : void
+    {
+        $this->expectException(\OutOfBoundsException::class);
+        $this->expectExceptionMessage('Invalid seek position 42.');
+
+        $this->unpacker->seek(42);
+    }
+
+    public function testSeekInvalidOrigin() : void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid seek origin 42, use SEEK_SET, SEEK_CUR or SEEK_END.');
+
+        $this->unpacker->seek(1, 42);
+    }
+
     public function testClone() : void
     {
         $this->expectException(InsufficientDataException::class);
