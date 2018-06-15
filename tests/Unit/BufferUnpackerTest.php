@@ -164,44 +164,39 @@ final class BufferUnpackerTest extends TestCase
         self::assertTrue($this->unpacker->unpack());
     }
 
-    public function testSeekSet() : void
+    public function testSeekFromEnd() : void
     {
-        $this->unpacker->append("\xc2\xc2\xc3")->seek(2, \SEEK_SET);
+        $this->unpacker->append("\xc2\xc2\xc3");
+        $this->unpacker->seek(-1);
 
         self::assertTrue($this->unpacker->unpack());
     }
 
-    public function testSeekCurrent() : void
+    public function testSeekInvalidOffset() : void
+    {
+        $this->expectException(\OutOfBoundsException::class);
+        $this->expectExceptionMessage('Unable to seek to position 10.');
+
+        $this->unpacker->append("\xc2")->unpack();
+        $this->unpacker->seek(10);
+    }
+
+    public function testSkip() : void
     {
         $this->unpacker->append("\xc2\xc2\xc3");
         $this->unpacker->unpackBool();
-        $this->unpacker->seek(1, \SEEK_CUR);
+        $this->unpacker->skip(1);
 
         self::assertTrue($this->unpacker->unpack());
     }
 
-    public function testSeekEnd() : void
-    {
-        $this->unpacker->append("\xc2\xc2\xc3");
-        $this->unpacker->seek(-1, \SEEK_END);
-
-        self::assertTrue($this->unpacker->unpack());
-    }
-
-    public function testSeekInvalidPosition() : void
+    public function testSkipInvalidOffset() : void
     {
         $this->expectException(\OutOfBoundsException::class);
-        $this->expectExceptionMessage('Invalid seek position 42.');
+        $this->expectExceptionMessage('Unable to seek to position 21.');
 
-        $this->unpacker->seek(42);
-    }
-
-    public function testSeekInvalidOrigin() : void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid seek origin 42, use SEEK_SET, SEEK_CUR or SEEK_END.');
-
-        $this->unpacker->seek(1, 42);
+        $this->unpacker->append("\xc2")->unpack();
+        $this->unpacker->skip(20);
     }
 
     public function testClone() : void
