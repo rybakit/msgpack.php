@@ -189,6 +189,15 @@ while ($chunk = ...) {
 }
 ```
 
+If you want to unpack from a specific position in a buffer, use `seek()`:
+
+```php
+$unpacker->seek(42);           // set position equal to 42 bytes
+$unpacker->seek(42, SEEK_SET); // same as above
+$unpacker->seek(10, SEEK_CUR); // set position to 10 bytes ahead of the current position
+$unpacker->seek(-8, SEEK_END); // set position to 8 bytes before the end of the buffer
+```
+
 Besides the above methods `BufferUnpacker` provides type-specific unpacking methods, namely:
 
 ```php
