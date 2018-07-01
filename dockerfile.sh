@@ -6,12 +6,12 @@ fi
 
 RUN_CMDS=''
 
-if [[ $PHP_RUNTIME == php* ]]; then
+if [[ $PHP_RUNTIME == *hhvm* ]]; then
+    RUN_CMDS="$RUN_CMDS && \\\\\n    echo 'hhvm.php7.all = 1' >> /etc/hhvm/php.ini"
+else
     RUN_CMDS="$RUN_CMDS && \\\\\n    docker-php-ext-install zip mbstring"
     RUN_CMDS="$RUN_CMDS && \\\\\n    apt-get install -y libgmp-dev"
     RUN_CMDS="$RUN_CMDS && \\\\\n    ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && docker-php-ext-install gmp"
-else
-    RUN_CMDS="$RUN_CMDS && \\\\\n    echo 'hhvm.php7.all = 1' >> /etc/hhvm/php.ini"
 fi
 
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
