@@ -20,7 +20,7 @@ class ArrayIteratorTransformer implements Packable, Unpackable
 {
     private $type;
 
-    public function __construct($type)
+    public function __construct(int $type)
     {
         $this->type = $type;
     }
