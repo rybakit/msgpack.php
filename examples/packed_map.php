@@ -51,10 +51,10 @@ if (($unpackedMap !== $profiles) || ($unpackedPackedMap !== $profiles)) {
 
 printf("Map size:       %dB\n", strlen($packedMap));
 printf("PackedMap size: %dB\n", strlen($packedPackedMap));
-printf("Space savings:  %.2F%%\n", 1 - strlen($packedPackedMap) / strlen($packedMap));
+printf("Space savings:  %d%%\n", round(1 - strlen($packedPackedMap) / strlen($packedMap), 2) * 100);
 
 /* OUTPUT
 Map size:       56619B
 PackedMap size: 31660B
-Space savings:  0.44%
+Space savings:  44%
 */
