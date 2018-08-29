@@ -36,7 +36,7 @@ final class FilterableFixer implements FixerInterface
 
     public function getName() : string
     {
-        return 'MessagePack/'.$this->fixer->getName();
+        return (new \ReflectionClass($this))->getShortName().'/'.$this->fixer->getName();
     }
 
     public function getPriority() : int
@@ -75,8 +75,10 @@ return Config::create()
         '@Symfony:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
         'binary_operator_spaces' => ['operators' => ['=' => null, '=>' => null]],
-        'MessagePack/native_constant_invocation' => true,
-        'MessagePack/native_function_invocation' => true,
+        'native_constant_invocation' => false,
+        'native_function_invocation' => false,
+        'FilterableFixer/native_constant_invocation' => true,
+        'FilterableFixer/native_function_invocation' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
         'ordered_imports' => true,
