@@ -262,7 +262,7 @@ final class BufferUnpackerTest extends TestCase
     /**
      * @dataProvider provideInvalidOptionsData
      */
-    public function testConstructorThrowsErrorOnInvalidOptions($options)
+    public function testConstructorThrowsErrorOnInvalidOptions($options) : void
     {
         $this->expectException(InvalidOptionException::class);
         $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?\./');
