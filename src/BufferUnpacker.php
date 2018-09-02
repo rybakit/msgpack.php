@@ -143,14 +143,6 @@ class BufferUnpacker
         if ($c >= 0xa0 && $c <= 0xbf) {
             return ($c & 0x1f) ? $this->unpackStrData($c & 0x1f) : '';
         }
-        // fixarray
-        if ($c >= 0x90 && $c <= 0x9f) {
-            return ($c & 0xf) ? $this->unpackArrayData($c & 0xf) : [];
-        }
-        // fixmap
-        if ($c >= 0x80 && $c <= 0x8f) {
-            return ($c & 0xf) ? $this->unpackMapData($c & 0xf) : [];
-        }
         // negfixint
         if ($c >= 0xe0) {
             return $c - 0x100;
@@ -160,6 +152,42 @@ class BufferUnpacker
             case 0xc0: return null;
             case 0xc2: return false;
             case 0xc3: return true;
+
+            // fixmap
+            case 0x80: return [];
+            case 0x81: return $this->unpackMapData(1);
+            case 0x82: return $this->unpackMapData(2);
+            case 0x83: return $this->unpackMapData(3);
+            case 0x84: return $this->unpackMapData(4);
+            case 0x85: return $this->unpackMapData(5);
+            case 0x86: return $this->unpackMapData(6);
+            case 0x87: return $this->unpackMapData(7);
+            case 0x88: return $this->unpackMapData(8);
+            case 0x89: return $this->unpackMapData(9);
+            case 0x8a: return $this->unpackMapData(10);
+            case 0x8b: return $this->unpackMapData(11);
+            case 0x8c: return $this->unpackMapData(12);
+            case 0x8d: return $this->unpackMapData(13);
+            case 0x8e: return $this->unpackMapData(14);
+            case 0x8f: return $this->unpackMapData(15);
+
+            // fixarray
+            case 0x90: return [];
+            case 0x91: return $this->unpackArrayData(1);
+            case 0x92: return $this->unpackArrayData(2);
+            case 0x93: return $this->unpackArrayData(3);
+            case 0x94: return $this->unpackArrayData(4);
+            case 0x95: return $this->unpackArrayData(5);
+            case 0x96: return $this->unpackArrayData(6);
+            case 0x97: return $this->unpackArrayData(7);
+            case 0x98: return $this->unpackArrayData(8);
+            case 0x99: return $this->unpackArrayData(9);
+            case 0x9a: return $this->unpackArrayData(10);
+            case 0x9b: return $this->unpackArrayData(11);
+            case 0x9c: return $this->unpackArrayData(12);
+            case 0x9d: return $this->unpackArrayData(13);
+            case 0x9e: return $this->unpackArrayData(14);
+            case 0x9f: return $this->unpackArrayData(15);
 
             // bin
             case 0xc4: return $this->unpackStrData($this->unpackUint8());
