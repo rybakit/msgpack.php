@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 
-if [[ -z "$PHP_RUNTIME" ]] ; then
+if [[ -z "$PHP_RUNTIME" ]]; then
     PHP_RUNTIME='php:7.2-cli'
 fi
 
 RUN_CMDS=''
-
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    git clone https://github.com/xdebug/xdebug.git /usr/src/php/ext/xdebug"
     RUN_CMDS="$RUN_CMDS && \\\\\n    echo xdebug >> /usr/src/php-available-exts && docker-php-ext-install xdebug"
+fi
+
+if [[ "1" != "$CHECK_CS" ]]; then
+    COMPOSER_REMOVE='composer remove --dev --no-update friendsofphp/php-cs-fixer'
 fi
 
 echo -e "
@@ -23,6 +26,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 ENV PATH=~/.composer/vendor/bin:\$PATH
 
-CMD if [ ! -f composer.lock ]; then ${CHECK_CS:+composer remove --dev friendsofphp/php-cs-fixer && }composer install; fi && \\
+CMD if [ ! -f composer.lock ]; then $COMPOSER_REMOVE${COMPOSER_REMOVE:+ && }composer install; fi && \\
     vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
 "
