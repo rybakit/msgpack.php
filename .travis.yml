@@ -11,8 +11,6 @@ env:
   - PHP_RUNTIME='php:7.3-rc-cli'
 
 matrix:
-  allow_failures:
-    - env: PHP_RUNTIME='hhvm/hhvm:nightly'
   fast_finish: true
 
 install:

@@ -14,8 +14,9 @@ fi
 echo -e "
 FROM $PHP_RUNTIME
 
-RUN apt-get update && apt-get install -y git curl zlib1g-dev libgmp-dev && \\
+RUN apt-get update && apt-get install -y git curl libzip-dev libgmp-dev && \\
     ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \\
+    docker-php-ext-configure zip --with-libzip && \\
     docker-php-ext-install zip mbstring gmp${RUN_CMDS}
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
