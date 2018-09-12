@@ -23,5 +23,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 ENV PATH=~/.composer/vendor/bin:\$PATH
 
-CMD if [ ! -f composer.lock ]; then composer install; fi && vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
+CMD if [ ! -f composer.lock ]; then ${CHECK_CS:+composer remove --dev friendsofphp/php-cs-fixer && }composer install; fi && \\
+    vendor/bin/phpunit\${PHPUNIT_OPTS:+ }\$PHPUNIT_OPTS
 "
