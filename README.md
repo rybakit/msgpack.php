@@ -41,9 +41,6 @@ The recommended way to install the library is through [Composer](http://getcompo
 composer require rybakit/msgpack
 ```
 
-> *The minimum PHP version requirement is 7.1.1. If you need support for older PHP versions (or HHVM), please use 
-> the [0.3.1](https://github.com/rybakit/msgpack.php/tree/v0.3.1) version of this library.*
-
 
 ## Usage
 
