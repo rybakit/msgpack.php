@@ -155,9 +155,9 @@ class BufferUnpacker
 
             // fixmap
             case 0x80: return [];
-            case 0x81: return $this->unpackMapData(1);
-            case 0x82: return $this->unpackMapData(2);
-            case 0x83: return $this->unpackMapData(3);
+            case 0x81: return [$this->unpack() => $this->unpack()];
+            case 0x82: return [$this->unpack() => $this->unpack(), $this->unpack() => $this->unpack()];
+            case 0x83: return [$this->unpack() => $this->unpack(), $this->unpack() => $this->unpack(), $this->unpack() => $this->unpack()];
             case 0x84: return $this->unpackMapData(4);
             case 0x85: return $this->unpackMapData(5);
             case 0x86: return $this->unpackMapData(6);
@@ -173,9 +173,9 @@ class BufferUnpacker
 
             // fixarray
             case 0x90: return [];
-            case 0x91: return $this->unpackArrayData(1);
-            case 0x92: return $this->unpackArrayData(2);
-            case 0x93: return $this->unpackArrayData(3);
+            case 0x91: return [$this->unpack()];
+            case 0x92: return [$this->unpack(), $this->unpack()];
+            case 0x93: return [$this->unpack(), $this->unpack(), $this->unpack()];
             case 0x94: return $this->unpackArrayData(4);
             case 0x95: return $this->unpackArrayData(5);
             case 0x96: return $this->unpackArrayData(6);
