@@ -416,7 +416,7 @@ The command above will create a container named `msgpack` with PHP 7.2 runtime.
 You may change the default runtime by defining the `PHP_RUNTIME` environment variable:
 
 ```sh
-PHP_RUNTIME='php:7.1-cli' ./dockerfile.sh | docker build -t msgpack -
+PHP_RUNTIME='php:7.3-cli' ./dockerfile.sh | docker build -t msgpack -
 ```
 
 > *See a list of various runtimes [here](.travis.yml#L8).*
