@@ -74,11 +74,11 @@ which are represented by a single `array` type in PHP. By default, the packer wi
 array if it has sequential numeric keys, starting from `0` and as a MessagePack map otherwise:
 
 ```php
-$mpArr1 = $packer->pack([1, 2]);                   // MP array [1, 2]
-$mpArr2 = $packer->pack([0 => 1, 1 => 2]);         // MP array [1, 2]
-$mpMap1 = $packer->pack([0 => 1, 2 => 3]);         // MP map {0: 1, 2: 3}
-$mpMap2 = $packer->pack([1 => 2, 2 => 3]);         // MP map {1: 2, 2: 3}
-$mpMap3 = $packer->pack(['foo' => 1, 'bar' => 2]); // MP map {foo: 1, bar: 2}
+$mpArr1 = $packer->pack([1, 2]);               // MP array [1, 2]
+$mpArr2 = $packer->pack([0 => 1, 1 => 2]);     // MP array [1, 2]
+$mpMap1 = $packer->pack([0 => 1, 2 => 3]);     // MP map {0: 1, 2: 3}
+$mpMap2 = $packer->pack([1 => 2, 2 => 3]);     // MP map {1: 2, 2: 3}
+$mpMap3 = $packer->pack(['a' => 1, 'b' => 2]); // MP map {a: 1, b: 2}
 ```
 
 However, sometimes you need to pack a sequential array as a MessagePack map.
@@ -91,15 +91,15 @@ $mpMap = $packer->packMap([1, 2]); // {0: 1, 1: 2}
 Here is a list of type-specific packing methods:
 
 ```php
-$packer->packNil();          // MP nil
-$packer->packBool(true);     // MP bool
-$packer->packInt(42);        // MP int
-$packer->packFloat(M_PI);    // MP float
-$packer->packStr('foo');     // MP str
-$packer->packBin("\x80");    // MP bin
-$packer->packArray([1, 2]);  // MP array
-$packer->packMap([1, 2]);    // MP map
-$packer->packExt(1, "\xaa"); // MP ext
+$packer->packNil();           // MP nil
+$packer->packBool(true);      // MP bool
+$packer->packInt(42);         // MP int
+$packer->packFloat(M_PI);     // MP float
+$packer->packStr('foo');      // MP str
+$packer->packBin("\x80");     // MP bin
+$packer->packArray([1, 2]);   // MP array
+$packer->packMap(['a' => 1]); // MP map
+$packer->packExt(1, "\xaa");  // MP ext
 ```
 
 > *Check the ["Type transformers"](#type-transformers) section below on how to pack custom types.*
