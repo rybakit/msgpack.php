@@ -15,7 +15,9 @@ use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$date = new DateTimeImmutable('2000-01-01');
+$date = (new \DateTimeImmutable('2019-01-16', new \DateTimeZone('Europe/Minsk')))
+    ->setTime(22, 18, 22, 294418);
+
 $transformer = new DateTimeTransformer(2);
 
 $packer = new Packer();
@@ -25,10 +27,10 @@ $packed = $packer->pack($date);
 $unpacker = new BufferUnpacker($packed);
 $unpacker->registerTransformer($transformer);
 
-printf("Raw:      %s\n", $date->format('r'));
-printf("Unpacked: %s\n", $unpacker->unpack()->format('r'));
+printf("Raw:      %s\n", $date->format('Y-m-d\TH:i:s.uP'));
+printf("Unpacked: %s\n", $unpacker->unpack()->format('Y-m-d\TH:i:s.uP'));
 
 /* OUTPUT
-Raw:      Sat, 01 Jan 2000 00:00:00 +0000
-Unpacked: Sat, 01 Jan 2000 00:00:00 +0000
+Raw:      2019-01-16T22:18:22.294418+03:00
+Unpacked: 2019-01-16T22:18:22.294418+03:00
 */
