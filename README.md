@@ -349,7 +349,7 @@ class DateTimeTransformer implements Packable, Unpackable
         }
 
         return $packer->packExt($this->type,
-            $packer->packStr($value->format(\DateTime::RFC3339))
+            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
         );
     }
 
