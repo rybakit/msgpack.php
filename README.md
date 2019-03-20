@@ -210,7 +210,7 @@ $unpacker->unpackStr();   // PHP UTF-8 string
 $unpacker->unpackBin();   // PHP binary string
 $unpacker->unpackArray(); // PHP sequential array
 $unpacker->unpackMap();   // PHP associative array
-$unpacker->unpackExt();   // PHP Ext class
+$unpacker->unpackExt();   // PHP MessagePack\Ext class
 ```
 
 
