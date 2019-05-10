@@ -1,9 +1,10 @@
 # msgpack.php
 
-A pure PHP implementation of the [MessagePack](https://msgpack.org/) serialization format.
-
 [![Build Status](https://travis-ci.org/rybakit/msgpack.php.svg?branch=master)](https://travis-ci.org/rybakit/msgpack.php)
 [![Code Coverage](https://scrutinizer-ci.com/g/rybakit/msgpack.php/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/rybakit/msgpack.php/?branch=master)
+[![Mentioned in Awesome PHP](https://awesome.re/mentioned-badge.svg)](https://github.com/ziadoz/awesome-php#data-structure-and-storage)
+
+A pure PHP implementation of the [MessagePack](https://msgpack.org/) serialization format.
 
 
 ## Features
