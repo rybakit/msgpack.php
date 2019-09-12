@@ -2,3 +2,4 @@
 /composer.lock
 /coverage.*
 /phpunit.xml
+/.phpunit.result.cache
