@@ -17,6 +17,7 @@ use MessagePack\Tests\Perf\Benchmark\AverageableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\DurationBenchmark;
 use MessagePack\Tests\Perf\Benchmark\FilterableBenchmark;
 use MessagePack\Tests\Perf\Benchmark\IterationBenchmark;
+use MessagePack\Tests\Perf\Benchmark\PausableBenchmark;
 use MessagePack\Tests\Perf\Filter\ListFilter;
 use MessagePack\Tests\Perf\Filter\RegexFilter;
 use MessagePack\Tests\Perf\Runner;
@@ -59,7 +60,7 @@ function resolve_filter($testNames)
     throw new \UnexpectedValueException(sprintf('Unknown test group "%s".', $testNames));
 }
 
-set_error_handler(function ($code, $message) { throw new \RuntimeException($message); });
+set_error_handler(static function ($code, $message) { throw new \RuntimeException($message); });
 
 $targetAliases = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_bu';
 $rounds = getenv('MP_BENCH_ROUNDS') ?: 3;
@@ -68,6 +69,8 @@ $testNames = getenv('MP_BENCH_TESTS') ?: '-@slow';
 $benchmark = getenv('MP_BENCH_DURATION')
     ? new DurationBenchmark(getenv('MP_BENCH_DURATION'))
     : new IterationBenchmark(getenv('MP_BENCH_ITERATIONS') ?: 100000);
+
+$benchmark = new PausableBenchmark($benchmark);
 
 if ($rounds) {
     $benchmark = new AverageableBenchmark($benchmark, $rounds);
