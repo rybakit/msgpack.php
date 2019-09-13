@@ -72,6 +72,9 @@ class Packer
             return $this->packInt($value);
         }
         if (\is_string($value)) {
+            if ('' === $value) {
+                return $this->isForceStr || $this->isDetectStrBin ? "\xa0" : "\xc4\x00";
+            }
             if ($this->isForceStr) {
                 return $this->packStr($value);
             }
@@ -84,9 +87,12 @@ class Packer
             return $this->packBin($value);
         }
         if (\is_array($value)) {
+            if ([] === $value) {
+                return $this->isDetectArrMap || $this->isForceArr ? "\x90" : "\x80";
+            }
             if ($this->isDetectArrMap) {
                 if (!isset($value[0]) && !\array_key_exists(0, $value)) {
-                    return empty($value) ? "\x90" : $this->packMap($value);
+                    return $this->packMap($value);
                 }
 
                 return \array_values($value) === $value
