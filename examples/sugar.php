@@ -16,8 +16,10 @@ require __DIR__.'/autoload.php';
 $packed = MessagePack::pack('foobar');
 $unpacked = MessagePack::unpack($packed);
 
+echo bin2hex($packed)."\n";
 echo "$unpacked\n";
 
 /* OUTPUT
+a6666f6f626172
 foobar
 */
