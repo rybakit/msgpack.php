@@ -98,10 +98,13 @@ class BufferUnpacker
         return $this;
     }
 
-    public function __clone()
+    public function withBuffer(string $buffer) : self
     {
-        $this->buffer = '';
-        $this->offset = 0;
+        $new = clone $this;
+        $new->buffer = $buffer;
+        $new->offset = 0;
+
+        return $new;
     }
 
     public function tryUnpack() : array

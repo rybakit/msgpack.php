@@ -201,13 +201,29 @@ final class BufferUnpackerTest extends TestCase
 
     public function testClone() : void
     {
+        $this->unpacker->reset("\xc3");
+        $unpacker = clone $this->unpacker;
+
+        self::assertTrue($unpacker->unpack());
+    }
+
+    public function testCloneWithBuffer() : void
+    {
+        $this->unpacker->reset("\xc3");
+        $unpacker = $this->unpacker->withBuffer("\xc2");
+
+        self::assertFalse($unpacker->unpack());
+    }
+
+    public function testCloneWithEmptyBuffer() : void
+    {
+        $this->unpacker->reset("\xc3");
+        $unpacker = $this->unpacker->withBuffer('');
+
         $this->expectException(InsufficientDataException::class);
         $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
 
-        $this->unpacker->reset("\xc3");
-
-        $clone = clone $this->unpacker;
-        $clone->unpack();
+        $unpacker->unpack();
     }
 
     public function testTryUnpack() : void
