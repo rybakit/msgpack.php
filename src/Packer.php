@@ -78,10 +78,8 @@ class Packer
             if ($this->isForceStr) {
                 return $this->packStr($value);
             }
-            if ($this->isDetectStrBin) {
-                return \preg_match(self::UTF8_REGEX, $value)
-                    ? $this->packStr($value)
-                    : $this->packBin($value);
+            if ($this->isDetectStrBin && \preg_match(self::UTF8_REGEX, $value)) {
+                return $this->packStr($value);
             }
 
             return $this->packBin($value);
