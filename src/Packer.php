@@ -69,7 +69,7 @@ class Packer
         $new = clone $this;
         $new->transformers[] = $transformer;
 
-        if ($transformers) {
+        if ([] !== $transformers) {
             $new->transformers[] = \array_merge($new->transformers, $transformers);
         }
 
