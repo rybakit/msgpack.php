@@ -12,14 +12,8 @@
 namespace MessagePack\TypeTransformer;
 
 use MessagePack\Packer;
-use MessagePack\Type\Binary;
 
-class BinaryTransformer implements Packable
+interface CanPack
 {
-    public function pack(Packer $packer, $value) : ?string
-    {
-        return $value instanceof Binary
-            ? $packer->packBin($value->data)
-            : null;
-    }
+    public function pack(Packer $packer, $value) : ?string;
 }

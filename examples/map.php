@@ -17,7 +17,7 @@ use MessagePack\TypeTransformer\MapTransformer;
 require __DIR__.'/autoload.php';
 
 $packer = new Packer(PackOptions::FORCE_ARR);
-$packer->registerTransformer(new MapTransformer());
+$packer = $packer->extendWith(new MapTransformer());
 
 $packedArray = $packer->pack([1, 2, 3]);
 $packedMap = $packer->pack(new Map([1, 2, 3]));

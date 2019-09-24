@@ -11,6 +11,10 @@
 
 namespace MessagePack;
 
+use MessagePack\Exception\InvalidOptionException;
+use MessagePack\Exception\PackingFailedException;
+use MessagePack\Exception\UnpackingFailedException;
+
 final class MessagePack
 {
     /**
@@ -24,8 +28,8 @@ final class MessagePack
      * @param mixed $value
      * @param PackOptions|int|null $options
      *
-     * @throws \MessagePack\Exception\InvalidOptionException
-     * @throws \MessagePack\Exception\PackingFailedException
+     * @throws InvalidOptionException
+     * @throws PackingFailedException
      *
      * @return string
      */
@@ -38,8 +42,8 @@ final class MessagePack
      * @param string $data
      * @param UnpackOptions|int|null $options
      *
-     * @throws \MessagePack\Exception\InvalidOptionException
-     * @throws \MessagePack\Exception\UnpackingFailedException
+     * @throws InvalidOptionException
+     * @throws UnpackingFailedException
      *
      * @return mixed
      */

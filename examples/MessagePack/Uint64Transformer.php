@@ -12,9 +12,9 @@
 namespace App\MessagePack;
 
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Packable;
+use MessagePack\TypeTransformer\CanPack;
 
-class Uint64Transformer implements Packable
+class Uint64Transformer implements CanPack
 {
     public function pack(Packer $packer, $value) : ?string
     {

@@ -9,20 +9,19 @@
  * file that was distributed with this source code.
  */
 
-use App\MessagePack\ArrayIteratorTransformer;
+use App\MessagePack\ArrayIteratorExtension;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$transformer = new ArrayIteratorTransformer(1);
+$transformer = new ArrayIteratorExtension(1);
 
-$packer = new Packer();
-$packer->registerTransformer($transformer);
+$packer = (new Packer())->extendWith($transformer);
 $packed = $packer->pack(new ArrayIterator(range(1, 10000)));
 
 $unpacker = new BufferUnpacker($packed);
-$unpacker->registerTransformer($transformer);
+$unpacker = $unpacker->extendWith($transformer);
 
 $sum = 0;
 foreach ($unpacker->unpack() as $i) {

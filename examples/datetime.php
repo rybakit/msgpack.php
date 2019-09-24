@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-use App\MessagePack\DateTimeTransformer;
+use App\MessagePack\DateTimeExtension;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 
@@ -18,14 +18,12 @@ require __DIR__.'/autoload.php';
 $date = (new \DateTimeImmutable('2019-01-16', new \DateTimeZone('Europe/Minsk')))
     ->setTime(22, 18, 22, 294418);
 
-$transformer = new DateTimeTransformer(2);
+$transformer = new DateTimeExtension(2);
 
-$packer = new Packer();
-$packer->registerTransformer($transformer);
+$packer = (new Packer())->extendWith($transformer);
 $packed = $packer->pack($date);
 
-$unpacker = new BufferUnpacker($packed);
-$unpacker->registerTransformer($transformer);
+$unpacker = (new BufferUnpacker($packed))->extendWith($transformer);
 
 printf("Raw:      %s\n", $date->format('Y-m-d\TH:i:s.uP'));
 printf("Unpacked: %s\n", $unpacker->unpack()->format('Y-m-d\TH:i:s.uP'));

@@ -16,7 +16,7 @@ use MessagePack\Exception\PackingFailedException;
 use MessagePack\Ext;
 use MessagePack\Packer;
 use MessagePack\PackOptions;
-use MessagePack\TypeTransformer\Packable;
+use MessagePack\TypeTransformer\CanPack;
 use PHPUnit\Framework\TestCase;
 
 final class PackerTest extends TestCase
@@ -118,14 +118,14 @@ final class PackerTest extends TestCase
         $obj = new \stdClass();
         $packed = 'packed';
 
-        $transformer = $this->createMock(Packable::class);
+        $transformer = $this->createMock(CanPack::class);
         $transformer->expects(self::once())->method('pack')
-            ->with($this->packer, $obj)
+            ->with($this->isInstanceOf(Packer::class), $obj)
             ->willReturn($packed);
 
-        $this->packer->registerTransformer($transformer);
+        $packer = $this->packer->extendWith($transformer);
 
-        self::assertSame($packed, $this->packer->pack($obj));
+        self::assertSame($packed, $packer->pack($obj));
     }
 
     public function testPackCustomUnsupportedType() : void
@@ -135,13 +135,13 @@ final class PackerTest extends TestCase
 
         $obj = new \stdClass();
 
-        $transformer = $this->createMock(Packable::class);
+        $transformer = $this->createMock(CanPack::class);
         $transformer->expects(self::atLeastOnce())->method('pack')
-            ->with($this->packer, $obj)
+            ->with($this->isInstanceOf(Packer::class), $obj)
             ->willReturn(null);
 
-        $this->packer->registerTransformer($transformer);
-        $this->packer->pack($obj);
+        $packer = $this->packer->extendWith($transformer);
+        $packer->pack($obj);
     }
 
     /**

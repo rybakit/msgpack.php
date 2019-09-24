@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\Type;
+namespace MessagePack\TypeTransformer;
 
-final class Binary
+use MessagePack\BufferUnpacker;
+
+interface CanUnpackExt
 {
-    public $data;
+    public function getType() : int;
 
-    public function __construct(string $data)
-    {
-        $this->data = $data;
-    }
+    public function unpackExt(BufferUnpacker $unpacker, int $extLength);
 }

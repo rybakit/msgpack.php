@@ -13,10 +13,9 @@ namespace App\MessagePack;
 
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Packable;
-use MessagePack\TypeTransformer\Unpackable;
+use MessagePack\TypeTransformer\Extension;
 
-class DateTimeTransformer implements Packable, Unpackable
+class DateTimeExtension extends Extension
 {
     private $type;
 
@@ -30,18 +29,16 @@ class DateTimeTransformer implements Packable, Unpackable
         return $this->type;
     }
 
-    public function pack(Packer $packer, $value) : ?string
+    protected function packExt(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
-        return $packer->packExt($this->type,
-            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
-        );
+        return $packer->packStr($value->format('Y-m-d\TH:i:s.uP'));
     }
 
-    public function unpack(BufferUnpacker $unpacker, int $extLength)
+    public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         return new \DateTimeImmutable($unpacker->unpackStr());
     }

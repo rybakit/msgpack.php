@@ -12,14 +12,17 @@
 namespace MessagePack\TypeTransformer;
 
 use MessagePack\Packer;
-use MessagePack\Type\Map;
 
-class MapTransformer implements CanPack
+abstract class Extension implements CanPack, CanUnpackExt
 {
     public function pack(Packer $packer, $value) : ?string
     {
-        return $value instanceof Map
-            ? $packer->packMap($value->map)
-            : null;
+        if (null === $data = $this->packExt($packer, $value)) {
+            return null;
+        }
+
+        return $packer->packExt($this->getType(), $data);
     }
+
+    abstract protected function packExt(Packer $packer, $value) : ?string;
 }

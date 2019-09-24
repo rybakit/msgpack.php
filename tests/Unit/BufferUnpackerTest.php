@@ -17,7 +17,7 @@ use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Ext;
-use MessagePack\TypeTransformer\Unpackable;
+use MessagePack\TypeTransformer\CanUnpackExt;
 use MessagePack\UnpackOptions;
 use PHPUnit\Framework\Error\Warning;
 use PHPUnit\Framework\TestCase;
@@ -319,15 +319,15 @@ final class BufferUnpackerTest extends TestCase
         $obj = new \stdClass();
         $type = 5;
 
-        $transformer = $this->createMock(Unpackable::class);
-        $transformer->expects(self::any())->method('getType')->willReturn($type);
-        $transformer->expects(self::once())->method('unpack')
-            ->with($this->unpacker, 1)
+        $transformer = $this->createMock(CanUnpackExt::class);
+        $transformer->method('getType')->willReturn($type);
+        $transformer->expects(self::once())->method('unpackExt')
+            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
             ->willReturn($obj);
 
-        $this->unpacker->registerTransformer($transformer);
+        $unpacker = $this->unpacker->extendWith($transformer);
 
-        self::assertSame($obj, $this->unpacker->reset("\xd4\x05\x01")->unpack());
+        self::assertSame($obj, $unpacker->reset("\xd4\x05\x01")->unpack());
     }
 
     /**
