@@ -17,18 +17,6 @@ use MessagePack\TypeTransformer\Extension;
 
 class PackedMapExtension extends Extension
 {
-    private $type;
-
-    public function __construct(int $type)
-    {
-        $this->type = $type;
-    }
-
-    public function getType() : int
-    {
-        return $this->type;
-    }
-
     protected function packExt(Packer $packer, $value) : ?string
     {
         if (!$value instanceof PackedMap) {

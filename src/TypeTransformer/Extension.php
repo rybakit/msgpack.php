@@ -15,13 +15,25 @@ use MessagePack\Packer;
 
 abstract class Extension implements CanPack, CanUnpackExt
 {
+    private $type;
+
+    public function __construct(int $type)
+    {
+        $this->type = $type;
+    }
+
+    public function getType() : int
+    {
+        return $this->type;
+    }
+
     public function pack(Packer $packer, $value) : ?string
     {
         if (null === $data = $this->packExt($packer, $value)) {
             return null;
         }
 
-        return $packer->packExt($this->getType(), $data);
+        return $packer->packExt($this->type, $data);
     }
 
     abstract protected function packExt(Packer $packer, $value) : ?string;
