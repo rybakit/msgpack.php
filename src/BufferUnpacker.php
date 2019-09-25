@@ -50,7 +50,10 @@ class BufferUnpacker
         $this->buffer = $buffer;
 
         if ([] !== $transformers) {
-            $this->transformers = $transformers;
+            $this->transformers = [];
+            foreach ($transformers as $transformer) {
+                $this->transformers[$transformer->getType()] = $transformer;
+            }
         }
     }
 
@@ -60,8 +63,8 @@ class BufferUnpacker
         $new->transformers[$transformer->getType()] = $transformer;
 
         if ([] !== $transformers) {
-            foreach ($transformers as $t) {
-                $new->transformers[$t->getType()] = $t;
+            foreach ($transformers as $extraTransformer) {
+                $new->transformers[$extraTransformer->getType()] = $extraTransformer;
             }
         }
 

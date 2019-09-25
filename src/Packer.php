@@ -70,7 +70,7 @@ class Packer
         $new->transformers[] = $transformer;
 
         if ([] !== $transformers) {
-            $new->transformers[] = \array_merge($new->transformers, $transformers);
+            $new->transformers = \array_merge($new->transformers, $transformers);
         }
 
         return $new;

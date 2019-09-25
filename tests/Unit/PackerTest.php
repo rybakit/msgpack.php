@@ -113,7 +113,7 @@ final class PackerTest extends TestCase
         ];
     }
 
-    public function testPackCustomType() : void
+    public function testConstructorSetTransformers() : void
     {
         $obj = new \stdClass();
         $packed = 'packed';
@@ -123,9 +123,37 @@ final class PackerTest extends TestCase
             ->with($this->isInstanceOf(Packer::class), $obj)
             ->willReturn($packed);
 
-        $packer = $this->packer->extendWith($transformer);
+        $packer = new Packer(null, [$transformer]);
 
         self::assertSame($packed, $packer->pack($obj));
+    }
+
+    public function testPackCustomType() : void
+    {
+        $obj1 = new \stdClass();
+        $obj2 = new \ArrayObject();
+
+        $packed1 = 'packed1';
+        $packed2 = 'packed2';
+
+        $transformer1 = $this->createMock(CanPack::class);
+        $transformer1->expects(self::atMost(2))->method('pack')
+            ->with($this->isInstanceOf(Packer::class), self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2)))
+            ->willReturnCallback(static function ($packer, $value) use ($obj1, $packed1) {
+                return $value === $obj1 ? $packed1 : null;
+            });
+
+        $transformer2 = $this->createMock(CanPack::class);
+        $transformer2->expects(self::atMost(2))->method('pack')
+            ->with($this->isInstanceOf(Packer::class), self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2)))
+            ->willReturnCallback(static function ($packer, $value) use ($obj2, $packed2) {
+                return $value === $obj2 ? $packed2 : null;
+            });
+
+        $packer = $this->packer->extendWith($transformer1, $transformer2);
+
+        self::assertSame($packed1, $packer->pack($obj1));
+        self::assertSame($packed2, $packer->pack($obj2));
     }
 
     public function testPackCustomUnsupportedType() : void
@@ -136,7 +164,7 @@ final class PackerTest extends TestCase
         $obj = new \stdClass();
 
         $transformer = $this->createMock(CanPack::class);
-        $transformer->expects(self::atLeastOnce())->method('pack')
+        $transformer->expects(self::once())->method('pack')
             ->with($this->isInstanceOf(Packer::class), $obj)
             ->willReturn(null);
 

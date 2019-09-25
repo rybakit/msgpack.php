@@ -296,6 +296,48 @@ final class BufferUnpackerTest extends TestCase
         ];
     }
 
+    public function testConstructorSetTransformers() : void
+    {
+        $obj = new \stdClass();
+        $type = 5;
+
+        $transformer = $this->createMock(CanUnpackExt::class);
+        $transformer->method('getType')->willReturn($type);
+        $transformer->expects(self::once())->method('unpackExt')
+            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
+            ->willReturn($obj);
+
+        $unpacker = new BufferUnpacker('', null, [$transformer]);
+
+        self::assertSame($obj, $unpacker->reset("\xd4\x05\x01")->unpack());
+    }
+
+    public function testUnpackCustomType() : void
+    {
+        $obj1 = new \stdClass();
+        $obj2 = new \ArrayObject();
+
+        $type1 = 5;
+        $type2 = 6;
+
+        $transformer1 = $this->createMock(CanUnpackExt::class);
+        $transformer1->method('getType')->willReturn($type1);
+        $transformer1->expects(self::once())->method('unpackExt')
+            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
+            ->willReturn($obj1);
+
+        $transformer2 = $this->createMock(CanUnpackExt::class);
+        $transformer2->method('getType')->willReturn($type2);
+        $transformer2->expects(self::once())->method('unpackExt')
+            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
+            ->willReturn($obj2);
+
+        $unpacker = $this->unpacker->extendWith($transformer1, $transformer2);
+
+        self::assertSame($obj1, $unpacker->reset("\xd4\x05\x01")->unpack());
+        self::assertSame($obj2, $unpacker->reset("\xd4\x06\x01")->unpack());
+    }
+
     public function testBadKeyTypeThrowsWarning() : void
     {
         $this->expectException(Warning::class);
@@ -312,22 +354,6 @@ final class BufferUnpackerTest extends TestCase
         $raw = @$this->unpacker->unpack();
 
         self::assertSame([4 => 2], $raw);
-    }
-
-    public function testUnpackCustomType() : void
-    {
-        $obj = new \stdClass();
-        $type = 5;
-
-        $transformer = $this->createMock(CanUnpackExt::class);
-        $transformer->method('getType')->willReturn($type);
-        $transformer->expects(self::once())->method('unpackExt')
-            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
-            ->willReturn($obj);
-
-        $unpacker = $this->unpacker->extendWith($transformer);
-
-        self::assertSame($obj, $unpacker->reset("\xd4\x05\x01")->unpack());
     }
 
     /**
