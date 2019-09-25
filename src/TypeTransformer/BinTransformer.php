@@ -12,8 +12,14 @@
 namespace MessagePack\TypeTransformer;
 
 use MessagePack\Packer;
+use MessagePack\Type\Bin;
 
-interface Packable
+class BinTransformer implements CanPack
 {
-    public function pack(Packer $packer, $value) : ?string;
+    public function pack(Packer $packer, $value) : ?string
+    {
+        return $value instanceof Bin
+            ? $packer->packBin($value->data)
+            : null;
+    }
 }

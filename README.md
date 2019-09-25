@@ -271,10 +271,10 @@ var_dump($ext->data === "\xaa"); // bool(true)
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
 the library provides functionality to serialize and deserialize arbitrary types. In order to support a custom 
-type you need to create and register a transformer. The transformer should implement either or both the `Packable` 
-and/or the `Unpackable` interface.
+type you need to create and register a transformer. The transformer should implement either or both the `CanPack` 
+and/or the `CanUnpackExt` interface.
 
-The purpose of `Packable` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
+The purpose of `CanPack` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
 example of such a transformer is a `MapTransformer` that comes with the library. It serializes `Map` objects (which 
 are simple wrappers around PHP arrays) to MessagePack maps. This is useful when you want to explicitly mark that 
 a given PHP array must be packed as a MessagePack map, without triggering the type's auto-detection routine.
@@ -290,7 +290,7 @@ namespace MessagePack\TypeTransformer;
 use MessagePack\Packer;
 use MessagePack\Type\Map;
 
-class MapTransformer implements Packable
+class MapTransformer implements CanPack
 {
     public function pack(Packer $packer, $value) : ?string
     {
@@ -310,7 +310,7 @@ use MessagePack\Type\Map;
 use MessagePack\TypeTransformer\MapTransformer;
 
 $packer = new Packer(PackOptions::FORCE_ARR);
-$packer->registerTransformer(new MapTransformer());
+$packer = $packer->extendWith(new MapTransformer());
 
 $packed = $packer->pack([
     [1, 2, 3],          // MP array
@@ -318,64 +318,50 @@ $packed = $packer->pack([
 ]);
 ```
 
-Transformers implementing the `Unpackable` interface are intended for unpacking 
+Transformers implementing the `CanUnpackExt` interface are intended for unpacking 
 [extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
-For example, the code below shows how to create a transformer that allows you to work transparently with `DateTime` 
-objects:
+With the help of the abstract class [Extension](src/TypeTransformer/Extension.php) you can extend 
+the MessagePack protocol with your own types. For example, the code below shows how to create 
+an extension that allows you to work transparently with `DateTime` objects:
 
 ```php
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Packable;
-use MessagePack\TypeTransformer\Unpackable;
+use MessagePack\TypeTransformer\Extension;
 
-class DateTimeTransformer implements Packable, Unpackable 
+class DateTimeExtension extends Extension 
 {
-    private $type;
-
-    public function __construct(int $type)
-    {
-        $this->type = $type;
-    }
-
-    public function getType() : int
-    {
-        return $this->type;
-    }
-
-    public function pack(Packer $packer, $value) : ?string
+    protected function packExt(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
-        return $packer->packExt($this->type,
-            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
-        );
+        return $packer->packStr($value->format('Y-m-d\TH:i:s.uP'));
     }
 
-    public function unpack(BufferUnpacker $unpacker, int $extLength)
+    public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         return new \DateTimeImmutable($unpacker->unpackStr());
     }
 }
 ```
 
-Register `DateTimeTransformer` for both the packer and the unpacker with a unique extension type (an integer from 0 
-to 127) and you are ready to go:
+Register `DateTimeExtension` for both the packer and the unpacker with a unique extension type 
+(an integer from 0 to 127) and you are ready to go:
 
 ```php
-use App\MessagePack\DateTimeTransformer;
+use App\MessagePack\DateTimeExtension;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 
-$transformer = new DateTimeTransformer(42);
+$dateTimeExtension = new DateTimeExtension(42);
 
 $packer = new Packer();
-$packer->registerTransformer($transformer);
+$packer = $packer->extendWith($dateTimeExtension);
 
 $unpacker = new BufferUnpacker();
-$unpacker->registerTransformer($transformer);
+$unpacker = $unpacker->extendWith($dateTimeExtension);
 
 $packed = $packer->pack(new DateTimeImmutable());
 $date = $unpacker->reset($packed)->unpack();

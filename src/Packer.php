@@ -13,7 +13,7 @@ namespace MessagePack;
 
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
-use MessagePack\TypeTransformer\Packable;
+use MessagePack\TypeTransformer\CanPack;
 
 class Packer
 {
@@ -35,16 +35,17 @@ class Packer
     private $isForceFloat32;
 
     /**
-     * @var Packable[]|null
+     * @var CanPack[]
      */
-    private $transformers;
+    private $transformers = [];
 
     /**
      * @param PackOptions|int|null $options
+     * @param CanPack[] $transformers
      *
      * @throws InvalidOptionException
      */
-    public function __construct($options = null)
+    public function __construct($options = null, array $transformers = [])
     {
         if (null === $options) {
             $options = PackOptions::fromDefaults();
@@ -57,13 +58,22 @@ class Packer
         $this->isDetectArrMap = $options->isDetectArrMapMode();
         $this->isForceArr = $options->isForceArrMode();
         $this->isForceFloat32 = $options->isForceFloat32Mode();
+
+        if ([] !== $transformers) {
+            $this->transformers = $transformers;
+        }
     }
 
-    public function registerTransformer(Packable $transformer) : self
+    public function extendWith(CanPack $transformer, CanPack ...$transformers) : self
     {
-        $this->transformers[] = $transformer;
+        $new = clone $this;
+        $new->transformers[] = $transformer;
 
-        return $this;
+        if ([] !== $transformers) {
+            $new->transformers = \array_merge($new->transformers, $transformers);
+        }
+
+        return $new;
     }
 
     public function pack($value)
@@ -112,7 +122,7 @@ class Packer
         if ($value instanceof Ext) {
             return $this->packExt($value->type, $value->data);
         }
-        if ($this->transformers) {
+        if ([] !== $this->transformers) {
             foreach ($this->transformers as $transformer) {
                 if (null !== $packed = $transformer->pack($this, $value)) {
                     return $packed;

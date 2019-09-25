@@ -9,14 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace App\MessagePack;
+namespace MessagePack\TypeTransformer;
 
-use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Packable;
-use MessagePack\TypeTransformer\Unpackable;
 
-class DateTimeTransformer implements Packable, Unpackable
+abstract class Extension implements CanPack, CanUnpackExt
 {
     private $type;
 
@@ -32,17 +29,12 @@ class DateTimeTransformer implements Packable, Unpackable
 
     public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof \DateTimeInterface) {
+        if (null === $data = $this->packExt($packer, $value)) {
             return null;
         }
 
-        return $packer->packExt($this->type,
-            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
-        );
+        return $packer->packExt($this->type, $data);
     }
 
-    public function unpack(BufferUnpacker $unpacker, int $extLength)
-    {
-        return new \DateTimeImmutable($unpacker->unpackStr());
-    }
+    abstract protected function packExt(Packer $packer, $value) : ?string;
 }

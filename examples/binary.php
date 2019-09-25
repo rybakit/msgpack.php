@@ -11,17 +11,17 @@
 
 use MessagePack\Packer;
 use MessagePack\PackOptions;
-use MessagePack\Type\Binary;
-use MessagePack\TypeTransformer\BinaryTransformer;
+use MessagePack\Type\Bin;
+use MessagePack\TypeTransformer\BinTransformer;
 
 require __DIR__.'/autoload.php';
 
 // https://stackoverflow.com/questions/40808984/msgpack-between-php-and-javascript
 
 $packer = new Packer(PackOptions::FORCE_STR);
-$packer->registerTransformer(new BinaryTransformer());
+$packer = $packer->extendWith(new BinTransformer());
 
-$packed = $packer->pack(['name' => new Binary('value')]);
+$packed = $packer->pack(['name' => new Bin('value')]);
 
 echo '[', implode(', ', unpack('C*', $packed)), "]\n";
 

@@ -16,7 +16,7 @@ use MessagePack\Exception\PackingFailedException;
 use MessagePack\Ext;
 use MessagePack\Packer;
 use MessagePack\PackOptions;
-use MessagePack\TypeTransformer\Packable;
+use MessagePack\TypeTransformer\CanPack;
 use PHPUnit\Framework\TestCase;
 
 final class PackerTest extends TestCase
@@ -61,7 +61,7 @@ final class PackerTest extends TestCase
     /**
      * @dataProvider provideOptionsData
      */
-    public function testConstructorSetOptions($options, $raw, string $packed) : void
+    public function testConstructorSetsOptions($options, $raw, string $packed) : void
     {
         self::assertSame($packed, (new Packer($options))->pack($raw));
     }
@@ -113,19 +113,53 @@ final class PackerTest extends TestCase
         ];
     }
 
-    public function testPackCustomType() : void
+    public function testConstructorSetsTransformers() : void
     {
         $obj = new \stdClass();
         $packed = 'packed';
 
-        $transformer = $this->createMock(Packable::class);
+        $transformer = $this->createMock(CanPack::class);
         $transformer->expects(self::once())->method('pack')
-            ->with($this->packer, $obj)
+            ->with($this->isInstanceOf(Packer::class), $obj)
             ->willReturn($packed);
 
-        $this->packer->registerTransformer($transformer);
+        $packer = new Packer(null, [$transformer]);
 
-        self::assertSame($packed, $this->packer->pack($obj));
+        self::assertSame($packed, $packer->pack($obj));
+    }
+
+    public function testPackCustomType() : void
+    {
+        $obj1 = new \stdClass();
+        $obj2 = new \ArrayObject();
+
+        $packed1 = 'packed1';
+        $packed2 = 'packed2';
+
+        $transformer1 = $this->createMock(CanPack::class);
+        $transformer1->expects(self::atMost(2))->method('pack')
+            ->with(
+                $this->isInstanceOf(Packer::class),
+                self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2))
+            )
+            ->willReturnCallback(static function ($packer, $value) use ($obj1, $packed1) {
+                return $value === $obj1 ? $packed1 : null;
+            });
+
+        $transformer2 = $this->createMock(CanPack::class);
+        $transformer2->expects(self::atMost(2))->method('pack')
+            ->with(
+                $this->isInstanceOf(Packer::class),
+                self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2))
+            )
+            ->willReturnCallback(static function ($packer, $value) use ($obj2, $packed2) {
+                return $value === $obj2 ? $packed2 : null;
+            });
+
+        $packer = $this->packer->extendWith($transformer1, $transformer2);
+
+        self::assertSame($packed1, $packer->pack($obj1));
+        self::assertSame($packed2, $packer->pack($obj2));
     }
 
     public function testPackCustomUnsupportedType() : void
@@ -135,13 +169,13 @@ final class PackerTest extends TestCase
 
         $obj = new \stdClass();
 
-        $transformer = $this->createMock(Packable::class);
-        $transformer->expects(self::atLeastOnce())->method('pack')
-            ->with($this->packer, $obj)
+        $transformer = $this->createMock(CanPack::class);
+        $transformer->expects(self::once())->method('pack')
+            ->with($this->isInstanceOf(Packer::class), $obj)
             ->willReturn(null);
 
-        $this->packer->registerTransformer($transformer);
-        $this->packer->pack($obj);
+        $packer = $this->packer->extendWith($transformer);
+        $packer->pack($obj);
     }
 
     /**

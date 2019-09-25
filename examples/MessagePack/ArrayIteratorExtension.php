@@ -13,24 +13,11 @@ namespace App\MessagePack;
 
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Packable;
-use MessagePack\TypeTransformer\Unpackable;
+use MessagePack\TypeTransformer\Extension;
 
-class ArrayIteratorTransformer implements Packable, Unpackable
+class ArrayIteratorExtension extends Extension
 {
-    private $type;
-
-    public function __construct(int $type)
-    {
-        $this->type = $type;
-    }
-
-    public function getType() : int
-    {
-        return $this->type;
-    }
-
-    public function pack(Packer $packer, $value) : ?string
+    protected function packExt(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \ArrayIterator) {
             return null;
@@ -43,13 +30,10 @@ class ArrayIteratorTransformer implements Packable, Unpackable
             ++$size;
         }
 
-        return $packer->packExt($this->type,
-            $packer->packArrayHeader($size).
-            $data
-        );
+        return $packer->packArrayHeader($size).$data;
     }
 
-    public function unpack(BufferUnpacker $unpacker, int $extLength)
+    public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         $size = $unpacker->unpackArrayHeader();
 

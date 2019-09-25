@@ -13,8 +13,9 @@ namespace MessagePack;
 
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
+use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
-use MessagePack\TypeTransformer\Unpackable;
+use MessagePack\TypeTransformer\CanUnpackExt;
 
 class BufferUnpacker
 {
@@ -24,17 +25,18 @@ class BufferUnpacker
     private $isBigIntAsGmp;
 
     /**
-     * @var Unpackable[]|null
+     * @var CanUnpackExt[]
      */
-    private $transformers;
+    private $transformers = [];
 
     /**
      * @param string $buffer
      * @param UnpackOptions|int|null $options
+     * @param CanUnpackExt[] $transformers
      *
-     * @throws \MessagePack\Exception\InvalidOptionException
+     * @throws InvalidOptionException
      */
-    public function __construct(string $buffer = '', $options = null)
+    public function __construct(string $buffer = '', $options = null, array $transformers = [])
     {
         if (null === $options) {
             $options = UnpackOptions::fromDefaults();
@@ -46,13 +48,27 @@ class BufferUnpacker
         $this->isBigIntAsGmp = $options->isBigIntAsGmpMode();
 
         $this->buffer = $buffer;
+
+        if ([] !== $transformers) {
+            $this->transformers = [];
+            foreach ($transformers as $transformer) {
+                $this->transformers[$transformer->getType()] = $transformer;
+            }
+        }
     }
 
-    public function registerTransformer(Unpackable $transformer) : self
+    public function extendWith(CanUnpackExt $transformer, CanUnpackExt ...$transformers) : self
     {
-        $this->transformers[$transformer->getType()] = $transformer;
+        $new = clone $this;
+        $new->transformers[$transformer->getType()] = $transformer;
 
-        return $this;
+        if ([] !== $transformers) {
+            foreach ($transformers as $extraTransformer) {
+                $new->transformers[$extraTransformer->getType()] = $extraTransformer;
+            }
+        }
+
+        return $new;
     }
 
     public function append(string $data) : self
@@ -632,7 +648,7 @@ class BufferUnpacker
         }
 
         if (isset($this->transformers[$type])) {
-            return $this->transformers[$type]->unpack($this, $length);
+            return $this->transformers[$type]->unpackExt($this, $length);
         }
 
         $data = \substr($this->buffer, $this->offset, $length);

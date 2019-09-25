@@ -10,7 +10,7 @@
  */
 
 use App\MessagePack\PackedMap;
-use App\MessagePack\PackedMapTransformer;
+use App\MessagePack\PackedMapExtension;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 
@@ -31,13 +31,9 @@ for ($i = 0; $i < 1000; ++$i) {
     ];
 }
 
-$transformer = new PackedMapTransformer(3);
-
-$packer = new Packer();
-$packer->registerTransformer($transformer);
-
-$unpacker = new BufferUnpacker();
-$unpacker->registerTransformer($transformer);
+$transformer = new PackedMapExtension(3);
+$packer = (new Packer())->extendWith($transformer);
+$unpacker = (new BufferUnpacker())->extendWith($transformer);
 
 $packedMap = $packer->pack($profiles);
 $packedPackedMap = $packer->pack(new PackedMap($profiles, $schema));

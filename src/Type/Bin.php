@@ -9,13 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\TypeTransformer;
+namespace MessagePack\Type;
 
-use MessagePack\BufferUnpacker;
-
-interface Unpackable
+final class Bin
 {
-    public function getType() : int;
+    public $data;
 
-    public function unpack(BufferUnpacker $unpacker, int $extLength);
+    public function __construct(string $data)
+    {
+        $this->data = $data;
+    }
 }

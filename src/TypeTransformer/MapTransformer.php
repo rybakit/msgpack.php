@@ -14,7 +14,7 @@ namespace MessagePack\TypeTransformer;
 use MessagePack\Packer;
 use MessagePack\Type\Map;
 
-class MapTransformer implements Packable
+class MapTransformer implements CanPack
 {
     public function pack(Packer $packer, $value) : ?string
     {

@@ -12,11 +12,11 @@
 namespace MessagePack\Tests\Unit\TypeTransformer;
 
 use MessagePack\Packer;
-use MessagePack\Type\Binary;
-use MessagePack\TypeTransformer\BinaryTransformer;
+use MessagePack\Type\Bin;
+use MessagePack\TypeTransformer\BinTransformer;
 use PHPUnit\Framework\TestCase;
 
-final class BinaryTransformerTest extends TestCase
+final class BinTransformerTest extends TestCase
 {
     public function testPackBinary() : void
     {
@@ -28,8 +28,8 @@ final class BinaryTransformerTest extends TestCase
             ->with($raw)
             ->willReturn($packed);
 
-        $transformer = new BinaryTransformer();
-        $binary = new Binary($raw);
+        $transformer = new BinTransformer();
+        $binary = new Bin($raw);
 
         self::assertSame($packed, $transformer->pack($packer, $binary));
     }
@@ -44,7 +44,7 @@ final class BinaryTransformerTest extends TestCase
             ->with($raw)
             ->willReturn($packed);
 
-        $transformer = new BinaryTransformer();
+        $transformer = new BinTransformer();
 
         self::assertNull($transformer->pack($packer, $raw));
     }
