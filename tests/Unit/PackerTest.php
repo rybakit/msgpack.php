@@ -61,7 +61,7 @@ final class PackerTest extends TestCase
     /**
      * @dataProvider provideOptionsData
      */
-    public function testConstructorSetOptions($options, $raw, string $packed) : void
+    public function testConstructorSetsOptions($options, $raw, string $packed) : void
     {
         self::assertSame($packed, (new Packer($options))->pack($raw));
     }
@@ -113,7 +113,7 @@ final class PackerTest extends TestCase
         ];
     }
 
-    public function testConstructorSetTransformers() : void
+    public function testConstructorSetsTransformers() : void
     {
         $obj = new \stdClass();
         $packed = 'packed';
@@ -138,14 +138,20 @@ final class PackerTest extends TestCase
 
         $transformer1 = $this->createMock(CanPack::class);
         $transformer1->expects(self::atMost(2))->method('pack')
-            ->with($this->isInstanceOf(Packer::class), self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2)))
+            ->with(
+                $this->isInstanceOf(Packer::class),
+                self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2))
+            )
             ->willReturnCallback(static function ($packer, $value) use ($obj1, $packed1) {
                 return $value === $obj1 ? $packed1 : null;
             });
 
         $transformer2 = $this->createMock(CanPack::class);
         $transformer2->expects(self::atMost(2))->method('pack')
-            ->with($this->isInstanceOf(Packer::class), self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2)))
+            ->with(
+                $this->isInstanceOf(Packer::class),
+                self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2))
+            )
             ->willReturnCallback(static function ($packer, $value) use ($obj2, $packed2) {
                 return $value === $obj2 ? $packed2 : null;
             });

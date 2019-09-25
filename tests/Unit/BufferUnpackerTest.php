@@ -296,7 +296,7 @@ final class BufferUnpackerTest extends TestCase
         ];
     }
 
-    public function testConstructorSetTransformers() : void
+    public function testConstructorSetsTransformers() : void
     {
         $obj = new \stdClass();
         $type = 5;
