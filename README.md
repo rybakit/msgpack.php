@@ -200,10 +200,10 @@ To skip bytes from the current position, use `skip`:
 $unpacker->skip(10); // set position to 10 bytes ahead of the current position
 ```
 
-With the `read` method you can to read raw (packed) data:
+With the `read` method you can read raw (packed) data:
 
 ```php
-$data = $unpacker->read(2); // read 2 bytes
+$packedData = $unpacker->read(2); // read 2 bytes
 ```
 
 Besides the above methods `BufferUnpacker` provides type-specific unpacking methods, namely:
