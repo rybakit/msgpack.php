@@ -71,6 +71,15 @@ class BufferUnpacker
         return $new;
     }
 
+    public function withBuffer(string $buffer) : self
+    {
+        $new = clone $this;
+        $new->buffer = $buffer;
+        $new->offset = 0;
+
+        return $new;
+    }
+
     public function append(string $data) : self
     {
         $this->buffer .= $data;
@@ -93,7 +102,7 @@ class BufferUnpacker
         }
 
         if (!isset($this->buffer[$offset])) {
-            throw new \OutOfBoundsException("Unable to seek to position $offset.");
+            throw new InsufficientDataException("Unable to seek to position $offset.");
         }
 
         $this->offset = $offset;
@@ -101,12 +110,12 @@ class BufferUnpacker
         return $this;
     }
 
-    public function skip(int $offset) : self
+    public function skip(int $length) : self
     {
-        $offset += $this->offset;
+        $offset = $this->offset + $length;
 
         if (!isset($this->buffer[$offset])) {
-            throw new \OutOfBoundsException("Unable to seek to position $offset.");
+            throw new InsufficientDataException("Unable to seek to position $offset.");
         }
 
         $this->offset = $offset;
@@ -114,13 +123,21 @@ class BufferUnpacker
         return $this;
     }
 
-    public function withBuffer(string $buffer) : self
+    /**
+     * @param int $length
+     *
+     * @return string
+     */
+    public function read($length)
     {
-        $new = clone $this;
-        $new->buffer = $buffer;
-        $new->offset = 0;
+        if (!isset($this->buffer[$this->offset + $length - 1])) {
+            throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, $length);
+        }
 
-        return $new;
+        $data = \substr($this->buffer, $this->offset, $length);
+        $this->offset += $length;
+
+        return $data;
     }
 
     public function tryUnpack() : array
@@ -160,7 +177,7 @@ class BufferUnpacker
         }
         // fixstr
         if ($c >= 0xa0 && $c <= 0xbf) {
-            return ($c & 0x1f) ? $this->unpackStrData($c & 0x1f) : '';
+            return ($c & 0x1f) ? $this->read($c & 0x1f) : '';
         }
         // negfixint
         if ($c >= 0xe0) {
@@ -209,9 +226,9 @@ class BufferUnpacker
             case 0x9f: return $this->unpackArrayData(15);
 
             // bin
-            case 0xc4: return $this->unpackStrData($this->unpackUint8());
-            case 0xc5: return $this->unpackStrData($this->unpackUint16());
-            case 0xc6: return $this->unpackStrData($this->unpackUint32());
+            case 0xc4: return $this->read($this->unpackUint8());
+            case 0xc5: return $this->read($this->unpackUint16());
+            case 0xc6: return $this->read($this->unpackUint32());
 
             // float
             case 0xca: return $this->unpackFloat32();
@@ -230,9 +247,9 @@ class BufferUnpacker
             case 0xd3: return $this->unpackInt64();
 
             // str
-            case 0xd9: return $this->unpackStrData($this->unpackUint8());
-            case 0xda: return $this->unpackStrData($this->unpackUint16());
-            case 0xdb: return $this->unpackStrData($this->unpackUint32());
+            case 0xd9: return $this->read($this->unpackUint8());
+            case 0xda: return $this->read($this->unpackUint16());
+            case 0xdb: return $this->read($this->unpackUint32());
 
             // array
             case 0xdc: return $this->unpackArrayData($this->unpackUint16());
@@ -354,16 +371,16 @@ class BufferUnpacker
         ++$this->offset;
 
         if ($c >= 0xa0 && $c <= 0xbf) {
-            return ($c & 0x1f) ? $this->unpackStrData($c & 0x1f) : '';
+            return ($c & 0x1f) ? $this->read($c & 0x1f) : '';
         }
         if (0xd9 === $c) {
-            return $this->unpackStrData($this->unpackUint8());
+            return $this->read($this->unpackUint8());
         }
         if (0xda === $c) {
-            return $this->unpackStrData($this->unpackUint16());
+            return $this->read($this->unpackUint16());
         }
         if (0xdb === $c) {
-            return $this->unpackStrData($this->unpackUint32());
+            return $this->read($this->unpackUint32());
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'str');
@@ -379,13 +396,13 @@ class BufferUnpacker
         ++$this->offset;
 
         if (0xc4 === $c) {
-            return $this->unpackStrData($this->unpackUint8());
+            return $this->read($this->unpackUint8());
         }
         if (0xc5 === $c) {
-            return $this->unpackStrData($this->unpackUint16());
+            return $this->read($this->unpackUint16());
         }
         if (0xc6 === $c) {
-            return $this->unpackStrData($this->unpackUint32());
+            return $this->read($this->unpackUint32());
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'bin');
@@ -599,18 +616,6 @@ class BufferUnpacker
         $this->offset += 8;
 
         return $num;
-    }
-
-    private function unpackStrData($length)
-    {
-        if (!isset($this->buffer[$this->offset + $length - 1])) {
-            throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, $length);
-        }
-
-        $str = \substr($this->buffer, $this->offset, $length);
-        $this->offset += $length;
-
-        return $str;
     }
 
     private function unpackArrayData($size)

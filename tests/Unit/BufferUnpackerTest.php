@@ -55,7 +55,7 @@ final class BufferUnpackerTest extends TestCase
         try {
             $this->unpacker->reset($data)->unpack();
         } catch (InsufficientDataException $e) {
-            self::assertSame("Not enough data to unpack: expected $expectedLength, got $actualLength.", $e->getMessage());
+            self::assertSame("Not enough data to read: expected $expectedLength, got $actualLength.", $e->getMessage());
 
             return;
         }
@@ -145,7 +145,7 @@ final class BufferUnpackerTest extends TestCase
     public function testReset() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->append("\xc3")->reset()->unpack();
     }
@@ -174,7 +174,7 @@ final class BufferUnpackerTest extends TestCase
 
     public function testSeekInvalidOffset() : void
     {
-        $this->expectException(\OutOfBoundsException::class);
+        $this->expectException(InsufficientDataException::class);
         $this->expectExceptionMessage('Unable to seek to position 10.');
 
         $this->unpacker->append("\xc2")->unpack();
@@ -192,7 +192,7 @@ final class BufferUnpackerTest extends TestCase
 
     public function testSkipInvalidOffset() : void
     {
-        $this->expectException(\OutOfBoundsException::class);
+        $this->expectException(InsufficientDataException::class);
         $this->expectExceptionMessage('Unable to seek to position 21.');
 
         $this->unpacker->append("\xc2")->unpack();
@@ -221,7 +221,7 @@ final class BufferUnpackerTest extends TestCase
         $unpacker = $this->unpacker->withBuffer('');
 
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $unpacker->unpack();
     }
@@ -267,7 +267,7 @@ final class BufferUnpackerTest extends TestCase
         try {
             $this->unpacker->unpack();
         } catch (InsufficientDataException $e) {
-            self::assertSame('Not enough data to unpack: expected 1, got 0.', $e->getMessage());
+            self::assertSame('Not enough data to read: expected 1, got 0.', $e->getMessage());
 
             return;
         }
@@ -367,7 +367,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientNil() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackNil();
     }
@@ -391,7 +391,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientBool() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackBool();
     }
@@ -415,7 +415,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientInt() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackInt();
     }
@@ -439,7 +439,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientFloat() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackFloat();
     }
@@ -463,7 +463,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientStr() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackStr();
     }
@@ -487,7 +487,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientBin() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackBin();
     }
@@ -511,7 +511,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientArray() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackArray();
     }
@@ -535,7 +535,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientMap() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackMap();
     }
@@ -559,7 +559,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInsufficientExt() : void
     {
         $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to unpack: expected 1, got 0.');
+        $this->expectExceptionMessage('Not enough data to read: expected 1, got 0.');
 
         $this->unpacker->unpackExt();
     }
