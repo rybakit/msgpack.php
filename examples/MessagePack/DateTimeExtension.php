@@ -15,15 +15,29 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\Extension;
 
-class DateTimeExtension extends Extension
+class DateTimeExtension implements Extension
 {
-    protected function packExt(Packer $packer, $value) : ?string
+    private $type;
+
+    public function __construct(int $type)
+    {
+        $this->type = $type;
+    }
+
+    public function getType() : int
+    {
+        return $this->type;
+    }
+
+    public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
-        return $packer->packStr($value->format('Y-m-d\TH:i:s.uP'));
+        return $packer->packExt($this->type,
+            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
+        );
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)

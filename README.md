@@ -277,8 +277,8 @@ var_dump($ext->data === "\xaa"); // bool(true)
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
 the library provides functionality to serialize and deserialize arbitrary types. In order to support a custom 
-type you need to create and register a transformer. The transformer should implement either or both the `CanPack` 
-and/or the `CanUnpackExt` interface.
+type you need to create and register a transformer. The transformer should implement either the `CanPack` interface 
+or the `Extension` interface.
 
 The purpose of `CanPack` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
 example of such a transformer is a `MapTransformer` that comes with the library. It serializes `Map` objects (which 
@@ -324,26 +324,37 @@ $packed = $packer->pack([
 ]);
 ```
 
-Transformers implementing the `CanUnpackExt` interface are intended for unpacking 
-[extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
-With the help of the abstract class [Extension](src/TypeTransformer/Extension.php) you can extend 
-the MessagePack protocol with your own types. For example, the code below shows how to create 
-an extension that allows you to work transparently with `DateTime` objects:
+Transformers implementing the `Extension` interface are intended to handle [extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
+For example, the code below shows how to create an extension that allows you to work transparently with `DateTime` objects:
 
 ```php
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\Extension;
 
-class DateTimeExtension extends Extension 
+class DateTimeExtension implements Extension 
 {
-    protected function packExt(Packer $packer, $value) : ?string
+    private $type;
+
+    public function __construct(int $type)
+    {
+        $this->type = $type;
+    }
+
+    public function getType() : int
+    {
+        return $this->type;
+    }
+
+    public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \DateTimeInterface) {
             return null;
         }
 
-        return $packer->packStr($value->format('Y-m-d\TH:i:s.uP'));
+        return $packer->packExt($this->type,
+            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
+        );
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)

@@ -15,7 +15,7 @@ use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
-use MessagePack\TypeTransformer\CanUnpackExt;
+use MessagePack\TypeTransformer\Extension;
 
 class BufferUnpacker
 {
@@ -25,18 +25,18 @@ class BufferUnpacker
     private $isBigIntAsGmp;
 
     /**
-     * @var CanUnpackExt[]
+     * @var Extension[]
      */
-    private $transformers = [];
+    private $extensions = [];
 
     /**
      * @param string $buffer
      * @param UnpackOptions|int|null $options
-     * @param CanUnpackExt[] $transformers
+     * @param Extension[] $extensions
      *
      * @throws InvalidOptionException
      */
-    public function __construct(string $buffer = '', $options = null, array $transformers = [])
+    public function __construct(string $buffer = '', $options = null, array $extensions = [])
     {
         if (null === $options) {
             $options = UnpackOptions::fromDefaults();
@@ -49,22 +49,22 @@ class BufferUnpacker
 
         $this->buffer = $buffer;
 
-        if ([] !== $transformers) {
-            $this->transformers = [];
-            foreach ($transformers as $transformer) {
-                $this->transformers[$transformer->getType()] = $transformer;
+        if ([] !== $extensions) {
+            $this->extensions = [];
+            foreach ($extensions as $extension) {
+                $this->extensions[$extension->getType()] = $extension;
             }
         }
     }
 
-    public function extendWith(CanUnpackExt $transformer, CanUnpackExt ...$transformers) : self
+    public function extendWith(Extension $extension, Extension ...$extensions) : self
     {
         $new = clone $this;
-        $new->transformers[$transformer->getType()] = $transformer;
+        $new->extensions[$extension->getType()] = $extension;
 
-        if ([] !== $transformers) {
-            foreach ($transformers as $extraTransformer) {
-                $new->transformers[$extraTransformer->getType()] = $extraTransformer;
+        if ([] !== $extensions) {
+            foreach ($extensions as $extraExtension) {
+                $new->extensions[$extraExtension->getType()] = $extraExtension;
             }
         }
 
@@ -652,8 +652,8 @@ class BufferUnpacker
             $type -= 0x100;
         }
 
-        if (isset($this->transformers[$type])) {
-            return $this->transformers[$type]->unpackExt($this, $length);
+        if (isset($this->extensions[$type])) {
+            return $this->extensions[$type]->unpackExt($this, $length);
         }
 
         $data = \substr($this->buffer, $this->offset, $length);

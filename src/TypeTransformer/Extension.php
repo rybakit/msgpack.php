@@ -11,30 +11,11 @@
 
 namespace MessagePack\TypeTransformer;
 
-use MessagePack\Packer;
+use MessagePack\BufferUnpacker;
 
-abstract class Extension implements CanPack, CanUnpackExt
+interface Extension extends CanPack
 {
-    private $type;
+    public function getType() : int;
 
-    public function __construct(int $type)
-    {
-        $this->type = $type;
-    }
-
-    public function getType() : int
-    {
-        return $this->type;
-    }
-
-    public function pack(Packer $packer, $value) : ?string
-    {
-        if (null === $data = $this->packExt($packer, $value)) {
-            return null;
-        }
-
-        return $packer->packExt($this->type, $data);
-    }
-
-    abstract protected function packExt(Packer $packer, $value) : ?string;
+    public function unpackExt(BufferUnpacker $unpacker, int $extLength);
 }

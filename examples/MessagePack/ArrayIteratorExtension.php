@@ -15,9 +15,21 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\Extension;
 
-class ArrayIteratorExtension extends Extension
+class ArrayIteratorExtension implements Extension
 {
-    protected function packExt(Packer $packer, $value) : ?string
+    private $type;
+
+    public function __construct(int $type)
+    {
+        $this->type = $type;
+    }
+
+    public function getType() : int
+    {
+        return $this->type;
+    }
+
+    public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \ArrayIterator) {
             return null;
@@ -30,7 +42,9 @@ class ArrayIteratorExtension extends Extension
             ++$size;
         }
 
-        return $packer->packArrayHeader($size).$data;
+        return $packer->packExt($this->type,
+            $packer->packArrayHeader($size).$data
+        );
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
