@@ -31,9 +31,9 @@ for ($i = 0; $i < 1000; ++$i) {
     ];
 }
 
-$transformer = new PackedMapExtension(3);
-$packer = (new Packer())->extendWith($transformer);
-$unpacker = (new BufferUnpacker())->extendWith($transformer);
+$extension = new PackedMapExtension(3);
+$packer = new Packer(null, [$extension]);
+$unpacker = new BufferUnpacker('', null, [$extension]);
 
 $packedMap = $packer->pack($profiles);
 $packedPackedMap = $packer->pack(new PackedMap($profiles, $schema));

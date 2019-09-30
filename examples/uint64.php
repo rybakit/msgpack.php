@@ -21,7 +21,7 @@ if (!extension_loaded('gmp')) {
     exit(1);
 }
 
-$packer = (new Packer())->extendWith(new Uint64Transformer());
+$packer = new Packer(null, [new Uint64Transformer()]);
 
 $uint64 = new Uint64('18446744073709551615');
 $packed = $packer->pack($uint64);

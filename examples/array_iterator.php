@@ -15,13 +15,12 @@ use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$transformer = new ArrayIteratorExtension(1);
+$extension = new ArrayIteratorExtension(1);
 
-$packer = (new Packer())->extendWith($transformer);
+$packer = new Packer(null, [$extension]);
 $packed = $packer->pack(new ArrayIterator(range(1, 10000)));
 
-$unpacker = new BufferUnpacker($packed);
-$unpacker = $unpacker->extendWith($transformer);
+$unpacker = new BufferUnpacker($packed, null, [$extension]);
 
 $sum = 0;
 foreach ($unpacker->unpack() as $i) {

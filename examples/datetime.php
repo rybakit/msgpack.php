@@ -18,12 +18,12 @@ require __DIR__.'/autoload.php';
 $date = (new \DateTimeImmutable('2019-01-16', new \DateTimeZone('Europe/Minsk')))
     ->setTime(22, 18, 22, 294418);
 
-$transformer = new DateTimeExtension(2);
+$extension = new DateTimeExtension(2);
 
-$packer = (new Packer())->extendWith($transformer);
+$packer = new Packer(null, [$extension]);
 $packed = $packer->pack($date);
 
-$unpacker = (new BufferUnpacker($packed))->extendWith($transformer);
+$unpacker = new BufferUnpacker($packed, null, [$extension]);
 
 printf("Raw:      %s\n", $date->format('Y-m-d\TH:i:s.uP'));
 printf("Unpacked: %s\n", $unpacker->unpack()->format('Y-m-d\TH:i:s.uP'));
