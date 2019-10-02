@@ -119,15 +119,15 @@ class Packer
         if (\is_float($value)) {
             return $this->packFloat($value);
         }
-        if ($value instanceof Ext) {
-            return $this->packExt($value->type, $value->data);
-        }
         if ([] !== $this->transformers) {
             foreach ($this->transformers as $transformer) {
                 if (null !== $packed = $transformer->pack($this, $value)) {
                     return $packed;
                 }
             }
+        }
+        if ($value instanceof Ext) {
+            return $this->packExt($value->type, $value->data);
         }
 
         throw PackingFailedException::unsupportedType($value);
