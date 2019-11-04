@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -z "$PHP_RUNTIME" ]]; then
-    PHP_RUNTIME='php:7.2-cli'
+    PHP_RUNTIME='php:7.3-cli'
 fi
 
 RUN_CMDS=''
