@@ -30,7 +30,6 @@ class BufferUnpacker
     private $extensions = [];
 
     /**
-     * @param string $buffer
      * @param UnpackOptions|int|null $options
      * @param Extension[] $extensions
      *

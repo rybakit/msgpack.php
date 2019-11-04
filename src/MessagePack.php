@@ -30,8 +30,6 @@ final class MessagePack
      *
      * @throws InvalidOptionException
      * @throws PackingFailedException
-     *
-     * @return string
      */
     public static function pack($value, $options = null) : string
     {
@@ -39,7 +37,6 @@ final class MessagePack
     }
 
     /**
-     * @param string $data
      * @param UnpackOptions|int|null $options
      *
      * @throws InvalidOptionException
