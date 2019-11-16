@@ -128,7 +128,7 @@ process (defaults are in bold):
 > large (16- and 32-bit) arrays or strings. However, if you know the value type in advance (for example, you only 
 > work with UTF-8 strings or/and associative arrays), you can eliminate this overhead by forcing the packer to use 
 > the appropriate type, which will save it from running the auto-detection routine. Another option is to explicitly 
-> specify the value type. The library provides 2 auxiliary classes for this, `Map` and `Binary`.
+> specify the value type. The library provides 2 auxiliary classes for this, `Map` and `Bin`.
 > Check the ["Type transformers"](#type-transformers) section below for details.*
 
 Examples:
