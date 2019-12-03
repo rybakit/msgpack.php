@@ -4,7 +4,7 @@ if [[ -z "$PHP_RUNTIME" ]]; then
     PHP_RUNTIME='php:7.3-cli'
 fi
 
-RUN_CMDS=''
+RUN_CMDS='echo memory_limit=256M > $PHP_INI_DIR/conf.d/zz-custom.ini'
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install pcov && docker-php-ext-enable pcov"
 fi
