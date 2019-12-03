@@ -4,7 +4,7 @@ if [[ -z "$PHP_RUNTIME" ]]; then
     PHP_RUNTIME='php:7.3-cli'
 fi
 
-RUN_CMDS='echo memory_limit=256M > $PHP_INI_DIR/conf.d/zz-custom.ini'
+RUN_CMDS=''
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install pcov && docker-php-ext-enable pcov"
 fi
@@ -18,6 +18,7 @@ FROM $PHP_RUNTIME
 
 RUN apt-get update && apt-get install -y git curl libzip-dev libgmp-dev libonig-dev && \\
     ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \\
+    echo memory_limit = 256M > \$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/zz-custom.ini && \\
     docker-php-ext-configure zip --with-libzip && \\
     docker-php-ext-install zip mbstring gmp${RUN_CMDS}
 
