@@ -513,11 +513,8 @@ class BufferUnpacker
             throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 2);
         }
 
-        $hi = \ord($this->buffer[$this->offset]);
-        $lo = \ord($this->buffer[++$this->offset]);
-        ++$this->offset;
-
-        return $hi << 8 | $lo;
+        return \ord($this->buffer[$this->offset++]) << 8
+            | \ord($this->buffer[$this->offset++]);
     }
 
     private function unpackUint32()
@@ -526,10 +523,10 @@ class BufferUnpacker
             throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 4);
         }
 
-        $num = \unpack('N', $this->buffer, $this->offset)[1];
-        $this->offset += 4;
-
-        return $num;
+        return \ord($this->buffer[$this->offset++]) << 24
+            | \ord($this->buffer[$this->offset++]) << 16
+            | \ord($this->buffer[$this->offset++]) << 8
+            | \ord($this->buffer[$this->offset++]);
     }
 
     private function unpackUint64()
@@ -562,11 +559,10 @@ class BufferUnpacker
             throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 2);
         }
 
-        $hi = \ord($this->buffer[$this->offset]);
-        $lo = \ord($this->buffer[++$this->offset]);
-        ++$this->offset;
+        $num = \ord($this->buffer[$this->offset++]) << 8
+            | \ord($this->buffer[$this->offset++]);
 
-        return $hi > 0x7f ? $hi << 8 | $lo - 0x10000 : $hi << 8 | $lo;
+        return $num > 0x7fff ? $num - 0x10000 : $num;
     }
 
     private function unpackInt32()
@@ -575,8 +571,10 @@ class BufferUnpacker
             throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 4);
         }
 
-        $num = \unpack('N', $this->buffer, $this->offset)[1];
-        $this->offset += 4;
+        $num = \ord($this->buffer[$this->offset++]) << 24
+            | \ord($this->buffer[$this->offset++]) << 16
+            | \ord($this->buffer[$this->offset++]) << 8
+            | \ord($this->buffer[$this->offset++]);
 
         return $num > 0x7fffffff ? $num - 0x100000000 : $num;
     }
