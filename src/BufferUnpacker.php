@@ -37,7 +37,7 @@ class BufferUnpacker
      */
     public function __construct(string $buffer = '', $options = null, array $extensions = [])
     {
-        if (null === $options) {
+        if (\is_null($options)) {
             $options = UnpackOptions::fromDefaults();
         } elseif (!$options instanceof PackOptions) {
             $options = UnpackOptions::fromBitmask($options);

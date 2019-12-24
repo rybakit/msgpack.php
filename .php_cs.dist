@@ -75,6 +75,7 @@ return Config::create()
         '@Symfony:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
         'binary_operator_spaces' => ['operators' => ['=' => null, '=>' => null]],
+        'is_null' => false, // https://github.com/FriendsOfPHP/PHP-CS-Fixer/issues/4015
         'native_constant_invocation' => false,
         'native_function_invocation' => false,
         'FilterableFixer/native_constant_invocation' => true,

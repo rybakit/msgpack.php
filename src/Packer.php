@@ -47,7 +47,7 @@ class Packer
      */
     public function __construct($options = null, array $transformers = [])
     {
-        if (null === $options) {
+        if (\is_null($options)) {
             $options = PackOptions::fromDefaults();
         } elseif (!$options instanceof PackOptions) {
             $options = PackOptions::fromBitmask($options);
@@ -110,7 +110,7 @@ class Packer
 
             return $this->isForceArr ? $this->packArray($value) : $this->packMap($value);
         }
-        if (null === $value) {
+        if (\is_null($value)) {
             return "\xc0";
         }
         if (\is_bool($value)) {
