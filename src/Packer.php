@@ -121,7 +121,7 @@ class Packer
         }
         if ([] !== $this->transformers) {
             foreach ($this->transformers as $transformer) {
-                if (null !== $packed = $transformer->pack($this, $value)) {
+                if (!\is_null($packed = $transformer->pack($this, $value))) {
                     return $packed;
                 }
             }
