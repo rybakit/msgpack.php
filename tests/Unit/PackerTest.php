@@ -42,7 +42,7 @@ final class PackerTest extends TestCase
     /**
      * @dataProvider provideUnsupportedTypeData
      */
-    public function testPackUnsupportedType($value, string $type) : void
+    public function testPackThrowsExceptionOnUnsupportedType($value, string $type) : void
     {
         $this->expectException(PackingFailedException::class);
         $this->expectExceptionMessage("Unsupported type: $type.");
@@ -94,7 +94,7 @@ final class PackerTest extends TestCase
     /**
      * @dataProvider provideInvalidOptionsData
      */
-    public function testConstructorThrowsErrorOnInvalidOptions($options) : void
+    public function testConstructorThrowsExceptionOnInvalidOptions($options) : void
     {
         $this->expectException(InvalidOptionException::class);
         $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?\./');
@@ -162,11 +162,8 @@ final class PackerTest extends TestCase
         self::assertSame($packed2, $packer->pack($obj2));
     }
 
-    public function testPackCustomUnsupportedType() : void
+    public function testPackThrowsExceptionOnUnsupportedCustomType() : void
     {
-        $this->expectException(PackingFailedException::class);
-        $this->expectExceptionMessage('Unsupported type: stdClass.');
-
         $obj = new \stdClass();
 
         $transformer = $this->createMock(CanPack::class);
@@ -175,6 +172,10 @@ final class PackerTest extends TestCase
             ->willReturn(null);
 
         $packer = $this->packer->extendWith($transformer);
+
+        $this->expectException(PackingFailedException::class);
+        $this->expectExceptionMessage('Unsupported type: stdClass.');
+
         $packer->pack($obj);
     }
 
@@ -248,5 +249,15 @@ final class PackerTest extends TestCase
     public function testPackExt(Ext $raw, string $packed) : void
     {
         self::assertEquals($packed, $this->packer->packExt($raw->type, $raw->data));
+    }
+
+    public function testPackExtAllowsPackingZeroLengthExtData() : void
+    {
+        self::assertEquals("\xc7\x00\x01", $this->packer->packExt(1, ''));
+    }
+
+    public function testPackAllowsPackingZeroLengthExtData() : void
+    {
+        self::assertEquals("\xc7\x00\x01", $this->packer->pack(new Ext(1, '')));
     }
 }
