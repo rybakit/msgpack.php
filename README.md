@@ -201,6 +201,24 @@ To skip bytes from the current position, use `skip`:
 $unpacker->skip(10); // set position to 10 bytes ahead of the current position
 ```
 
+To get the number of remaining (unread) bytes in the buffer:
+
+```php
+$unreadBytesCount = $unpacker->getRemainingCount();
+```
+
+To check whether the buffer has unread data:
+
+```php
+$hasUnreadBytes = $unpacker->hasRemaining();
+```
+
+If needed, you can remove already read data from the buffer by calling:
+
+```php
+$releasedBytesCount = $unpacker->release();
+```
+
 With the `read` method you can read raw (packed) data:
 
 ```php

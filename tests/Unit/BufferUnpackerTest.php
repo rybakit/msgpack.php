@@ -45,6 +45,8 @@ final class BufferUnpackerTest extends TestCase
         $isOrHasObject
             ? self::assertEquals($raw, $this->unpacker->unpack())
             : self::assertSame($raw, $this->unpacker->unpack());
+
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     /**
@@ -159,12 +161,11 @@ final class BufferUnpackerTest extends TestCase
 
     public function testResetEmptiesBuffer() : void
     {
-        $this->unpacker->append("\xc3")->reset();
+        $this->unpacker->append("\xc3");
+        self::assertSame(1, $this->unpacker->getRemainingCount());
 
-        $this->expectException(InsufficientDataException::class);
-        $this->expectExceptionMessage('Not enough data to read.');
-
-        $this->unpacker->unpack();
+        $this->unpacker->reset();
+        self::assertSame(0, $this->unpacker->getRemainingCount());
     }
 
     public function testResetWithBuffer() : void
@@ -218,6 +219,37 @@ final class BufferUnpackerTest extends TestCase
         $this->unpacker->skip(20);
     }
 
+    public function testRemaining() : void
+    {
+        self::assertSame(0, $this->unpacker->getRemainingCount());
+        self::assertFalse($this->unpacker->hasRemaining());
+
+        $this->unpacker->reset("\x01\x02");
+
+        self::assertSame(1, $this->unpacker->unpack());
+        self::assertSame(1, $this->unpacker->getRemainingCount());
+        self::assertTrue($this->unpacker->hasRemaining());
+
+        self::assertSame(2, $this->unpacker->unpack());
+        self::assertSame(0, $this->unpacker->getRemainingCount());
+        self::assertFalse($this->unpacker->hasRemaining());
+    }
+
+    public function testRelease() : void
+    {
+        self::assertSame(0, $this->unpacker->release());
+        $this->unpacker->reset("\x01\x02");
+        self::assertSame(0, $this->unpacker->release());
+
+        self::assertSame(1, $this->unpacker->unpack());
+        self::assertSame(1, $this->unpacker->release());
+
+        self::assertSame(2, $this->unpacker->unpack());
+        self::assertSame(1, $this->unpacker->release());
+
+        self::assertSame(0, $this->unpacker->release());
+    }
+
     public function testClone() : void
     {
         $this->unpacker->reset("\xc3");
@@ -259,12 +291,14 @@ final class BufferUnpackerTest extends TestCase
 
         $this->unpacker->append($packed[2].$packed[3]);
         self::assertSame([$foo], $this->unpacker->tryUnpack());
+        self::assertTrue($this->unpacker->hasRemaining());
 
         $this->unpacker->append($packed[4].$packed[5]);
         self::assertSame([], $this->unpacker->tryUnpack());
 
         $this->unpacker->append($packed[6]);
         self::assertSame([$bar], $this->unpacker->tryUnpack());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testTryUnpackReturnsAllUnpackedData() : void
@@ -363,6 +397,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackNil($raw, string $packed) : void
     {
         self::assertNull($this->unpacker->reset($packed)->unpackNil());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackNilThrowsExceptionOnInsufficientData() : void
@@ -389,6 +424,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackBool(bool $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackBool());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackBoolThrowsExceptionOnInsufficientData() : void
@@ -415,6 +451,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackInt(int $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackInt());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackIntThrowsExceptionOnInsufficientData() : void
@@ -441,6 +478,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackFloat(float $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackFloat());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackFloatThrowsExceptionOnInsufficientData() : void
@@ -467,6 +505,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackStr(string $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackStr());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackStrThrowsExceptionOnInsufficientData() : void
@@ -493,6 +532,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackBin(string $raw, string $packed) : void
     {
         self::assertSame($raw, $this->unpacker->reset($packed)->unpackBin());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackBinThrowsExceptionOnInsufficientData() : void
@@ -519,6 +559,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackArray(array $raw, string $packed) : void
     {
         self::assertEquals($raw, $this->unpacker->reset($packed)->unpackArray());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackArrayThrowsExceptionOnInsufficientData() : void
@@ -545,6 +586,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackMap(array $raw, string $packed) : void
     {
         self::assertEquals($raw, $this->unpacker->reset($packed)->unpackMap());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackMapThrowsExceptionOnInsufficientData() : void
@@ -615,6 +657,7 @@ final class BufferUnpackerTest extends TestCase
     public function testUnpackExt(Ext $raw, string $packed) : void
     {
         self::assertEquals($raw, $this->unpacker->reset($packed)->unpackExt());
+        self::assertFalse($this->unpacker->hasRemaining());
     }
 
     public function testUnpackExtThrowsExceptionOnInsufficientData() : void

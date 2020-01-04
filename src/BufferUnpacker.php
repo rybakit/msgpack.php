@@ -122,6 +122,29 @@ class BufferUnpacker
         return $this;
     }
 
+    public function getRemainingCount() : int
+    {
+        return \strlen($this->buffer) - $this->offset;
+    }
+
+    public function hasRemaining() : bool
+    {
+        return isset($this->buffer[$this->offset]);
+    }
+
+    public function release() : int
+    {
+        if (0 === $this->offset) {
+            return 0;
+        }
+
+        $releasedBytesCount = $this->offset;
+        $this->buffer = isset($this->buffer[$this->offset]) ? \substr($this->buffer, $this->offset) : '';
+        $this->offset = 0;
+
+        return $releasedBytesCount;
+    }
+
     /**
      * @param int $length
      *
@@ -151,11 +174,6 @@ class BufferUnpacker
             } while (isset($this->buffer[$this->offset]));
         } catch (InsufficientDataException $e) {
             $this->offset = $offset;
-        }
-
-        if ($this->offset) {
-            $this->buffer = isset($this->buffer[$this->offset]) ? \substr($this->buffer, $this->offset) : '';
-            $this->offset = 0;
         }
 
         return $data;
