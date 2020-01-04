@@ -13,11 +13,8 @@ namespace MessagePack\Exception;
 
 class InsufficientDataException extends UnpackingFailedException
 {
-    public static function unexpectedLength(string $buffer, int $offset, int $expectedLength) : self
+    public function __construct(string $message = 'Not enough data to read.', int $code = 0, ?\Throwable $previous = null)
     {
-        $actualLength = \strlen($buffer) - $offset;
-        $message = "Not enough data to read: expected $expectedLength, got $actualLength.";
-
-        return new self($message);
+        parent::__construct($message, $code, $previous);
     }
 }

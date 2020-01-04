@@ -208,8 +208,6 @@ class DataProvider
     {
         return array_merge(self::provideMapData(), [
             'fix map #5' => [[], "\x80"],
-            'fix map #6' => [[0 => null], "\x81\xc2\xc0"],
-            'fix map #7' => [[1 => null], "\x81\xc3\xc0"],
         ]);
     }
 

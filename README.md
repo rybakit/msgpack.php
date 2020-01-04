@@ -30,6 +30,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
  * [Type transformers](#type-transformers)
  * [Exceptions](#exceptions)
  * [Tests](#tests)
+    * [Fuzzing](#fuzzing)
     * [Performance](#performance)
  * [License](#license)
 
@@ -429,6 +430,18 @@ Then run the unit tests:
 
 ```sh
 docker run --rm --name msgpack -v $(pwd):/msgpack -w /msgpack msgpack
+```
+
+
+#### Fuzzing
+
+To ensure that the unpacking works correctly with malformed/semi-malformed data,
+you can use a testing technique called [Fuzzing](https://en.wikipedia.org/wiki/Fuzzing).
+The library ships with a help file (target) for [PHP-Fuzzer](https://github.com/nikic/PHP-Fuzzer)
+and can be used as follows:
+
+```sh
+php-fuzzer fuzz tests/fuzz_buffer_unpacker.php
 ```
 
 
