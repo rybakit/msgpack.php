@@ -559,8 +559,9 @@ class BufferUnpacker
             throw new InsufficientDataException();
         }
 
-        $num = \ord($this->buffer[$this->offset++]) << 8
-            | \ord($this->buffer[$this->offset++]);
+        $num = \ord($this->buffer[$this->offset]) << 8
+            | \ord($this->buffer[++$this->offset]);
+        ++$this->offset;
 
         return $num > 0x7fff ? $num - 0x10000 : $num;
     }
@@ -571,10 +572,11 @@ class BufferUnpacker
             throw new InsufficientDataException();
         }
 
-        $num = \ord($this->buffer[$this->offset++]) << 24
-            | \ord($this->buffer[$this->offset++]) << 16
-            | \ord($this->buffer[$this->offset++]) << 8
-            | \ord($this->buffer[$this->offset++]);
+        $num = \ord($this->buffer[$this->offset]) << 24
+            | \ord($this->buffer[++$this->offset]) << 16
+            | \ord($this->buffer[++$this->offset]) << 8
+            | \ord($this->buffer[++$this->offset]);
+        ++$this->offset;
 
         return $num > 0x7fffffff ? $num - 0x100000000 : $num;
     }
