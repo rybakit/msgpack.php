@@ -13,6 +13,7 @@ use App\MessagePack\Uint64;
 use App\MessagePack\Uint64Transformer;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
+use MessagePack\UnpackOptions;
 
 require __DIR__.'/autoload.php';
 
@@ -27,7 +28,7 @@ $uint64 = new Uint64('18446744073709551615');
 $packed = $packer->pack($uint64);
 
 printf("Packed (%s): %s\n", $uint64, bin2hex($packed));
-printf("Unpacked: %s\n", (new BufferUnpacker($packed))->unpack());
+printf("Unpacked: %s\n", (new BufferUnpacker($packed, UnpackOptions::BIGINT_AS_STR))->unpack());
 
 /* OUTPUT
 Packed (18446744073709551615): cfffffffffffffffff

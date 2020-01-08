@@ -12,7 +12,6 @@
 namespace MessagePack;
 
 use MessagePack\Exception\InsufficientDataException;
-use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\TypeTransformer\Extension;
@@ -556,7 +555,17 @@ class BufferUnpacker
         $num = \unpack('J', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
-        return $num < 0 ? $this->handleIntOverflow($num) : $num;
+        if ($num >= 0) {
+            return $num;
+        }
+        if ($this->isBigIntAsStr) {
+            return \sprintf('%u', $num);
+        }
+        if ($this->isBigIntAsGmp) {
+            return \gmp_init(\sprintf('%u', $num));
+        }
+
+        return (float) \sprintf('%u', $num);
     }
 
     private function unpackInt8()
@@ -726,17 +735,5 @@ class BufferUnpacker
         $this->offset += $length;
 
         return new Ext($type, $data);
-    }
-
-    private function handleIntOverflow($value)
-    {
-        if ($this->isBigIntAsStr) {
-            return \sprintf('%u', $value);
-        }
-        if ($this->isBigIntAsGmp) {
-            return \gmp_init(\sprintf('%u', $value));
-        }
-
-        throw new IntegerOverflowException($value);
     }
 }

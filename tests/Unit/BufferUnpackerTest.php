@@ -13,7 +13,6 @@ namespace MessagePack\Tests\Unit;
 
 use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
-use MessagePack\Exception\IntegerOverflowException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Ext;
@@ -113,17 +112,21 @@ final class BufferUnpackerTest extends TestCase
         $this->unpacker->unpack();
     }
 
-    public function testUnpackThrowsExceptionOnBigIntAsExceptionOption() : void
+    public function testUnpackBigIntDefaultModeFloat() : void
+    {
+        $unpacker = new BufferUnpacker("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
+
+        self::assertSame('1.8446744073709552E+19', var_export($unpacker->unpack(), true));
+    }
+
+    public function testUnpackBigIntAsFloat() : void
     {
         $unpacker = new BufferUnpacker(
             "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
-            UnpackOptions::BIGINT_AS_EXCEPTION
+            UnpackOptions::BIGINT_AS_FLOAT
         );
 
-        $this->expectException(IntegerOverflowException::class);
-        $this->expectExceptionMessage('The value is too big: 18446744073709551615.');
-
-        $unpacker->unpack();
+        self::assertSame('1.8446744073709552E+19', var_export($unpacker->unpack(), true));
     }
 
     public function testUnpackBigIntAsString() : void
@@ -132,13 +135,6 @@ final class BufferUnpackerTest extends TestCase
             "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
             UnpackOptions::BIGINT_AS_STR
         );
-
-        self::assertSame('18446744073709551615', $unpacker->unpack());
-    }
-
-    public function testUnpackBigIntDefaultModeString() : void
-    {
-        $unpacker = new BufferUnpacker("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
         self::assertSame('18446744073709551615', $unpacker->unpack());
     }
@@ -343,9 +339,9 @@ final class BufferUnpackerTest extends TestCase
     {
         return [
             [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP],
-            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_EXCEPTION],
-            [UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_EXCEPTION],
-            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_EXCEPTION],
+            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_FLOAT],
+            [UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_FLOAT],
+            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_FLOAT],
         ];
     }
 
