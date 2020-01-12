@@ -48,7 +48,6 @@ class BufferUnpacker
         $this->buffer = $buffer;
 
         if ([] !== $extensions) {
-            $this->extensions = [];
             foreach ($extensions as $extension) {
                 $this->extensions[$extension->getType()] = $extension;
             }
