@@ -448,7 +448,7 @@ PHP_RUNTIME='php:7.3-cli' ./dockerfile.sh | docker build -t msgpack -
 Then run the unit tests:
 
 ```sh
-docker run --rm --name msgpack -v $PWD:/msgpack -w /msgpack msgpack
+docker run --rm -v $PWD:/msgpack -w /msgpack msgpack
 ```
 
 
