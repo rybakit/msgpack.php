@@ -15,12 +15,12 @@
     },
     "require-dev": {
         "ext-decimal": "*",
-        "ext-gmp": '*',
+        "ext-gmp": "*",
         "friendsofphp/php-cs-fixer": "^2.14",
         "phpunit/phpunit": "^7.1|^8.0"
     },
     "suggest": {
-        "ext-decimal": "For converting overflowed integers to Decimal\Decimal objects",
+        "ext-decimal": "For converting overflowed integers to Decimal objects",
         "ext-gmp": "For converting overflowed integers to GMP objects"
     },
     "autoload": {
