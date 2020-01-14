@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of the rybakit/msgpack.php package.
  *
  * (c) Eugene Leonovich <gen.work@gmail.com>

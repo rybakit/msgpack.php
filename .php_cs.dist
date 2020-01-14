@@ -82,14 +82,18 @@ return Config::create()
         'FilterableFixer/native_function_invocation' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
-        'ordered_imports' => true,
+        'ordered_imports' => [
+            'sort_algorithm' => 'alpha',
+            'imports_order' => ['class', 'function', 'const'],
+        ],
         'phpdoc_order' => true,
         'phpdoc_align' => false,
         'return_type_declaration' => ['space_before' => 'one'],
         'strict_comparison' => true,
         'header_comment' => [
+            'comment_type' => 'PHPDoc',
             'header' => $header,
-            'location' => 'after_declare_strict',
+            'location' => 'after_open',
             'separate' => 'both',
         ],
     ])
