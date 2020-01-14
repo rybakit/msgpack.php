@@ -11,6 +11,7 @@
 
 namespace MessagePack;
 
+use Decimal\Decimal;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
@@ -20,7 +21,7 @@ class BufferUnpacker
 {
     private $buffer;
     private $offset = 0;
-    private $isBigIntAsStr;
+    private $isBigIntAsDec;
     private $isBigIntAsGmp;
 
     /**
@@ -42,7 +43,7 @@ class BufferUnpacker
             $options = UnpackOptions::fromBitmask($options);
         }
 
-        $this->isBigIntAsStr = $options->isBigIntAsStrMode();
+        $this->isBigIntAsDec = $options->isBigIntAsDecMode();
         $this->isBigIntAsGmp = $options->isBigIntAsGmpMode();
 
         $this->buffer = $buffer;
@@ -557,14 +558,14 @@ class BufferUnpacker
         if ($num >= 0) {
             return $num;
         }
-        if ($this->isBigIntAsStr) {
-            return \sprintf('%u', $num);
+        if ($this->isBigIntAsDec) {
+            return new Decimal(\sprintf('%u', $num));
         }
         if ($this->isBigIntAsGmp) {
             return \gmp_init(\sprintf('%u', $num));
         }
 
-        return (float) \sprintf('%u', $num);
+        return \sprintf('%u', $num);
     }
 
     private function unpackInt8()

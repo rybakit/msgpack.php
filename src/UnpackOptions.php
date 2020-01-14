@@ -15,9 +15,9 @@ use MessagePack\Exception\InvalidOptionException;
 
 final class UnpackOptions
 {
-    public const BIGINT_AS_FLOAT = 0b001;
-    public const BIGINT_AS_STR   = 0b010;
-    public const BIGINT_AS_GMP   = 0b100;
+    public const BIGINT_AS_STR = 0b001;
+    public const BIGINT_AS_GMP = 0b010;
+    public const BIGINT_AS_DEC = 0b100;
 
     private $bigIntMode;
 
@@ -28,7 +28,7 @@ final class UnpackOptions
     public static function fromDefaults() : self
     {
         $self = new self();
-        $self->bigIntMode = self::BIGINT_AS_FLOAT;
+        $self->bigIntMode = self::BIGINT_AS_STR;
 
         return $self;
     }
@@ -38,17 +38,12 @@ final class UnpackOptions
         $self = new self();
 
         $self->bigIntMode = self::getSingleOption('bigint', $bitmask,
-            self::BIGINT_AS_FLOAT |
             self::BIGINT_AS_STR |
-            self::BIGINT_AS_GMP
-        ) ?: self::BIGINT_AS_FLOAT;
+            self::BIGINT_AS_GMP |
+            self::BIGINT_AS_DEC
+        ) ?: self::BIGINT_AS_STR;
 
         return $self;
-    }
-
-    public function isBigIntAsFloatMode() : bool
-    {
-        return self::BIGINT_AS_FLOAT === $this->bigIntMode;
     }
 
     public function isBigIntAsStrMode() : bool
@@ -61,6 +56,11 @@ final class UnpackOptions
         return self::BIGINT_AS_GMP === $this->bigIntMode;
     }
 
+    public function isBigIntAsDecMode() : bool
+    {
+        return self::BIGINT_AS_DEC === $this->bigIntMode;
+    }
+
     private static function getSingleOption(string $name, int $bitmask, int $validBitmask) : int
     {
         $option = $bitmask & $validBitmask;
@@ -69,9 +69,9 @@ final class UnpackOptions
         }
 
         static $map = [
-            self::BIGINT_AS_FLOAT => 'BIGINT_AS_FLOAT',
             self::BIGINT_AS_STR => 'BIGINT_AS_STR',
             self::BIGINT_AS_GMP => 'BIGINT_AS_GMP',
+            self::BIGINT_AS_DEC => 'BIGINT_AS_DEC',
         ];
 
         $validOptions = [];

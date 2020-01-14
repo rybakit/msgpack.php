@@ -11,6 +11,7 @@
 
 namespace MessagePack\Tests\Unit;
 
+use Decimal\Decimal;
 use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\InvalidOptionException;
@@ -112,24 +113,14 @@ final class BufferUnpackerTest extends TestCase
         $this->unpacker->unpack();
     }
 
-    public function testUnpackBigIntDefaultModeFloat() : void
+    public function testUnpackBigIntDefaultMode() : void
     {
         $unpacker = new BufferUnpacker("\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff");
 
-        self::assertSame('1.8446744073709552E+19', var_export($unpacker->unpack(), true));
+        self::assertSame('18446744073709551615', $unpacker->unpack());
     }
 
-    public function testUnpackBigIntAsFloat() : void
-    {
-        $unpacker = new BufferUnpacker(
-            "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
-            UnpackOptions::BIGINT_AS_FLOAT
-        );
-
-        self::assertSame('1.8446744073709552E+19', var_export($unpacker->unpack(), true));
-    }
-
-    public function testUnpackBigIntAsString() : void
+    public function testUnpackBigIntAsStr() : void
     {
         $unpacker = new BufferUnpacker(
             "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
@@ -153,6 +144,22 @@ final class BufferUnpackerTest extends TestCase
 
         self::assertInstanceOf(\GMP::class, $uint64);
         self::assertSame('18446744073709551615', gmp_strval($uint64));
+    }
+
+    /**
+     * @requires extension decimal
+     */
+    public function testUnpackBigIntAsDec() : void
+    {
+        $unpacker = new BufferUnpacker(
+            "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff",
+            UnpackOptions::BIGINT_AS_DEC
+        );
+
+        $uint64 = $unpacker->unpack();
+
+        self::assertInstanceOf(Decimal::class, $uint64);
+        self::assertSame('18446744073709551615', $uint64->toString());
     }
 
     public function testResetEmptiesBuffer() : void
@@ -339,9 +346,9 @@ final class BufferUnpackerTest extends TestCase
     {
         return [
             [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP],
-            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_FLOAT],
-            [UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_FLOAT],
-            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_FLOAT],
+            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_DEC],
+            [UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_DEC],
+            [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_DEC],
         ];
     }
 

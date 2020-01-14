@@ -30,20 +30,20 @@ final class UnpackOptionsTest extends TestCase
     public function provideIsserData() : array
     {
         return [
-            ['isBigIntAsFloatMode', true, 0],
-            ['isBigIntAsFloatMode', false, UnpackOptions::BIGINT_AS_STR],
-            ['isBigIntAsFloatMode', false, UnpackOptions::BIGINT_AS_GMP],
-            ['isBigIntAsFloatMode', true, UnpackOptions::BIGINT_AS_FLOAT],
-
-            ['isBigIntAsStrMode', false, 0],
+            ['isBigIntAsStrMode', true, 0],
             ['isBigIntAsStrMode', true, UnpackOptions::BIGINT_AS_STR],
             ['isBigIntAsStrMode', false, UnpackOptions::BIGINT_AS_GMP],
-            ['isBigIntAsStrMode', false, UnpackOptions::BIGINT_AS_FLOAT],
+            ['isBigIntAsStrMode', false, UnpackOptions::BIGINT_AS_DEC],
 
             ['isBigIntAsGmpMode', false, 0],
             ['isBigIntAsGmpMode', false, UnpackOptions::BIGINT_AS_STR],
             ['isBigIntAsGmpMode', true, UnpackOptions::BIGINT_AS_GMP],
-            ['isBigIntAsGmpMode', false, UnpackOptions::BIGINT_AS_FLOAT],
+            ['isBigIntAsGmpMode', false, UnpackOptions::BIGINT_AS_DEC],
+
+            ['isBigIntAsDecMode', false, 0],
+            ['isBigIntAsDecMode', false, UnpackOptions::BIGINT_AS_STR],
+            ['isBigIntAsDecMode', false, UnpackOptions::BIGINT_AS_GMP],
+            ['isBigIntAsDecMode', true, UnpackOptions::BIGINT_AS_DEC],
         ];
     }
 
@@ -67,7 +67,7 @@ final class UnpackOptionsTest extends TestCase
     {
         yield [
             UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_STR,
-            'Invalid option bigint, use one of MessagePack\UnpackOptions::BIGINT_AS_FLOAT, MessagePack\UnpackOptions::BIGINT_AS_STR or MessagePack\UnpackOptions::BIGINT_AS_GMP.',
+            'Invalid option bigint, use one of MessagePack\UnpackOptions::BIGINT_AS_STR, MessagePack\UnpackOptions::BIGINT_AS_GMP or MessagePack\UnpackOptions::BIGINT_AS_DEC.',
         ];
     }
 }
