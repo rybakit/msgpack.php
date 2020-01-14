@@ -14,8 +14,14 @@
         "php": "^7.1.1"
     },
     "require-dev": {
+        "ext-decimal": "*",
+        "ext-gmp": '*',
         "friendsofphp/php-cs-fixer": "^2.14",
         "phpunit/phpunit": "^7.1|^8.0"
+    },
+    "suggest": {
+        "ext-decimal": "For converting overflowed integers to Decimal\Decimal objects",
+        "ext-gmp": "For converting overflowed integers to GMP objects"
     },
     "autoload": {
         "psr-4": {

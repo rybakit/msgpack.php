@@ -5,6 +5,9 @@ if [[ -z "$PHP_RUNTIME" ]]; then
 fi
 
 RUN_CMDS=''
+RUN_CMDS="$RUN_CMDS && \\\\\n    apt-get install -y libmpdec-dev"
+RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install decimal && docker-php-ext-enable decimal"
+
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install pcov && docker-php-ext-enable pcov"
 fi
