@@ -112,18 +112,18 @@ $packer->packExt(1, "\xaa");  // MP ext
 The `Packer` object supports a number of bitmask-based options for fine-tuning the packing 
 process (defaults are in bold):
 
-| Name               | Description                                                   |
-| ------------------ | ------------------------------------------------------------- |
-| FORCE_STR          | Forces PHP strings to be packed as MessagePack UTF-8 strings  |
-| FORCE_BIN          | Forces PHP strings to be packed as MessagePack binary data    |
-| **DETECT_STR_BIN** | Detects MessagePack str/bin type automatically                |
-|                    |                                                               |
-| FORCE_ARR          | Forces PHP arrays to be packed as MessagePack arrays          |
-| FORCE_MAP          | Forces PHP arrays to be packed as MessagePack maps            |
-| **DETECT_ARR_MAP** | Detects MessagePack array/map type automatically              |
-|                    |                                                               |
-| FORCE_FLOAT32      | Forces PHP floats to be packed as 32-bits MessagePack floats  |
-| **FORCE_FLOAT64**  | Forces PHP floats to be packed as 64-bits MessagePack floats  |
+| Name                 | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `FORCE_STR`          | Forces PHP strings to be packed as MessagePack UTF-8 strings  |
+| `FORCE_BIN`          | Forces PHP strings to be packed as MessagePack binary data    |
+| **`DETECT_STR_BIN`** | Detects MessagePack str/bin type automatically                |
+|                      |                                                               |
+| `FORCE_ARR`          | Forces PHP arrays to be packed as MessagePack arrays          |
+| `FORCE_MAP`          | Forces PHP arrays to be packed as MessagePack maps            |
+| **`DETECT_ARR_MAP`** | Detects MessagePack array/map type automatically              |
+|                      |                                                               |
+| `FORCE_FLOAT32`      | Forces PHP floats to be packed as 32-bits MessagePack floats  |
+| **`FORCE_FLOAT64`**  | Forces PHP floats to be packed as 64-bits MessagePack floats  |
 
 > *The type detection mode (`DETECT_STR_BIN`/`DETECT_ARR_MAP`) adds some overhead which can be noticed when you pack 
 > large (16- and 32-bit) arrays or strings. However, if you know the value type in advance (for example, you only 
@@ -245,11 +245,11 @@ $unpacker->unpackExt();   // PHP MessagePack\Ext class
 The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning the unpacking process (defaults 
 are in bold):
 
-| Name              | Description                                                            |
-| ----------------- | ---------------------------------------------------------------------- |
-| **BIGINT_AS_STR** | Converts overflowed integers to strings <sup>[1]</sup>                 |
-| BIGINT_AS_GMP     | Converts overflowed integers to GMP objects <sup>[2]</sup>             |
-| BIGINT_AS_DEC     | Converts overflowed integers to Decimal\Decimal objects <sup>[3]</sup> |
+| Name                | Description                                                              |
+| ------------------- | ------------------------------------------------------------------------ |
+| **`BIGINT_AS_STR`** | Converts overflowed integers to strings <sup>[1]</sup>                   |
+| `BIGINT_AS_GMP`     | Converts overflowed integers to `GMP` objects <sup>[2]</sup>             |
+| `BIGINT_AS_DEC`     | Converts overflowed integers to `Decimal\Decimal` objects <sup>[3]</sup> |
 
 > *1. The binary MessagePack format has unsigned 64-bit as its largest integer data type,
 >    but PHP does not support such integers, which means that an overflow can occur during unpacking.*
