@@ -332,6 +332,24 @@ final class BufferUnpackerTest extends TestCase
     }
 
     /**
+     * @dataProvider provideOptionsData
+     * @doesNotPerformAssertions
+     */
+    public function testConstructorSetsOptions($options) : void
+    {
+        new BufferUnpacker('', $options);
+    }
+
+    public function provideOptionsData() : iterable
+    {
+        return [
+            [0],
+            [null],
+            [UnpackOptions::fromDefaults()],
+        ];
+    }
+
+    /**
      * @dataProvider provideInvalidOptionsData
      */
     public function testConstructorThrowsExceptionOnInvalidOptions($options) : void

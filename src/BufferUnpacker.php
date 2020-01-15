@@ -39,7 +39,7 @@ class BufferUnpacker
     {
         if (\is_null($options)) {
             $options = UnpackOptions::fromDefaults();
-        } elseif (!$options instanceof PackOptions) {
+        } elseif (!$options instanceof UnpackOptions) {
             $options = UnpackOptions::fromBitmask($options);
         }
 
