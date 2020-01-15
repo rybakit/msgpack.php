@@ -14,7 +14,7 @@ use PhpFuzzer\Fuzzer;
 
 require __DIR__.'/../vendor/autoload.php';
 
-/* @var Fuzzer $fuzzer */
+/** @var Fuzzer $fuzzer */
 $fuzzer->setTarget(static function (string $input) {
     (new BufferUnpacker($input))->unpack();
 });
