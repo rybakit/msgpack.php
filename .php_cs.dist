@@ -86,8 +86,9 @@ return Config::create()
             'sort_algorithm' => 'alpha',
             'imports_order' => ['class', 'function', 'const'],
         ],
-        'phpdoc_order' => true,
         'phpdoc_align' => false,
+        'phpdoc_order' => true,
+        'phpdoc_to_comment' => false,
         'return_type_declaration' => ['space_before' => 'one'],
         'strict_comparison' => true,
         'header_comment' => [
