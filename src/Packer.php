@@ -59,7 +59,7 @@ class Packer
         $this->isForceArr = $options->isForceArrMode();
         $this->isForceFloat32 = $options->isForceFloat32Mode();
 
-        if ([] !== $transformers) {
+        if ($transformers) {
             $this->transformers = $transformers;
         }
     }
@@ -69,7 +69,7 @@ class Packer
         $new = clone $this;
         $new->transformers[] = $transformer;
 
-        if ([] !== $transformers) {
+        if ($transformers) {
             $new->transformers = \array_merge($new->transformers, $transformers);
         }
 
@@ -119,7 +119,7 @@ class Packer
         if (\is_float($value)) {
             return $this->packFloat($value);
         }
-        if ([] !== $this->transformers) {
+        if ($this->transformers) {
             foreach ($this->transformers as $transformer) {
                 if (!\is_null($packed = $transformer->pack($this, $value))) {
                     return $packed;

@@ -48,7 +48,7 @@ class BufferUnpacker
 
         $this->buffer = $buffer;
 
-        if ([] !== $extensions) {
+        if ($extensions) {
             foreach ($extensions as $extension) {
                 $this->extensions[$extension->getType()] = $extension;
             }
@@ -60,7 +60,7 @@ class BufferUnpacker
         $new = clone $this;
         $new->extensions[$extension->getType()] = $extension;
 
-        if ([] !== $extensions) {
+        if ($extensions) {
             foreach ($extensions as $extraExtension) {
                 $new->extensions[$extraExtension->getType()] = $extraExtension;
             }
