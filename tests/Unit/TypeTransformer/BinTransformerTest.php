@@ -24,28 +24,22 @@ final class BinTransformerTest extends TestCase
         $packed = "\xc4\x03\x61\x62\x63";
 
         $packer = $this->createMock(Packer::class);
-        $packer->expects(self::any())->method('packBin')
+        $packer->expects(self::once())->method('packBin')
             ->with($raw)
             ->willReturn($packed);
 
         $transformer = new BinTransformer();
-        $binary = new Bin($raw);
 
-        self::assertSame($packed, $transformer->pack($packer, $binary));
+        self::assertSame($packed, $transformer->pack($packer, new Bin($raw)));
     }
 
     public function testPackNonBinary() : void
     {
-        $raw = 'abc';
-        $packed = "\xc4\x03\x61\x62\x63";
-
         $packer = $this->createMock(Packer::class);
-        $packer->expects(self::any())->method('packBin')
-            ->with($raw)
-            ->willReturn($packed);
+        $packer->expects(self::never())->method('packBin');
 
         $transformer = new BinTransformer();
 
-        self::assertNull($transformer->pack($packer, $raw));
+        self::assertNull($transformer->pack($packer, 'abc'));
     }
 }

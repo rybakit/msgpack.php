@@ -24,28 +24,22 @@ class MapTransformerTest extends TestCase
         $packed = "\x81\xa3\x61\x62\x63\x05";
 
         $packer = $this->createMock(Packer::class);
-        $packer->expects(self::any())->method('packMap')
+        $packer->expects(self::once())->method('packMap')
             ->with($raw)
             ->willReturn($packed);
 
         $transformer = new MapTransformer();
-        $map = new Map($raw);
 
-        self::assertSame($packed, $transformer->pack($packer, $map));
+        self::assertSame($packed, $transformer->pack($packer, new Map($raw)));
     }
 
     public function testPackNonMap() : void
     {
-        $raw = ['abc' => 5];
-        $packed = "\x81\xa3\x61\x62\x63\x05";
-
         $packer = $this->createMock(Packer::class);
-        $packer->expects(self::any())->method('packMap')
-            ->with($raw)
-            ->willReturn($packed);
+        $packer->expects(self::never())->method('packMap');
 
         $transformer = new MapTransformer();
 
-        self::assertNull($transformer->pack($packer, $raw));
+        self::assertNull($transformer->pack($packer, ['abc' => 5]));
     }
 }
