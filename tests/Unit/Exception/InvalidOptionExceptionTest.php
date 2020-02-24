@@ -29,9 +29,9 @@ final class InvalidOptionExceptionTest extends TestCase
     public function provideOutOfRangeData() : array
     {
         return [
-            ['foobar', ['foo'], 'Invalid option foobar, use foo.'],
-            ['foobar', ['foo', 'bar'], 'Invalid option foobar, use foo or bar.'],
-            ['foobar', ['foo', 'bar', 'baz'], 'Invalid option foobar, use one of foo, bar or baz.'],
+            ['foobar', ['foo'], 'Invalid option foobar, use foo'],
+            ['foobar', ['foo', 'bar'], 'Invalid option foobar, use foo or bar'],
+            ['foobar', ['foo', 'bar', 'baz'], 'Invalid option foobar, use one of foo, bar or baz'],
         ];
     }
 }

@@ -100,7 +100,7 @@ class BufferUnpacker
         }
 
         if (!isset($this->buffer[$offset])) {
-            throw new InsufficientDataException("Unable to seek to position $offset.");
+            throw new InsufficientDataException("Unable to seek to position $offset");
         }
 
         $this->offset = $offset;
@@ -113,7 +113,7 @@ class BufferUnpacker
         $offset = $this->offset + $length;
 
         if (!isset($this->buffer[$offset])) {
-            throw new InsufficientDataException("Unable to seek to position $offset.");
+            throw new InsufficientDataException("Unable to seek to position $offset");
         }
 
         $this->offset = $offset;

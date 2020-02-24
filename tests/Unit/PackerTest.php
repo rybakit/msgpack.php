@@ -45,7 +45,7 @@ final class PackerTest extends TestCase
     public function testPackThrowsExceptionOnUnsupportedType($value, string $type) : void
     {
         $this->expectException(PackingFailedException::class);
-        $this->expectExceptionMessage("Unsupported type: $type.");
+        $this->expectExceptionMessage("Unsupported type: $type");
 
         $this->packer->pack($value);
     }
@@ -98,11 +98,12 @@ final class PackerTest extends TestCase
 
     /**
      * @dataProvider provideInvalidOptionsData
+     * @param PackOptions|int|null $options
      */
     public function testConstructorThrowsExceptionOnInvalidOptions($options) : void
     {
         $this->expectException(InvalidOptionException::class);
-        $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?\./');
+        $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?/');
 
         new Packer($options);
     }
@@ -179,7 +180,7 @@ final class PackerTest extends TestCase
         $packer = $this->packer->extendWith($transformer);
 
         $this->expectException(PackingFailedException::class);
-        $this->expectExceptionMessage('Unsupported type: stdClass.');
+        $this->expectExceptionMessage('Unsupported type: stdClass');
 
         $packer->pack($obj);
     }

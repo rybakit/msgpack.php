@@ -13,7 +13,7 @@ namespace MessagePack\Exception;
 
 class InsufficientDataException extends UnpackingFailedException
 {
-    public function __construct(string $message = 'Not enough data to read.', int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $message = 'Not enough data to read', int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

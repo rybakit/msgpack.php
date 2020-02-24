@@ -15,12 +15,12 @@ class UnpackingFailedException extends \RuntimeException
 {
     public static function unknownCode(int $code) : self
     {
-        return new self(\sprintf('Unknown code: 0x%x.', $code));
+        return new self(\sprintf('Unknown code: 0x%x', $code));
     }
 
     public static function unexpectedCode(int $code, string $type) : self
     {
-        return new self(\sprintf('Unexpected %s code: 0x%x.', $type, $code));
+        return new self(\sprintf('Unexpected %s code: 0x%x', $type, $code));
     }
 
     public static function invalidMapKeyType(int $code) : self
@@ -61,6 +61,6 @@ class UnpackingFailedException extends \RuntimeException
             return null;
         })();
 
-        return new self('Invalid map key type: expected int, str or bin but got '.(\is_null($type) ? \sprintf('0x%x.', $code) : \sprintf('%s (0x%x).', $type, $code)));
+        return new self('Invalid map key type: expected int, str or bin but got '.(\is_null($type) ? \sprintf('0x%x', $code) : \sprintf('%s (0x%x)', $type, $code)));
     }
 }

@@ -60,14 +60,14 @@ final class UnpackOptionsTest extends TestCase
             return;
         }
 
-        self::fail(InvalidOptionException::class.' was not thrown.');
+        self::fail(InvalidOptionException::class.' was not thrown');
     }
 
     public function provideInvalidOptionsData() : iterable
     {
         yield [
             UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_STR,
-            'Invalid option bigint, use one of MessagePack\UnpackOptions::BIGINT_AS_STR, MessagePack\UnpackOptions::BIGINT_AS_GMP or MessagePack\UnpackOptions::BIGINT_AS_DEC.',
+            'Invalid option bigint, use one of MessagePack\UnpackOptions::BIGINT_AS_STR, MessagePack\UnpackOptions::BIGINT_AS_GMP or MessagePack\UnpackOptions::BIGINT_AS_DEC',
         ];
     }
 }

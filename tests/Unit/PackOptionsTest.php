@@ -79,22 +79,22 @@ final class PackOptionsTest extends TestCase
             return;
         }
 
-        self::fail(InvalidOptionException::class.' was not thrown.');
+        self::fail(InvalidOptionException::class.' was not thrown');
     }
 
     public function provideInvalidOptionsData() : iterable
     {
         yield [
             PackOptions::FORCE_STR | PackOptions::FORCE_BIN,
-            'Invalid option str/bin, use one of MessagePack\PackOptions::FORCE_STR, MessagePack\PackOptions::FORCE_BIN or MessagePack\PackOptions::DETECT_STR_BIN.',
+            'Invalid option str/bin, use one of MessagePack\PackOptions::FORCE_STR, MessagePack\PackOptions::FORCE_BIN or MessagePack\PackOptions::DETECT_STR_BIN',
         ];
         yield [
             PackOptions::FORCE_ARR | PackOptions::FORCE_MAP,
-            'Invalid option arr/map, use one of MessagePack\PackOptions::FORCE_ARR, MessagePack\PackOptions::FORCE_MAP or MessagePack\PackOptions::DETECT_ARR_MAP.',
+            'Invalid option arr/map, use one of MessagePack\PackOptions::FORCE_ARR, MessagePack\PackOptions::FORCE_MAP or MessagePack\PackOptions::DETECT_ARR_MAP',
         ];
         yield [
             PackOptions::FORCE_FLOAT32 | PackOptions::FORCE_FLOAT64,
-            'Invalid option float, use MessagePack\PackOptions::FORCE_FLOAT32 or MessagePack\PackOptions::FORCE_FLOAT64.',
+            'Invalid option float, use MessagePack\PackOptions::FORCE_FLOAT32 or MessagePack\PackOptions::FORCE_FLOAT64',
         ];
     }
 }
