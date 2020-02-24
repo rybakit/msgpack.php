@@ -98,6 +98,7 @@ final class PackerTest extends TestCase
 
     /**
      * @dataProvider provideInvalidOptionsData
+     *
      * @param PackOptions|int|null $options
      */
     public function testConstructorThrowsExceptionOnInvalidOptions($options) : void

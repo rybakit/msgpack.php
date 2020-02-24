@@ -351,6 +351,7 @@ final class BufferUnpackerTest extends TestCase
 
     /**
      * @dataProvider provideInvalidOptionsData
+     *
      * @param UnpackOptions|int|null $options
      */
     public function testConstructorThrowsExceptionOnInvalidOptions($options) : void
