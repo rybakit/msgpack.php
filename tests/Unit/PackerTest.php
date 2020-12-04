@@ -21,6 +21,8 @@ use PHPUnit\Framework\TestCase;
 
 final class PackerTest extends TestCase
 {
+    use PhpUnitCompat;
+
     /**
      * @var Packer
      */
@@ -104,7 +106,7 @@ final class PackerTest extends TestCase
     public function testConstructorThrowsExceptionOnInvalidOptions($options) : void
     {
         $this->expectException(InvalidOptionException::class);
-        $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?/');
+        $this->expectExceptionMessageMatches('/Invalid option .+?, use .+?/');
 
         new Packer($options);
     }
@@ -127,7 +129,7 @@ final class PackerTest extends TestCase
 
         $transformer = $this->createMock(CanPack::class);
         $transformer->expects(self::once())->method('pack')
-            ->with($this->isInstanceOf(Packer::class), $obj)
+            ->with(self::isInstanceOf(Packer::class), $obj)
             ->willReturn($packed);
 
         $packer = new Packer(null, [$transformer]);
@@ -146,7 +148,7 @@ final class PackerTest extends TestCase
         $transformer1 = $this->createMock(CanPack::class);
         $transformer1->expects(self::atMost(2))->method('pack')
             ->with(
-                $this->isInstanceOf(Packer::class),
+                self::isInstanceOf(Packer::class),
                 self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2))
             )
             ->willReturnCallback(static function ($packer, $value) use ($obj1, $packed1) {
@@ -156,7 +158,7 @@ final class PackerTest extends TestCase
         $transformer2 = $this->createMock(CanPack::class);
         $transformer2->expects(self::atMost(2))->method('pack')
             ->with(
-                $this->isInstanceOf(Packer::class),
+                self::isInstanceOf(Packer::class),
                 self::logicalOr(self::identicalTo($obj1), self::identicalTo($obj2))
             )
             ->willReturnCallback(static function ($packer, $value) use ($obj2, $packed2) {
@@ -175,7 +177,7 @@ final class PackerTest extends TestCase
 
         $transformer = $this->createMock(CanPack::class);
         $transformer->expects(self::once())->method('pack')
-            ->with($this->isInstanceOf(Packer::class), $obj)
+            ->with(self::isInstanceOf(Packer::class), $obj)
             ->willReturn(null);
 
         $packer = $this->packer->extendWith($transformer);

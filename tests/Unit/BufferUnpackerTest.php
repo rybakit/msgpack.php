@@ -24,6 +24,8 @@ use PHPUnit\Framework\TestCase;
 
 final class BufferUnpackerTest extends TestCase
 {
+    use PhpUnitCompat;
+
     /**
      * @var BufferUnpacker
      */
@@ -357,7 +359,7 @@ final class BufferUnpackerTest extends TestCase
     public function testConstructorThrowsExceptionOnInvalidOptions($options) : void
     {
         $this->expectException(InvalidOptionException::class);
-        $this->expectExceptionMessageRegExp('/Invalid option .+?, use .+?/');
+        $this->expectExceptionMessageMatches('/Invalid option .+?, use .+?/');
 
         new BufferUnpacker('', $options);
     }
@@ -380,7 +382,7 @@ final class BufferUnpackerTest extends TestCase
         $transformer = $this->createMock(Extension::class);
         $transformer->method('getType')->willReturn($type);
         $transformer->expects(self::once())->method('unpackExt')
-            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
+            ->with(self::isInstanceOf(BufferUnpacker::class), 1)
             ->willReturn($obj);
 
         $unpacker = new BufferUnpacker('', null, [$transformer]);
@@ -399,13 +401,13 @@ final class BufferUnpackerTest extends TestCase
         $extension1 = $this->createMock(Extension::class);
         $extension1->method('getType')->willReturn($type1);
         $extension1->expects(self::once())->method('unpackExt')
-            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
+            ->with(self::isInstanceOf(BufferUnpacker::class), 1)
             ->willReturn($obj1);
 
         $extension2 = $this->createMock(Extension::class);
         $extension2->method('getType')->willReturn($type2);
         $extension2->expects(self::once())->method('unpackExt')
-            ->with($this->isInstanceOf(BufferUnpacker::class), 1)
+            ->with(self::isInstanceOf(BufferUnpacker::class), 1)
             ->willReturn($obj2);
 
         $unpacker = $this->unpacker->extendWith($extension1, $extension2);
