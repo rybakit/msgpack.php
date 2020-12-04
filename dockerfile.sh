@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
 if [[ -z "$PHP_RUNTIME" ]]; then
-    PHP_RUNTIME='php:7.4-cli'
+    PHP_RUNTIME='php:8.0-cli'
 fi
 
 RUN_CMDS=''
-RUN_CMDS="$RUN_CMDS && \\\\\n    apt-get install -y libmpdec-dev"
-RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install decimal && docker-php-ext-enable decimal"
+if [[ $PHP_RUNTIME != php:8* ]]; then
+  RUN_CMDS="$RUN_CMDS && \\\\\n    apt-get install -y libmpdec-dev"
+  RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install decimal && docker-php-ext-enable decimal"
+fi
 
 if [[ $PHPUNIT_OPTS =~ (^|[[:space:]])--coverage-[[:alpha:]] ]]; then
     RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install pcov && docker-php-ext-enable pcov"

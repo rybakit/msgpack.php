@@ -10,6 +10,7 @@ env:
   - PHP_RUNTIME='php:7.2-cli'
   - PHP_RUNTIME='php:7.3-cli' CHECK_CS=1
   - PHP_RUNTIME='php:7.4-cli' PHPUNIT_OPTS='--coverage-text --coverage-clover=coverage.clover'
+  - PHP_RUNTIME='php:8.0-cli'
 
 matrix:
   fast_finish: true
