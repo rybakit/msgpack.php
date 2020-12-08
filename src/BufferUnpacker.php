@@ -204,7 +204,6 @@ class BufferUnpacker
             case 0xc0: return null;
             case 0xc2: return false;
             case 0xc3: return true;
-
             // fixmap
             case 0x80: return [];
             case 0x81: return [$this->unpackMapKey() => $this->unpack()];
@@ -222,7 +221,6 @@ class BufferUnpacker
             case 0x8d: return $this->unpackMapData(13);
             case 0x8e: return $this->unpackMapData(14);
             case 0x8f: return $this->unpackMapData(15);
-
             // fixarray
             case 0x90: return [];
             case 0x91: return [$this->unpack()];
@@ -240,41 +238,33 @@ class BufferUnpacker
             case 0x9d: return $this->unpackArrayData(13);
             case 0x9e: return $this->unpackArrayData(14);
             case 0x9f: return $this->unpackArrayData(15);
-
             // bin
             case 0xc4: return $this->read($this->unpackUint8());
             case 0xc5: return $this->read($this->unpackUint16());
             case 0xc6: return $this->read($this->unpackUint32());
-
             // float
             case 0xca: return $this->unpackFloat32();
             case 0xcb: return $this->unpackFloat64();
-
             // uint
             case 0xcc: return $this->unpackUint8();
             case 0xcd: return $this->unpackUint16();
             case 0xce: return $this->unpackUint32();
             case 0xcf: return $this->unpackUint64();
-
             // int
             case 0xd0: return $this->unpackInt8();
             case 0xd1: return $this->unpackInt16();
             case 0xd2: return $this->unpackInt32();
             case 0xd3: return $this->unpackInt64();
-
             // str
             case 0xd9: return $this->read($this->unpackUint8());
             case 0xda: return $this->read($this->unpackUint16());
             case 0xdb: return $this->read($this->unpackUint32());
-
             // array
             case 0xdc: return $this->unpackArrayData($this->unpackUint16());
             case 0xdd: return $this->unpackArrayData($this->unpackUint32());
-
             // map
             case 0xde: return $this->unpackMapData($this->unpackUint16());
             case 0xdf: return $this->unpackMapData($this->unpackUint32());
-
             // ext
             case 0xd4: return $this->unpackExtData(1);
             case 0xd5: return $this->unpackExtData(2);
@@ -347,7 +337,6 @@ class BufferUnpacker
             case 0xcd: return $this->unpackUint16();
             case 0xce: return $this->unpackUint32();
             case 0xcf: return $this->unpackUint64();
-
             // int
             case 0xd0: return $this->unpackInt8();
             case 0xd1: return $this->unpackInt16();
@@ -692,18 +681,15 @@ class BufferUnpacker
             case 0xcd: return $this->unpackUint16();
             case 0xce: return $this->unpackUint32();
             case 0xcf: return $this->unpackUint64();
-
             // int
             case 0xd0: return $this->unpackInt8();
             case 0xd1: return $this->unpackInt16();
             case 0xd2: return $this->unpackInt32();
             case 0xd3: return $this->unpackInt64();
-
             // str
             case 0xd9: return $this->read($this->unpackUint8());
             case 0xda: return $this->read($this->unpackUint16());
             case 0xdb: return $this->read($this->unpackUint32());
-
             // bin
             case 0xc4: return $this->read($this->unpackUint8());
             case 0xc5: return $this->read($this->unpackUint16());

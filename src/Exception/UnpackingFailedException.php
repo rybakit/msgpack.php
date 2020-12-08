@@ -35,19 +35,14 @@ class UnpackingFailedException extends \RuntimeException
 
             switch ($code) {
                 case 0xc0: return 'nil';
-
                 case 0xc2:
                 case 0xc3: return 'bool';
-
                 case 0xca:
                 case 0xcb: return 'float';
-
                 case 0xdc:
                 case 0xdd: return 'array';
-
                 case 0xde:
                 case 0xdf: return 'map';
-
                 case 0xd4:
                 case 0xd5:
                 case 0xd6:
