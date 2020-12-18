@@ -96,7 +96,7 @@ Here is a list of type-specific packing methods:
 $packer->packNil();           // MP nil
 $packer->packBool(true);      // MP bool
 $packer->packInt(42);         // MP int
-$packer->packFloat(M_PI);     // MP float
+$packer->packFloat(M_PI);     // MP float (32 or 64)
 $packer->packFloat32(M_PI);   // MP float 32
 $packer->packFloat64(M_PI);   // MP float 64
 $packer->packStr('foo');      // MP str
