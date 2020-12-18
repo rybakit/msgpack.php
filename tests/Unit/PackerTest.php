@@ -213,7 +213,23 @@ final class PackerTest extends TestCase
     }
 
     /**
-     * @dataProvider \MessagePack\Tests\DataProvider::provideFloatData
+     * @dataProvider \MessagePack\Tests\DataProvider::provideFloat32Data
+     */
+    public function testPackFloat32(float $raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packFloat32($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideFloat64Data
+     */
+    public function testPackFloat64(float $raw, string $packed) : void
+    {
+        self::assertSame($packed, $this->packer->packFloat64($raw));
+    }
+
+    /**
+     * @dataProvider \MessagePack\Tests\DataProvider::provideFloat64Data
      */
     public function testPackFloat(float $raw, string $packed) : void
     {

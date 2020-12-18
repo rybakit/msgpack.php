@@ -26,7 +26,7 @@ class DataProvider
             self::provideNilData(),
             self::provideBoolData(),
             self::provideIntData(),
-            self::provideFloatData(),
+            self::provideFloat64Data(),
             self::provideStrData(),
             self::provideBinData(),
             self::provideArrayData(),
@@ -129,7 +129,15 @@ class DataProvider
         ]);
     }
 
-    public static function provideFloatData() : array
+    public static function provideFloat32Data() : array
+    {
+        return [
+            '32-bit float #1' => [0.0, "\xca"."\x00\x00\x00\x00"],
+            '32-bit float #2' => [2.5, "\xca"."\x40\x20\x00\x00"],
+        ];
+    }
+
+    public static function provideFloat64Data() : array
     {
         return [
             '64-bit float #1' => [0.0, "\xcb"."\x00\x00\x00\x00"."\x00\x00\x00\x00"],
@@ -140,10 +148,10 @@ class DataProvider
 
     public static function provideFloatUnpackData() : array
     {
-        return array_merge(self::provideFloatData(), [
-            '32-bit float #1' => [0.0, "\xca"."\x00\x00\x00\x00"],
-            '32-bit float #2' => [2.5, "\xca"."\x40\x20\x00\x00"],
-        ]);
+        return array_merge(
+            self::provideFloat32Data(),
+            self::provideFloat64Data()
+        );
     }
 
     public static function provideStrData() : array

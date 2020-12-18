@@ -185,6 +185,16 @@ class Packer
             : "\xcb".\pack('E', $float);
     }
 
+    public function packFloat32($float)
+    {
+        return "\xca".\pack('G', $float);
+    }
+
+    public function packFloat64($float)
+    {
+        return "\xcb".\pack('E', $float);
+    }
+
     public function packStr($str)
     {
         $length = \strlen($str);

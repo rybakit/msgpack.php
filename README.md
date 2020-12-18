@@ -97,6 +97,8 @@ $packer->packNil();           // MP nil
 $packer->packBool(true);      // MP bool
 $packer->packInt(42);         // MP int
 $packer->packFloat(M_PI);     // MP float
+$packer->packFloat32(M_PI);   // MP float 32
+$packer->packFloat64(M_PI);   // MP float 64
 $packer->packStr('foo');      // MP str
 $packer->packBin("\x80");     // MP bin
 $packer->packArray([1, 2]);   // MP array
