@@ -5,7 +5,7 @@ if [[ -z "$PHP_RUNTIME" ]]; then
 fi
 
 RUN_CMDS=''
-if [[ $PHP_RUNTIME != php:8* ]]; then
+if [[ -z "$EXT_DISABLE_DECIMAL" || "0" == "$EXT_DISABLE_DECIMAL" || "false" == "$EXT_DISABLE_DECIMAL" ]] ; then
   RUN_CMDS="$RUN_CMDS && \\\\\n    apt-get install -y libmpdec-dev"
   RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install decimal && docker-php-ext-enable decimal"
 fi
