@@ -1,0 +1,49 @@
+name: QA
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '40 2 * * *'
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        env:
+          - PHP_IMAGE: php:7.1-cli
+          - PHP_IMAGE: php:7.2-cli
+
+          - PHP_IMAGE: php:7.3-cli
+            QA: 1
+
+          - PHP_IMAGE: php:7.4-cli
+            COVERAGE_FILE: coverage.clover
+
+          - PHP_IMAGE: php:8.0-cli
+            EXT_DISABLE_DECIMAL: 1
+
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build docker image
+        env: ${{ matrix.env }}
+        run: ./dockerfile.sh | tee /dev/tty | docker build -t msgpack -
+
+      - name: Test
+        env: ${{ matrix.env }}
+        run: docker run --rm -v $PWD:/msgpack -w /msgpack msgpack
+
+      - name: Check code quality
+        env: ${{ matrix.env }}
+        if: ${{ env.QA }}
+        run: docker run --rm -v $PWD:/msgpack -w /msgpack msgpack php vendor/bin/php-cs-fixer fix --dry-run --diff --verbose .
+
+      - name: Upload code coverage to Scrutinizer
+        env: ${{ matrix.env }}
+        if: ${{ env.COVERAGE_FILE }}
+        run: |
+          curl -sSOL https://scrutinizer-ci.com/ocular.phar
+          docker run --rm -v $PWD:/msgpack -w /msgpack msgpack php ocular.phar code-coverage:upload --format=php-clover "$COVERAGE_FILE"

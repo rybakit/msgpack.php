@@ -1,6 +1,6 @@
 # msgpack.php
 
-[![Build Status](https://api.travis-ci.com/rybakit/msgpack.php.svg?branch=master)](https://travis-ci.com/github/rybakit/msgpack.php)
+[![Quality Assurance](https://github.com/rybakit/msgpack.php/workflows/QA/badge.svg)](https://github.com/rybakit/msgpack.php/actions?query=workflow%3AQA)
 [![Code Coverage](https://scrutinizer-ci.com/g/rybakit/msgpack.php/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/rybakit/msgpack.php/?branch=master)
 [![Mentioned in Awesome PHP](https://awesome.re/mentioned-badge.svg)](https://github.com/ziadoz/awesome-php#data-structure-and-storage)
 
@@ -14,7 +14,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#type-transformers)
- * [Fully tested](https://travis-ci.org/rybakit/msgpack.php)
+ * [Fully tested](https://github.com/rybakit/msgpack.php/actions?query=workflow%3AQA)
  * [Relatively fast](#performance)
 
 
@@ -435,13 +435,13 @@ First, create a container:
 ```
 
 The command above will create a container named `msgpack` with PHP 8.0 runtime.
-You may change the default runtime by defining the `PHP_RUNTIME` environment variable:
+You may change the default runtime by defining the `PHP_IMAGE` environment variable:
 
 ```sh
-PHP_RUNTIME='php:7.4-cli' ./dockerfile.sh | docker build -t msgpack -
+PHP_IMAGE='php:7.4-cli' ./dockerfile.sh | docker build -t msgpack -
 ```
 
-> *See a list of various runtimes [here](.travis.yml#L8).*
+> *See a list of various images [here](https://hub.docker.com/_/php).*
 
 Then run the unit tests:
 
