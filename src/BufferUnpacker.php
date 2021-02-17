@@ -551,7 +551,7 @@ class BufferUnpacker
             return new Decimal(\sprintf('%u', $num));
         }
         if ($this->isBigIntAsGmp) {
-            return \gmp_init(\sprintf('%u', $num));
+            return \gmp_import(\substr($this->buffer, $this->offset - 8, 8));
         }
 
         return \sprintf('%u', $num);
