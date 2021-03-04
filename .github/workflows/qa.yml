@@ -21,7 +21,6 @@ jobs:
             COVERAGE_FILE: coverage.clover
 
           - PHP_IMAGE: php:8.0-cli
-            EXT_DISABLE_DECIMAL: 1
 
     runs-on: ${{ matrix.operating-system }}
     steps:
