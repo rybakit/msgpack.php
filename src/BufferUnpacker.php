@@ -180,128 +180,195 @@ class BufferUnpacker
 
     public function unpack()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+        $stack = [];
+        $top = 0;
+
+        begin:
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         // fixint
         if ($c <= 0x7f) {
-            return $c;
+            $value = $c;
+            goto end;
         }
+
         // fixstr
         if ($c >= 0xa0 && $c <= 0xbf) {
-            return ($c & 0x1f) ? $this->read($c & 0x1f) : '';
+            if ($c & 0x1f) {
+                $length = $c & 0x1f;
+                goto read;
+            }
+            $value = '';
+            goto end;
         }
+
         // negfixint
         if ($c >= 0xe0) {
-            return $c - 0x100;
+            $value = $c - 0x100;
+            goto end;
         }
 
         switch ($c) {
-            case 0xc0: return null;
-            case 0xc2: return false;
-            case 0xc3: return true;
+            case 0xc0: $value = null; goto end;
+            case 0xc2: $value = false; goto end;
+            case 0xc3: $value = true; goto end;
+
             // fixmap
-            case 0x80: return [];
-            case 0x81: return [$this->unpackMapKey() => $this->unpack()];
-            case 0x82: return [$this->unpackMapKey() => $this->unpack(), $this->unpackMapKey() => $this->unpack()];
-            case 0x83: return [$this->unpackMapKey() => $this->unpack(), $this->unpackMapKey() => $this->unpack(), $this->unpackMapKey() => $this->unpack()];
-            case 0x84: return $this->unpackMapData(4);
-            case 0x85: return $this->unpackMapData(5);
-            case 0x86: return $this->unpackMapData(6);
-            case 0x87: return $this->unpackMapData(7);
-            case 0x88: return $this->unpackMapData(8);
-            case 0x89: return $this->unpackMapData(9);
-            case 0x8a: return $this->unpackMapData(10);
-            case 0x8b: return $this->unpackMapData(11);
-            case 0x8c: return $this->unpackMapData(12);
-            case 0x8d: return $this->unpackMapData(13);
-            case 0x8e: return $this->unpackMapData(14);
-            case 0x8f: return $this->unpackMapData(15);
+            case 0x80: $value = []; goto end;
+            case 0x81: $stack[++$top] = new Container(2 /* map key */, 1); goto begin;
+            case 0x82: $stack[++$top] = new Container(2 /* map key */, 2); goto begin;
+            case 0x83: $stack[++$top] = new Container(2 /* map key */, 3); goto begin;
+            case 0x84: $stack[++$top] = new Container(2 /* map key */, 4); goto begin;
+            case 0x85: $stack[++$top] = new Container(2 /* map key */, 5); goto begin;
+            case 0x86: $stack[++$top] = new Container(2 /* map key */, 6); goto begin;
+            case 0x87: $stack[++$top] = new Container(2 /* map key */, 7); goto begin;
+            case 0x88: $stack[++$top] = new Container(2 /* map key */, 8); goto begin;
+            case 0x89: $stack[++$top] = new Container(2 /* map key */, 9); goto begin;
+            case 0x8a: $stack[++$top] = new Container(2 /* map key */, 10); goto begin;
+            case 0x8b: $stack[++$top] = new Container(2 /* map key */, 11); goto begin;
+            case 0x8c: $stack[++$top] = new Container(2 /* map key */, 12); goto begin;
+            case 0x8d: $stack[++$top] = new Container(2 /* map key */, 13); goto begin;
+            case 0x8e: $stack[++$top] = new Container(2 /* map key */, 14); goto begin;
+            case 0x8f: $stack[++$top] = new Container(2 /* map key */, 15); goto begin;
+
             // fixarray
-            case 0x90: return [];
-            case 0x91: return [$this->unpack()];
-            case 0x92: return [$this->unpack(), $this->unpack()];
-            case 0x93: return [$this->unpack(), $this->unpack(), $this->unpack()];
-            case 0x94: return $this->unpackArrayData(4);
-            case 0x95: return $this->unpackArrayData(5);
-            case 0x96: return $this->unpackArrayData(6);
-            case 0x97: return $this->unpackArrayData(7);
-            case 0x98: return $this->unpackArrayData(8);
-            case 0x99: return $this->unpackArrayData(9);
-            case 0x9a: return $this->unpackArrayData(10);
-            case 0x9b: return $this->unpackArrayData(11);
-            case 0x9c: return $this->unpackArrayData(12);
-            case 0x9d: return $this->unpackArrayData(13);
-            case 0x9e: return $this->unpackArrayData(14);
-            case 0x9f: return $this->unpackArrayData(15);
+            case 0x90: $value = []; goto end;
+            case 0x91: $stack[++$top] = new Container(1 /* array item */, 1); goto begin;
+            case 0x92: $stack[++$top] = new Container(1 /* array item */, 2); goto begin;
+            case 0x93: $stack[++$top] = new Container(1 /* array item */, 3); goto begin;
+            case 0x94: $stack[++$top] = new Container(1 /* array item */, 4); goto begin;
+            case 0x95: $stack[++$top] = new Container(1 /* array item */, 5); goto begin;
+            case 0x96: $stack[++$top] = new Container(1 /* array item */, 6); goto begin;
+            case 0x97: $stack[++$top] = new Container(1 /* array item */, 7); goto begin;
+            case 0x98: $stack[++$top] = new Container(1 /* array item */, 8); goto begin;
+            case 0x99: $stack[++$top] = new Container(1 /* array item */, 9); goto begin;
+            case 0x9a: $stack[++$top] = new Container(1 /* array item */, 10); goto begin;
+            case 0x9b: $stack[++$top] = new Container(1 /* array item */, 11); goto begin;
+            case 0x9c: $stack[++$top] = new Container(1 /* array item */, 12); goto begin;
+            case 0x9d: $stack[++$top] = new Container(1 /* array item */, 13); goto begin;
+            case 0x9e: $stack[++$top] = new Container(1 /* array item */, 14); goto begin;
+            case 0x9f: $stack[++$top] = new Container(1 /* array item */, 15); goto begin;
+
             // bin
-            case 0xc4: return $this->read($this->unpackUint8());
-            case 0xc5: return $this->read($this->unpackUint16());
-            case 0xc6: return $this->read($this->unpackUint32());
+            case 0xc4: $length = self::unpackUint8($buffer, $offset); goto read;
+            case 0xc5: $length = self::unpackUint16($buffer, $offset); goto read;
+            case 0xc6: $length = self::unpackUint32($buffer, $offset); goto read;
+
             // float
-            case 0xca: return $this->unpackFloat32();
-            case 0xcb: return $this->unpackFloat64();
+            case 0xca: $value = self::unpackFloat32($buffer, $offset); goto end;
+            case 0xcb: $value = self::unpackFloat64($buffer, $offset); goto end;
+
             // uint
-            case 0xcc: return $this->unpackUint8();
-            case 0xcd: return $this->unpackUint16();
-            case 0xce: return $this->unpackUint32();
-            case 0xcf: return $this->unpackUint64();
+            case 0xcc: $value = self::unpackUint8($buffer, $offset); goto end;
+            case 0xcd: $value = self::unpackUint16($buffer, $offset); goto end;
+            case 0xce: $value = self::unpackUint32($buffer, $offset); goto end;
+            case 0xcf: $value = $this->unpackUint64(); goto end;
+
             // int
-            case 0xd0: return $this->unpackInt8();
-            case 0xd1: return $this->unpackInt16();
-            case 0xd2: return $this->unpackInt32();
-            case 0xd3: return $this->unpackInt64();
+            case 0xd0: $value = self::unpackInt8($buffer, $offset); goto end;
+            case 0xd1: $value = self::unpackInt16($buffer, $offset); goto end;
+            case 0xd2: $value = self::unpackInt32($buffer, $offset); goto end;
+            case 0xd3: $value = self::unpackInt64($buffer, $offset); goto end;
+
             // str
-            case 0xd9: return $this->read($this->unpackUint8());
-            case 0xda: return $this->read($this->unpackUint16());
-            case 0xdb: return $this->read($this->unpackUint32());
+            case 0xd9: $length = self::unpackUint8($buffer, $offset); goto read;
+            case 0xda: $length = self::unpackUint16($buffer, $offset); goto read;
+            case 0xdb: $length = self::unpackUint32($buffer, $offset); goto read;
+
             // array
-            case 0xdc: return $this->unpackArrayData($this->unpackUint16());
-            case 0xdd: return $this->unpackArrayData($this->unpackUint32());
+            case 0xdc: $stack[++$top] = new Container(1 /* array item */, self::unpackUint16($buffer, $offset)); goto begin;
+            case 0xdd: $stack[++$top] = new Container(1 /* array item */, self::unpackUint32($buffer, $offset)); goto begin;
+
             // map
-            case 0xde: return $this->unpackMapData($this->unpackUint16());
-            case 0xdf: return $this->unpackMapData($this->unpackUint32());
+            case 0xde: $stack[++$top] = new Container(2 /* map key */, self::unpackUint16($buffer, $offset)); goto begin;
+            case 0xdf: $stack[++$top] = new Container(2 /* map key */, self::unpackUint32($buffer, $offset)); goto begin;
+
             // ext
-            case 0xd4: return $this->unpackExtData(1);
-            case 0xd5: return $this->unpackExtData(2);
-            case 0xd6: return $this->unpackExtData(4);
-            case 0xd7: return $this->unpackExtData(8);
-            case 0xd8: return $this->unpackExtData(16);
-            case 0xc7: return $this->unpackExtData($this->unpackUint8());
-            case 0xc8: return $this->unpackExtData($this->unpackUint16());
-            case 0xc9: return $this->unpackExtData($this->unpackUint32());
+            case 0xd4: $value = $this->unpackExtData(1); goto end;
+            case 0xd5: $value = $this->unpackExtData(2); goto end;
+            case 0xd6: $value = $this->unpackExtData(4); goto end;
+            case 0xd7: $value = $this->unpackExtData(8); goto end;
+            case 0xd8: $value = $this->unpackExtData(16); goto end;
+            case 0xc7: $value = $this->unpackExtData(self::unpackUint8($buffer, $offset)); goto end;
+            case 0xc8: $value = $this->unpackExtData(self::unpackUint16($buffer, $offset)); goto end;
+            case 0xc9: $value = $this->unpackExtData(self::unpackUint32($buffer, $offset)); goto end;
         }
 
         throw UnpackingFailedException::unknownCode($c);
+
+        read:
+        if (!isset($buffer[$offset + $length - 1])) {
+            throw new InsufficientDataException();
+        }
+
+        $value = \substr($buffer, $offset, $length);
+        $offset += $length;
+
+        end:
+        while ($stack) {
+            /** @var Container $state */
+            $state = $stack[$top];
+            if ($state->type === 1 /* array item */) {
+                $state->value[] = $value;
+                ++$state->count;
+            } else if ($state->type === 2 /* map key */) {
+                $state->type = 3 /* map value */;
+                $state->key = $value;
+                goto begin;
+            } else if ($state->type === 3 /* map value */) {
+                $state->type = 2 /* map key */;
+                $state->value[$state->key] = $value;
+                ++$state->count;
+            }
+
+            if ($state->size !== $state->count) {
+                goto begin;
+            }
+
+            unset($stack[$top]);
+            --$top;
+            $value = $state->value;
+        }
+
+        return $value;
     }
 
     public function unpackNil()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        if ("\xc0" === $this->buffer[$this->offset]) {
-            ++$this->offset;
+        if ("\xc0" === $buffer[$offset]) {
+            ++$offset;
 
             return null;
         }
 
-        throw UnpackingFailedException::unexpectedCode(\ord($this->buffer[$this->offset++]), 'nil');
+        throw UnpackingFailedException::unexpectedCode(\ord($buffer[$offset++]), 'nil');
     }
 
     public function unpackBool()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         if (0xc2 === $c) {
             return false;
@@ -315,12 +382,15 @@ class BufferUnpacker
 
     public function unpackInt()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         // fixint
         if ($c <= 0x7f) {
@@ -333,15 +403,15 @@ class BufferUnpacker
 
         switch ($c) {
             // uint
-            case 0xcc: return $this->unpackUint8();
-            case 0xcd: return $this->unpackUint16();
-            case 0xce: return $this->unpackUint32();
+            case 0xcc: return self::unpackUint8($buffer, $offset);
+            case 0xcd: return self::unpackUint16($buffer, $offset);
+            case 0xce: return self::unpackUint32($buffer, $offset);
             case 0xcf: return $this->unpackUint64();
             // int
-            case 0xd0: return $this->unpackInt8();
-            case 0xd1: return $this->unpackInt16();
-            case 0xd2: return $this->unpackInt32();
-            case 0xd3: return $this->unpackInt64();
+            case 0xd0: return self::unpackInt8($buffer, $offset);
+            case 0xd1: return self::unpackInt16($buffer, $offset);
+            case 0xd2: return self::unpackInt32($buffer, $offset);
+            case 0xd3: return self::unpackInt64($buffer, $offset);
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'int');
@@ -349,18 +419,21 @@ class BufferUnpacker
 
     public function unpackFloat()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         if (0xcb === $c) {
-            return $this->unpackFloat64();
+            return self::unpackFloat64($buffer, $offset);
         }
         if (0xca === $c) {
-            return $this->unpackFloat32();
+            return self::unpackFloat32($buffer, $offset);
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'float');
@@ -368,24 +441,27 @@ class BufferUnpacker
 
     public function unpackStr()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         if ($c >= 0xa0 && $c <= 0xbf) {
             return ($c & 0x1f) ? $this->read($c & 0x1f) : '';
         }
         if (0xd9 === $c) {
-            return $this->read($this->unpackUint8());
+            return $this->read(self::unpackUint8($buffer, $offset));
         }
         if (0xda === $c) {
-            return $this->read($this->unpackUint16());
+            return $this->read(self::unpackUint16($buffer, $offset));
         }
         if (0xdb === $c) {
-            return $this->read($this->unpackUint32());
+            return $this->read(self::unpackUint32($buffer, $offset));
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'str');
@@ -393,21 +469,24 @@ class BufferUnpacker
 
     public function unpackBin()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         if (0xc4 === $c) {
-            return $this->read($this->unpackUint8());
+            return $this->read(self::unpackUint8($buffer, $offset));
         }
         if (0xc5 === $c) {
-            return $this->read($this->unpackUint16());
+            return $this->read(self::unpackUint16($buffer, $offset));
         }
         if (0xc6 === $c) {
-            return $this->read($this->unpackUint32());
+            return $this->read(self::unpackUint32($buffer, $offset));
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'bin');
@@ -427,21 +506,24 @@ class BufferUnpacker
 
     public function unpackArrayHeader()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         if ($c >= 0x90 && $c <= 0x9f) {
             return $c & 0xf;
         }
         if (0xdc === $c) {
-            return $this->unpackUint16();
+            return self::unpackUint16($buffer, $offset);
         }
         if (0xdd === $c) {
-            return $this->unpackUint32();
+            return self::unpackUint32($buffer, $offset);
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'array');
@@ -453,7 +535,8 @@ class BufferUnpacker
 
         $map = [];
         while ($size--) {
-            $map[$this->unpackMapKey()] = $this->unpack();
+            //$map[$this->unpackMapKey()] = $this->unpack();
+            $map[$this->unpack()] = $this->unpack();
         }
 
         return $map;
@@ -461,21 +544,24 @@ class BufferUnpacker
 
     public function unpackMapHeader()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         if ($c >= 0x80 && $c <= 0x8f) {
             return $c & 0xf;
         }
         if (0xde === $c) {
-            return $this->unpackUint16();
+            return self::unpackUint16($buffer, $offset);
         }
         if (0xdf === $c) {
-            return $this->unpackUint32();
+            return self::unpackUint32($buffer, $offset);
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'map');
@@ -483,12 +569,15 @@ class BufferUnpacker
 
     public function unpackExt()
     {
-        if (!isset($this->buffer[$this->offset])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $c = \ord($buffer[$offset]);
+        ++$offset;
 
         switch ($c) {
             case 0xd4: return $this->unpackExtData(1);
@@ -496,53 +585,56 @@ class BufferUnpacker
             case 0xd6: return $this->unpackExtData(4);
             case 0xd7: return $this->unpackExtData(8);
             case 0xd8: return $this->unpackExtData(16);
-            case 0xc7: return $this->unpackExtData($this->unpackUint8());
-            case 0xc8: return $this->unpackExtData($this->unpackUint16());
-            case 0xc9: return $this->unpackExtData($this->unpackUint32());
+            case 0xc7: return $this->unpackExtData(self::unpackUint8($buffer, $offset));
+            case 0xc8: return $this->unpackExtData(self::unpackUint16($buffer, $offset));
+            case 0xc9: return $this->unpackExtData(self::unpackUint32($buffer, $offset));
         }
 
         throw UnpackingFailedException::unexpectedCode($c, 'ext');
     }
 
-    private function unpackUint8()
+    private static function unpackUint8($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset])) {
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        return \ord($this->buffer[$this->offset++]);
+        return \ord($buffer[$offset++]);
     }
 
-    private function unpackUint16()
+    private static function unpackUint16($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset + 1])) {
+        if (!isset($buffer[$offset + 1])) {
             throw new InsufficientDataException();
         }
 
-        return \ord($this->buffer[$this->offset++]) << 8
-            | \ord($this->buffer[$this->offset++]);
+        return \ord($buffer[$offset++]) << 8
+            | \ord($buffer[$offset++]);
     }
 
-    private function unpackUint32()
+    private static function unpackUint32($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset + 3])) {
+        if (!isset($buffer[$offset + 3])) {
             throw new InsufficientDataException();
         }
 
-        return \ord($this->buffer[$this->offset++]) << 24
-            | \ord($this->buffer[$this->offset++]) << 16
-            | \ord($this->buffer[$this->offset++]) << 8
-            | \ord($this->buffer[$this->offset++]);
+        return \ord($buffer[$offset++]) << 24
+            | \ord($buffer[$offset++]) << 16
+            | \ord($buffer[$offset++]) << 8
+            | \ord($buffer[$offset++]);
     }
 
     private function unpackUint64()
     {
-        if (!isset($this->buffer[$this->offset + 7])) {
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset + 7])) {
             throw new InsufficientDataException();
         }
 
-        $num = \unpack('J', $this->buffer, $this->offset)[1];
-        $this->offset += 8;
+        $num = \unpack('J', $buffer, $offset)[1];
+        $offset += 8;
 
         if ($num >= 0) {
             return $num;
@@ -551,163 +643,100 @@ class BufferUnpacker
             return new Decimal(\sprintf('%u', $num));
         }
         if ($this->isBigIntAsGmp) {
-            return \gmp_import(\substr($this->buffer, $this->offset - 8, 8));
+            return \gmp_import(\substr($buffer, $offset - 8, 8));
         }
 
         return \sprintf('%u', $num);
     }
 
-    private function unpackInt8()
+    private static function unpackInt8($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset])) {
+        if (!isset($buffer[$offset])) {
             throw new InsufficientDataException();
         }
 
-        $num = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $num = \ord($buffer[$offset]);
+        ++$offset;
 
         return $num > 0x7f ? $num - 0x100 : $num;
     }
 
-    private function unpackInt16()
+    private static function unpackInt16($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset + 1])) {
+        if (!isset($buffer[$offset + 1])) {
             throw new InsufficientDataException();
         }
 
-        $num = \ord($this->buffer[$this->offset]) << 8
-            | \ord($this->buffer[++$this->offset]);
-        ++$this->offset;
+        $num = \ord($buffer[$offset]) << 8
+            | \ord($buffer[++$offset]);
+        ++$offset;
 
         return $num > 0x7fff ? $num - 0x10000 : $num;
     }
 
-    private function unpackInt32()
+    private static function unpackInt32($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset + 3])) {
+        if (!isset($buffer[$offset + 3])) {
             throw new InsufficientDataException();
         }
 
-        $num = \ord($this->buffer[$this->offset]) << 24
-            | \ord($this->buffer[++$this->offset]) << 16
-            | \ord($this->buffer[++$this->offset]) << 8
-            | \ord($this->buffer[++$this->offset]);
-        ++$this->offset;
+        $num = \ord($buffer[$offset]) << 24
+            | \ord($buffer[++$offset]) << 16
+            | \ord($buffer[++$offset]) << 8
+            | \ord($buffer[++$offset]);
+        ++$offset;
 
         return $num > 0x7fffffff ? $num - 0x100000000 : $num;
     }
 
-    private function unpackInt64()
+    private static function unpackInt64($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset + 7])) {
+        if (!isset($buffer[$offset + 7])) {
             throw new InsufficientDataException();
         }
 
-        $num = \unpack('J', $this->buffer, $this->offset)[1];
-        $this->offset += 8;
+        $num = \unpack('J', $buffer, $offset)[1];
+        $offset += 8;
 
         return $num;
     }
 
-    private function unpackFloat32()
+    private static function unpackFloat32($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset + 3])) {
+        if (!isset($buffer[$offset + 3])) {
             throw new InsufficientDataException();
         }
 
-        $num = \unpack('G', $this->buffer, $this->offset)[1];
-        $this->offset += 4;
+        $num = \unpack('G', $buffer, $offset)[1];
+        $offset += 4;
 
         return $num;
     }
 
-    private function unpackFloat64()
+    private static function unpackFloat64($buffer, &$offset)
     {
-        if (!isset($this->buffer[$this->offset + 7])) {
+        if (!isset($buffer[$offset + 7])) {
             throw new InsufficientDataException();
         }
 
-        $num = \unpack('E', $this->buffer, $this->offset)[1];
-        $this->offset += 8;
+        $num = \unpack('E', $buffer, $offset)[1];
+        $offset += 8;
 
         return $num;
-    }
-
-    private function unpackArrayData($size)
-    {
-        $array = [];
-        while ($size--) {
-            $array[] = $this->unpack();
-        }
-
-        return $array;
-    }
-
-    private function unpackMapData($size)
-    {
-        $map = [];
-        while ($size--) {
-            $map[$this->unpackMapKey()] = $this->unpack();
-        }
-
-        return $map;
-    }
-
-    private function unpackMapKey()
-    {
-        if (!isset($this->buffer[$this->offset])) {
-            throw new InsufficientDataException();
-        }
-
-        $c = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
-
-        // fixint
-        if ($c <= 0x7f) {
-            return $c;
-        }
-        // fixstr
-        if ($c >= 0xa0 && $c <= 0xbf) {
-            return ($c & 0x1f) ? $this->read($c & 0x1f) : '';
-        }
-        // negfixint
-        if ($c >= 0xe0) {
-            return $c - 0x100;
-        }
-
-        switch ($c) {
-            // uint
-            case 0xcc: return $this->unpackUint8();
-            case 0xcd: return $this->unpackUint16();
-            case 0xce: return $this->unpackUint32();
-            case 0xcf: return $this->unpackUint64();
-            // int
-            case 0xd0: return $this->unpackInt8();
-            case 0xd1: return $this->unpackInt16();
-            case 0xd2: return $this->unpackInt32();
-            case 0xd3: return $this->unpackInt64();
-            // str
-            case 0xd9: return $this->read($this->unpackUint8());
-            case 0xda: return $this->read($this->unpackUint16());
-            case 0xdb: return $this->read($this->unpackUint32());
-            // bin
-            case 0xc4: return $this->read($this->unpackUint8());
-            case 0xc5: return $this->read($this->unpackUint16());
-            case 0xc6: return $this->read($this->unpackUint32());
-        }
-
-        throw UnpackingFailedException::invalidMapKeyType($c);
     }
 
     private function unpackExtData($length)
     {
-        if (!isset($this->buffer[$this->offset + $length])) { // 1 (type) + length - 1
+        $buffer = &$this->buffer;
+        $offset = &$this->offset;
+
+        if (!isset($buffer[$offset + $length])) { // 1 (type) + length - 1
             throw new InsufficientDataException();
         }
 
         // int8
-        $type = \ord($this->buffer[$this->offset]);
-        ++$this->offset;
+        $type = \ord($buffer[$offset]);
+        ++$offset;
 
         if ($type > 0x7f) {
             $type -= 0x100;
@@ -717,9 +746,24 @@ class BufferUnpacker
             return $this->extensions[$type]->unpackExt($this, $length);
         }
 
-        $data = \substr($this->buffer, $this->offset, $length);
-        $this->offset += $length;
+        $data = \substr($buffer, $offset, $length);
+        $offset += $length;
 
         return new Ext($type, $data);
+    }
+}
+
+final class Container
+{
+    public $type;
+    public $size;
+    public $count = 0;
+    public $value;
+    public $key;
+
+    public function __construct($type, $size)
+    {
+        $this->type = $type;
+        $this->size = $size;
     }
 }
