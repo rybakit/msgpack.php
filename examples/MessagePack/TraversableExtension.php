@@ -15,7 +15,7 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\Extension;
 
-class ArrayIteratorExtension implements Extension
+class TraversableExtension implements Extension
 {
     private $type;
 
@@ -31,7 +31,7 @@ class ArrayIteratorExtension implements Extension
 
     public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof \ArrayIterator) {
+        if (!$value instanceof \Traversable) {
             return null;
         }
 

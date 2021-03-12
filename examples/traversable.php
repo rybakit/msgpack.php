@@ -9,26 +9,27 @@
  * file that was distributed with this source code.
  */
 
-use App\MessagePack\ArrayIteratorExtension;
+use App\MessagePack\TraversableExtension;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$extension = new ArrayIteratorExtension(1);
+$extension = new TraversableExtension(1);
 
 $packer = new Packer(null, [$extension]);
-$packed = $packer->pack(new ArrayIterator(range(1, 10000)));
+$packed = $packer->pack(new ArrayIterator(range(1, 5)));
 
 $unpacker = new BufferUnpacker($packed, null, [$extension]);
 
-$sum = 0;
 foreach ($unpacker->unpack() as $i) {
-    $sum += $i;
+    echo "$i\n";
 }
 
-echo "Sum: $sum\n";
-
 /* OUTPUT
-Sum: 50005000
+1
+2
+3
+4
+5
 */
