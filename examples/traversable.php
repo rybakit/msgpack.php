@@ -22,8 +22,8 @@ $packed = $packer->pack(new ArrayIterator(range(1, 5)));
 
 $unpacker = new BufferUnpacker($packed, null, [$extension]);
 
-foreach ($unpacker->unpack() as $i) {
-    echo "$i\n";
+foreach ($unpacker->unpack() as $value) {
+    echo "$value\n";
 }
 
 /* OUTPUT
