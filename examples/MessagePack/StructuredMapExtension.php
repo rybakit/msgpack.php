@@ -15,7 +15,7 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\Extension;
 
-class PackedMapExtension implements Extension
+class StructuredMapExtension implements Extension
 {
     private $type;
 
@@ -31,7 +31,7 @@ class PackedMapExtension implements Extension
 
     public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof PackedMap) {
+        if (!$value instanceof StructuredMap) {
             return null;
         }
 

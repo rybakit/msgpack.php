@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-use App\MessagePack\PackedMap;
-use App\MessagePack\PackedMapExtension;
+use App\MessagePack\StructuredMap;
+use App\MessagePack\StructuredMapExtension;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 
 require __DIR__.'/autoload.php';
 
-$schema = [
+$profileSchema = [
     'id' => 'int',
     'first_name' => 'str',
     'last_name' => 'str',
@@ -31,26 +31,26 @@ for ($i = 0; $i < 1000; ++$i) {
     ];
 }
 
-$extension = new PackedMapExtension(3);
+$extension = new StructuredMapExtension(3);
 $packer = new Packer(null, [$extension]);
 $unpacker = new BufferUnpacker('', null, [$extension]);
 
 $packedMap = $packer->pack($profiles);
-$packedPackedMap = $packer->pack(new PackedMap($profiles, $schema));
+$packedStructuredMap = $packer->pack(new StructuredMap($profileSchema, $profiles));
 
 $unpackedMap = $unpacker->reset($packedMap)->unpack();
-$unpackedPackedMap = $unpacker->reset($packedPackedMap)->unpack();
+$unpackedStructuredMap = $unpacker->reset($packedStructuredMap)->unpack();
 
-if (($unpackedMap !== $profiles) || ($unpackedPackedMap !== $profiles)) {
+if (($unpackedMap !== $profiles) || ($unpackedStructuredMap !== $profiles)) {
     exit(1);
 }
 
-printf("Map size:       %dB\n", strlen($packedMap));
-printf("PackedMap size: %dB\n", strlen($packedPackedMap));
-printf("Space savings:  %d%%\n", round(1 - strlen($packedPackedMap) / strlen($packedMap), 2) * 100);
+printf("Map size:           %dB\n", strlen($packedMap));
+printf("StructuredMap size: %dB\n", strlen($packedStructuredMap));
+printf("Space savings:      %d%%\n", round(1 - strlen($packedStructuredMap) / strlen($packedMap), 2) * 100);
 
 /* OUTPUT
-Map size:       56619B
-PackedMap size: 31660B
-Space savings:  44%
+Map size:           56619B
+StructuredMap size: 31660B
+Space savings:      44%
 */

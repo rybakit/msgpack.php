@@ -11,14 +11,14 @@
 
 namespace App\MessagePack;
 
-final class PackedMap
+final class StructuredMap
 {
-    public $map;
     public $schema;
+    public $map;
 
-    public function __construct(array $map, array $schema)
+    public function __construct(array $schema, array $map)
     {
-        $this->map = $map;
         $this->schema = $schema;
+        $this->map = $map;
     }
 }
