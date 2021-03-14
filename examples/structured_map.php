@@ -26,8 +26,8 @@ $profiles = [];
 for ($i = 0; $i < 1000; ++$i) {
     $profiles[] = [
         'id' => $i,
-        'first_name' => sprintf('first_name_%03s', $i),
-        'last_name' => sprintf('last_name_%03s', $i),
+        'first_name' => "first_name_$i",
+        'last_name' => "last_name_$i",
     ];
 }
 
@@ -45,12 +45,14 @@ if (($unpackedMap !== $profiles) || ($unpackedStructuredMap !== $profiles)) {
     exit(1);
 }
 
-printf("Map size:           %dB\n", strlen($packedMap));
-printf("StructuredMap size: %dB\n", strlen($packedStructuredMap));
-printf("Space savings:      %d%%\n", round(1 - strlen($packedStructuredMap) / strlen($packedMap), 2) * 100);
+printf("Packed map size:            %dB\n", strlen($packedMap));
+printf("Packed structured map size: %dB\n", strlen($packedStructuredMap));
+printf("Space saved:                %dB\n", strlen($packedMap) - strlen($packedStructuredMap));
+printf("Percentage saved:           %d%%\n", round(1 - strlen($packedStructuredMap) / strlen($packedMap), 2) * 100);
 
 /* OUTPUT
-Map size:           56619B
-StructuredMap size: 31660B
-Space savings:      44%
+Packed map size:            56399B
+Packed structured map size: 31440B
+Space saved:                24959B
+Percentage saved:           44%
 */
