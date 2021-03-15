@@ -375,20 +375,18 @@ class DateTimeExtension implements Extension
             return null;
         }
 
-        return $packer->packExt($this->type,
-            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
-        );
+        return $packer->packExt($this->type, $value->format('Y-m-d\TH:i:s.uP'));
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
-        return new \DateTimeImmutable($unpacker->unpackStr());
+        return new \DateTimeImmutable($unpacker->read(32));
     }
 }
 ```
 
 Register `DateTimeExtension` for both the packer and the unpacker with a unique extension type 
-(an integer from 0 to 127) and you are ready to go:
+(an integer from 0 to 127) and you're ready to go:
 
 ```php
 use App\MessagePack\DateTimeExtension;

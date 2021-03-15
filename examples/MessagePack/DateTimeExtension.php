@@ -35,13 +35,11 @@ class DateTimeExtension implements Extension
             return null;
         }
 
-        return $packer->packExt($this->type,
-            $packer->packStr($value->format('Y-m-d\TH:i:s.uP'))
-        );
+        return $packer->packExt($this->type, $value->format('Y-m-d\TH:i:s.uP'));
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
-        return new \DateTimeImmutable($unpacker->unpackStr());
+        return new \DateTimeImmutable($unpacker->read(32));
     }
 }
