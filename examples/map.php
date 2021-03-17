@@ -10,13 +10,12 @@
  */
 
 use MessagePack\Packer;
-use MessagePack\PackOptions;
 use MessagePack\Type\Map;
 use MessagePack\TypeTransformer\MapTransformer;
 
 require __DIR__.'/autoload.php';
 
-$packer = new Packer(PackOptions::FORCE_ARR, [new MapTransformer()]);
+$packer = new Packer(null, [new MapTransformer()]);
 
 $packedMap = $packer->pack(new Map([1, 2, 3]));
 $packedArray = $packer->pack([1, 2, 3]);

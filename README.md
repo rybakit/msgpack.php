@@ -334,12 +334,10 @@ Once `MapTransformer` is registered, you can pack `Map` objects:
 
 ```php
 use MessagePack\Packer;
-use MessagePack\PackOptions;
 use MessagePack\Type\Map;
 use MessagePack\TypeTransformer\MapTransformer;
 
-$packer = new Packer(PackOptions::FORCE_ARR);
-$packer = $packer->extendWith(new MapTransformer());
+$packer = new Packer(null, [new MapTransformer()]);
 
 $packed = $packer->pack([
     [1, 2, 3],          // MP array
