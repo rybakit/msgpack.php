@@ -23,11 +23,11 @@ $profileSchema = [
 ];
 
 $profiles = [];
-for ($i = 0; $i < 1000; ++$i) {
+for ($i = 1; $i <= 1000; ++$i) {
     $profiles[] = [
         'id' => $i,
-        'first_name' => "first_name_$i",
-        'last_name' => "last_name_$i",
+        'first_name' => "First name $i",
+        'last_name' => "Last name $i",
     ];
 }
 
@@ -51,8 +51,8 @@ printf("Space saved:                %dB\n", strlen($packedMap) - strlen($packedS
 printf("Percentage saved:           %d%%\n", round(1 - strlen($packedStructuredMap) / strlen($packedMap), 2) * 100);
 
 /* OUTPUT
-Packed map size:            56399B
-Packed structured map size: 31440B
+Packed map size:            56407B
+Packed structured map size: 31448B
 Space saved:                24959B
 Percentage saved:           44%
 */
