@@ -40,6 +40,6 @@ class DateTimeExtension implements Extension
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
-        return new \DateTimeImmutable($unpacker->read(32));
+        return new \DateTimeImmutable($unpacker->read($extLength));
     }
 }
