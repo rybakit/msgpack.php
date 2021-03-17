@@ -67,8 +67,8 @@ return Config::create()
     ->setUsingCache(false)
     ->setRiskyAllowed(true)
     ->registerCustomFixers([
-        new FilterableFixer(new NativeConstantInvocationFixer(), '/\bsrc\b/'),
-        new FilterableFixer(new NativeFunctionInvocationFixer(), '/\bsrc\b/'),
+        new FilterableFixer(new NativeConstantInvocationFixer(), '/\bsrc|examples\/MessagePack\b/'),
+        new FilterableFixer(new NativeFunctionInvocationFixer(), '/\bsrc|examples\/MessagePack\b/'),
     ])
     ->setRules([
         '@Symfony' => true,

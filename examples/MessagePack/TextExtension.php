@@ -37,7 +37,7 @@ class TextExtension implements Extension
             return null;
         }
 
-        if (strlen($value->str) < $this->minLength) {
+        if (\strlen($value->str) < $this->minLength) {
             return $packer->packStr($value->str);
         }
 
@@ -51,7 +51,7 @@ class TextExtension implements Extension
     {
         $compressed = $unpacker->unpackBin();
 
-        $context = \inflate_init(ZLIB_ENCODING_GZIP);
+        $context = \inflate_init(\ZLIB_ENCODING_GZIP);
 
         return \inflate_add($context, $compressed, \ZLIB_FINISH);
     }
