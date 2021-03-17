@@ -44,16 +44,12 @@ class TextExtension implements Extension
         $context = \deflate_init(\ZLIB_ENCODING_GZIP);
         $compressed = \deflate_add($context, $value->str, \ZLIB_FINISH);
 
-        return $packer->packExt($this->type,
-            $packer->pack(strlen($compressed)).
-            $compressed
-        );
+        return $packer->packExt($this->type, $packer->packBin($compressed));
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
-        $length = $unpacker->unpackInt();
-        $compressed = $unpacker->read($length);
+        $compressed = $unpacker->unpackBin();
 
         $context = \inflate_init(ZLIB_ENCODING_GZIP);
 
