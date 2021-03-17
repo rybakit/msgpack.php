@@ -50,7 +50,6 @@ class TextExtension implements Extension
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         $compressed = $unpacker->unpackBin();
-
         $context = \inflate_init(\ZLIB_ENCODING_GZIP);
 
         return \inflate_add($context, $compressed, \ZLIB_FINISH);
