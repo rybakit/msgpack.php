@@ -35,13 +35,16 @@ class StructuredMapExtension implements Extension
             return null;
         }
 
+        $size = \count($value->items);
+        if ($size < 2) {
+            return $packer->packArray($value->items);
+        }
+
         $data = '';
-        $size = 0;
-        foreach ($value->map as $item) {
+        foreach ($value->items as $item) {
             foreach ($value->schema as $key => $type) {
                 $data .= $packer->{'pack'.$type}($item[$key]);
             }
-            ++$size;
         }
 
         return $packer->packExt($this->type,
