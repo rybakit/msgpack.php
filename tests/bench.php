@@ -62,7 +62,7 @@ function resolve_filter($testNames)
 
 set_error_handler(static function ($code, $message) { throw new \RuntimeException($message); });
 
-$targetAliases = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_bu';
+$targetAliases = getenv('MP_BENCH_TARGETS') ?: 'pure_p,pure_u';
 $rounds = getenv('MP_BENCH_ROUNDS') ?: 3;
 $testNames = getenv('MP_BENCH_TESTS') ?: '-@slow';
 
@@ -84,10 +84,8 @@ $targetFactories = [
     'pecl_p' => function () { return new PeclFunctionPackTarget(); },
     'pecl_u' => function () { return new PeclFunctionUnpackTarget(); },
     'pure_p' => function () { return new PackerTarget('Packer'); },
-    'pure_ps' => function () { return new PackerTarget('Packer (force_str)', new Packer(PackOptions::FORCE_STR)); },
-    'pure_pa' => function () { return new PackerTarget('Packer (force_arr)', new Packer(PackOptions::FORCE_ARR)); },
-    'pure_psa' => function () { return new PackerTarget('Packer (force_str|force_arr)', new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_ARR)); },
-    'pure_bu' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
+    'pure_pdsb' => function () { return new PackerTarget('Packer (detect_str_bin)', new Packer(PackOptions::DETECT_STR_BIN)); },
+    'pure_u' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
 ];
 
 $targets = [];

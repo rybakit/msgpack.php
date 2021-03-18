@@ -35,7 +35,7 @@ final class PackOptions
     public static function fromDefaults() : self
     {
         $self = new self();
-        $self->strBinMode = self::DETECT_STR_BIN;
+        $self->strBinMode = self::FORCE_STR;
         $self->arrMapMode = self::DETECT_ARR_MAP;
         $self->floatMode = self::FORCE_FLOAT64;
 
@@ -50,7 +50,7 @@ final class PackOptions
             self::FORCE_STR |
             self::FORCE_BIN |
             self::DETECT_STR_BIN
-        ) ?: self::DETECT_STR_BIN;
+        ) ?: self::FORCE_STR;
 
         $self->arrMapMode = self::getSingleOption('arr/map', $bitmask,
             self::FORCE_ARR |
