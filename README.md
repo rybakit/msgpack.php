@@ -140,12 +140,8 @@ Examples:
 use MessagePack\Packer;
 use MessagePack\PackOptions;
 
-// pack PHP strings to MP strings, PHP arrays to MP maps 
-// and PHP 64-bit floats (doubles) to MP 32-bit floats
-$packer = new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_MAP | PackOptions::FORCE_FLOAT32);
-
-// pack PHP strings to MP binaries and PHP arrays to MP arrays
-$packer = new Packer(PackOptions::FORCE_BIN | PackOptions::FORCE_ARR);
+// detect str/bin type and pack PHP 64-bit floats (doubles) to MP 32-bit floats
+$packer = new Packer(PackOptions::DETECT_STR_BIN | PackOptions::FORCE_FLOAT32);
 
 // these will throw MessagePack\Exception\InvalidOptionException
 $packer = new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_BIN);
