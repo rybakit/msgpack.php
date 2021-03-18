@@ -30,12 +30,12 @@ final class PackOptionsTest extends TestCase
     public function provideIsserData() : array
     {
         return [
-            ['isDetectStrBinMode', true, 0],
+            ['isDetectStrBinMode', false, 0],
             ['isDetectStrBinMode', false, PackOptions::FORCE_STR],
             ['isDetectStrBinMode', false, PackOptions::FORCE_BIN],
             ['isDetectStrBinMode', true, PackOptions::DETECT_STR_BIN],
 
-            ['isForceStrMode', false, 0],
+            ['isForceStrMode', true, 0],
             ['isForceStrMode', true, PackOptions::FORCE_STR],
             ['isForceStrMode', false, PackOptions::FORCE_BIN],
             ['isForceStrMode', false, PackOptions::DETECT_STR_BIN],

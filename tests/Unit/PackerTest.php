@@ -30,7 +30,7 @@ final class PackerTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->packer = new Packer();
+        $this->packer = new Packer(PackOptions::DETECT_STR_BIN);
     }
 
     /**
@@ -71,14 +71,14 @@ final class PackerTest extends TestCase
     public function provideOptionsData() : array
     {
         return [
-            [null, "\x80", "\xc4\x01\x80"],
+            [null, "\x80", "\xa1\x80"],
             [null, 'a', "\xa1\x61"],
             [null, 2.5, "\xcb\x40\x04\x00\x00\x00\x00\x00\x00"],
             [null, [1 => 2], "\x81\x01\x02"],
             [null, [0 => 1], "\x91\x01"],
             [PackOptions::DETECT_STR_BIN, "\x80", "\xc4\x01\x80"],
             [PackOptions::DETECT_STR_BIN, 'a', "\xa1\x61"],
-            [PackOptions::fromDefaults(), "\x80", "\xc4\x01\x80"],
+            [PackOptions::fromDefaults(), "\x80", "\xa1\x80"],
             [PackOptions::fromDefaults(), 'a', "\xa1\x61"],
             [PackOptions::FORCE_FLOAT64, 0.0, "\xcb\x00\x00\x00\x00\x00\x00\x00\x00"],
             [PackOptions::fromDefaults(), 0.0, "\xcb\x00\x00\x00\x00\x00\x00\x00\x00"],
