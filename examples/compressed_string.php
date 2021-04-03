@@ -46,7 +46,7 @@ printf("Percentage saved:   %d%%\n", round(1 - strlen($packedCompressedString) /
 
 /* OUTPUT
 Packed string size: 448B
-Packed text size:   294B
-Space saved:        154B
-Percentage saved:   34%
+Packed text size:   291B
+Space saved:        157B
+Percentage saved:   35%
 */

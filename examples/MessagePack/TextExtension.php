@@ -20,7 +20,7 @@ class TextExtension implements Extension
     private $type;
     private $minLength;
 
-    public function __construct(int $type, int $minLength = 30)
+    public function __construct(int $type, int $minLength = 100)
     {
         $this->type = $type;
         $this->minLength = $minLength;
@@ -37,19 +37,22 @@ class TextExtension implements Extension
             return null;
         }
 
-        if (\strlen($value->str) < $this->minLength) {
+        $length = \strlen($value->str);
+        if ($length < $this->minLength) {
             return $packer->packStr($value->str);
         }
 
         $context = \deflate_init(\ZLIB_ENCODING_GZIP);
         $compressed = \deflate_add($context, $value->str, \ZLIB_FINISH);
 
-        return $packer->packExt($this->type, $packer->packBin($compressed));
+        return isset($compressed[$length - 1])
+            ? $packer->packStr($value->str)
+            : $packer->packExt($this->type, $compressed);
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
-        $compressed = $unpacker->unpackBin();
+        $compressed = $unpacker->read($extLength);
         $context = \inflate_init(\ZLIB_ENCODING_GZIP);
 
         return \inflate_add($context, $compressed, \ZLIB_FINISH);

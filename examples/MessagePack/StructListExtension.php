@@ -15,7 +15,7 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\Extension;
 
-class StructuredMapExtension implements Extension
+class StructListExtension implements Extension
 {
     private $type;
 
@@ -31,24 +31,26 @@ class StructuredMapExtension implements Extension
 
     public function pack(Packer $packer, $value) : ?string
     {
-        if (!$value instanceof StructuredMap) {
+        if (!$value instanceof StructList) {
             return null;
         }
 
-        $size = \count($value->items);
+        $size = \count($value->list);
         if ($size < 2) {
-            return $packer->packArray($value->items);
+            return $packer->packArray($value->list);
         }
 
+        $keys = \array_keys(\reset($value->list));
+
         $data = '';
-        foreach ($value->items as $item) {
-            foreach ($value->schema as $key => $type) {
-                $data .= $packer->{'pack'.$type}($item[$key]);
+        foreach ($value->list as $item) {
+            foreach ($keys as $key) {
+                $data .= $packer->pack($item[$key]);
             }
         }
 
         return $packer->packExt($this->type,
-            $packer->packMap($value->schema).
+            $packer->packArray($keys).
             $packer->packArrayHeader($size).
             $data
         );
@@ -56,16 +58,16 @@ class StructuredMapExtension implements Extension
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
-        $schema = $unpacker->unpackMap();
+        $keys = $unpacker->unpackArray();
         $size = $unpacker->unpackArrayHeader();
 
-        $items = [];
+        $list = [];
         for ($i = 0; $i < $size; ++$i) {
-            foreach ($schema as $key => $type) {
-                $items[$i][$key] = $unpacker->{'unpack'.$type}();
+            foreach ($keys as $key) {
+                $list[$i][$key] = $unpacker->unpack();
             }
         }
 
-        return $items;
+        return $list;
     }
 }
