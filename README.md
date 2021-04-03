@@ -369,12 +369,12 @@ class DateTimeExtension implements Extension
             return null;
         }
 
-        return $packer->packExt($this->type, $value->format('Y-m-d\TH:i:s.uP'));
+        return $packer->packExt($this->type, $value->format('YmdHisue'));
     }
 
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
-        return new \DateTimeImmutable($unpacker->read($extLength));
+        return \DateTimeImmutable::createFromFormat('YmdHisue', $unpacker->read($extLength));
     }
 }
 ```

@@ -24,11 +24,12 @@ $packer = new Packer(null, [$extension]);
 $packed = $packer->pack($date);
 
 $unpacker = new BufferUnpacker($packed, null, [$extension]);
+$unpacked = $unpacker->unpack();
 
-printf("Raw:      %s\n", $date->format('Y-m-d\TH:i:s.uP'));
-printf("Unpacked: %s\n", $unpacker->unpack()->format('Y-m-d\TH:i:s.uP'));
+printf("Original: %s\n", $date->format('Y-m-d\TH:i:s.uP'));
+printf("Unpacked: %s\n", $unpacked->format('Y-m-d\TH:i:s.uP'));
 
 /* OUTPUT
-Raw:      2019-01-16T22:18:22.294418+03:00
+Original: 2019-01-16T22:18:22.294418+03:00
 Unpacked: 2019-01-16T22:18:22.294418+03:00
 */
