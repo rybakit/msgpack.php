@@ -70,10 +70,12 @@ use MessagePack\MessagePack;
 $packed = MessagePack::pack($value);
 ```
 
-In the examples above, the method `pack` automatically packs a value depending on its type. But not all PHP types 
-can be uniquely translated to MessagePack types. For example, the MessagePack format defines `map` and `array` types, 
-which are represented by a single `array` type in PHP. By default, the packer will pack a PHP array as a MessagePack 
-array if it has sequential numeric keys, starting from `0` and as a MessagePack map otherwise:
+In the examples above, the method `pack` automatically packs a value depending 
+on its type. However, not all PHP types can be uniquely translated to MessagePack 
+types. For example, the MessagePack format defines `map` and `array` types, 
+which are represented by a single `array` type in PHP. By default, the packer 
+will pack a PHP array as a MessagePack array if it has sequential numeric keys, 
+starting from `0` and as a MessagePack map otherwise:
 
 ```php
 $mpArr1 = $packer->pack([1, 2]);               // MP array [1, 2]
@@ -111,8 +113,8 @@ $packer->packExt(1, "\xaa");  // MP ext
 
 #### Packing options
 
-The `Packer` object supports a number of bitmask-based options for fine-tuning the packing 
-process (defaults are in bold):
+The `Packer` object supports a number of bitmask-based options for fine-tuning 
+the packing process (defaults are in bold):
 
 | Name                 | Description                                                   |
 | -------------------- | ------------------------------------------------------------- |
@@ -127,11 +129,13 @@ process (defaults are in bold):
 | `FORCE_FLOAT32`      | Forces PHP floats to be packed as 32-bits MessagePack floats  |
 | **`FORCE_FLOAT64`**  | Forces PHP floats to be packed as 64-bits MessagePack floats  |
 
-> *The type detection mode (`DETECT_STR_BIN`/`DETECT_ARR_MAP`) adds some overhead which can be noticed when you pack 
-> large (16- and 32-bit) arrays or strings. However, if you know the value type in advance (for example, you only 
-> work with UTF-8 strings or/and associative arrays), you can eliminate this overhead by forcing the packer to use 
-> the appropriate type, which will save it from running the auto-detection routine. Another option is to explicitly 
-> specify the value type. The library provides 2 auxiliary classes for this, `Map` and `Bin`.
+> *The type detection mode (`DETECT_STR_BIN`/`DETECT_ARR_MAP`) adds some overhead 
+> which can be noticed when you pack large (16- and 32-bit) arrays or strings. 
+> However, if you know the value type in advance (for example, you only work with 
+> UTF-8 strings or/and associative arrays), you can eliminate this overhead by 
+> forcing the packer to use the appropriate type, which will save it from running 
+> the auto-detection routine. Another option is to explicitly specify the value 
+> type. The library provides 2 auxiliary classes for this, `Map` and `Bin`.
 > Check the ["Type transformers"](#type-transformers) section below for details.*
 
 Examples:
@@ -174,8 +178,9 @@ use MessagePack\MessagePack;
 $value = MessagePack::unpack($packed);
 ```
 
-If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts 
-to unpack data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
+If the packed data is received in chunks (e.g. when reading from a stream), 
+use the `tryUnpack` method, which attempts to unpack data and returns an array 
+of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
 
 ```php
 while ($chunk = ...) {
@@ -223,7 +228,8 @@ With the `read` method you can read raw (packed) data:
 $packedData = $unpacker->read(2); // read 2 bytes
 ```
 
-Besides the above methods `BufferUnpacker` provides type-specific unpacking methods, namely:
+Besides the above methods `BufferUnpacker` provides type-specific unpacking 
+methods, namely:
 
 ```php
 $unpacker->unpackNil();   // PHP null
@@ -240,8 +246,8 @@ $unpacker->unpackExt();   // PHP MessagePack\Ext class
 
 #### Unpacking options
 
-The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning the unpacking process (defaults 
-are in bold):
+The `BufferUnpacker` object supports a number of bitmask-based options for 
+fine-tuning the unpacking process (defaults are in bold):
 
 | Name                | Description                                                              |
 | ------------------- | ------------------------------------------------------------------------ |
@@ -249,10 +255,12 @@ are in bold):
 | `BIGINT_AS_GMP`     | Converts overflowed integers to `GMP` objects <sup>[2]</sup>             |
 | `BIGINT_AS_DEC`     | Converts overflowed integers to `Decimal\Decimal` objects <sup>[3]</sup> |
 
-> *1. The binary MessagePack format has unsigned 64-bit as its largest integer data type,
->    but PHP does not support such integers, which means that an overflow can occur during unpacking.*
+> *1. The binary MessagePack format has unsigned 64-bit as its largest integer 
+>     data type, but PHP does not support such integers, which means that 
+>     an overflow can occur during unpacking.*
 >
-> *2. Make sure the [GMP](http://php.net/manual/en/book.gmp.php) extension is enabled.*
+> *2. Make sure the [GMP](http://php.net/manual/en/book.gmp.php) extension 
+>     is enabled.*
 >
 > *3. Make sure the [Decimal](http://php-decimal.io/) extension is enabled.*
 
@@ -278,7 +286,7 @@ var_dump($unpacker->unpack()); // object(Decimal\Decimal) {...}
 
 ### Extensions
 
-To define application-specific types use the `Ext` class:
+The `Ext` class is used to represent [extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types):
 
 ```php
 use MessagePack\Ext;
@@ -287,22 +295,29 @@ use MessagePack\MessagePack;
 $packed = MessagePack::pack(new Ext(42, "\xaa"));
 $ext = MessagePack::unpack($packed);
 
-var_dump($ext->type === 42); // bool(true)
-var_dump($ext->data === "\xaa"); // bool(true)
+assert($ext->type === 42);
+assert($ext->data === "\xaa");
 ```
+
+Although it can be useful for dealing with types that are not supported by your 
+setup, in most cases you will not use `Ext`, but rather type transformers that 
+make extension types first-class citizens in your code.
 
 
 ### Type transformers
 
 In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
-the library provides functionality to serialize and deserialize arbitrary types. In order to support a custom 
-type you need to create and register a transformer. The transformer should implement either the `CanPack` interface 
-or the `Extension` interface.
+the library provides functionality to serialize and deserialize arbitrary types. 
+In order to support a custom type you need to create and register a transformer.
+The transformer should implement either the `CanPack` interface or the `Extension` 
+interface.
 
-The purpose of `CanPack` transformers is to serialize a specific value to one of the basic MessagePack types. A good 
-example of such a transformer is a `MapTransformer` that comes with the library. It serializes `Map` objects (which 
-are simple wrappers around PHP arrays) to MessagePack maps. This is useful when you want to explicitly mark that 
-a given PHP array must be packed as a MessagePack map, without triggering the type's auto-detection routine.
+The purpose of `CanPack` transformers is to serialize a specific value to 
+one of the basic MessagePack types. A good example of such a transformer is 
+a `MapTransformer` that comes with the library. It serializes `Map` objects 
+(which are simple wrappers around PHP arrays) to MessagePack maps. This is 
+useful when you want to explicitly mark that a given PHP array must be packed 
+as a MessagePack map, without triggering the type's auto-detection routine.
 
 > *More types and type transformers can be found in [src/Type](src/Type) 
 > and [src/TypeTransformer](src/TypeTransformer) directories.*
@@ -341,8 +356,10 @@ $packed = $packer->pack([
 ]);
 ```
 
-Transformers implementing the `Extension` interface are intended to handle [extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
-For example, the code below shows how to create an extension that allows you to work transparently with `DateTime` objects:
+Transformers implementing the `Extension` interface are intended to handle 
+[extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
+For example, the code below shows how to create an extension that allows you 
+to work transparently with `DateTime` objects:
 
 ```php
 use MessagePack\BufferUnpacker;
@@ -379,8 +396,8 @@ class DateTimeExtension implements Extension
 }
 ```
 
-Register `DateTimeExtension` for both the packer and the unpacker with a unique extension type 
-(an integer from 0 to 127) and you're ready to go:
+Register `DateTimeExtension` for both the packer and the unpacker with a unique 
+extension type (an integer from 0 to 127) and you're ready to go:
 
 ```php
 use App\MessagePack\DateTimeExtension;
@@ -404,11 +421,12 @@ $date = $unpacker->reset($packed)->unpack();
 
 ## Exceptions
 
-If an error occurs during packing/unpacking, a `PackingFailedException` or an `UnpackingFailedException` will be thrown, 
-respectively. In addition, an `InsufficientDataException` can be thrown during unpacking.
+If an error occurs during packing/unpacking, a `PackingFailedException` or 
+an `UnpackingFailedException` will be thrown, respectively. In addition, 
+an `InsufficientDataException` can be thrown during unpacking.
 
-An `InvalidOptionException` will be thrown in case an invalid option (or a combination of mutually exclusive options) 
-is used.
+An `InvalidOptionException` will be thrown in case an invalid option 
+(or a combination of mutually exclusive options) is used.
 
 
 ## Tests
@@ -419,8 +437,8 @@ Run tests as follows:
 vendor/bin/phpunit
 ```
 
-Also, if you already have Docker installed, you can run the tests in a docker container.
-First, create a container:
+Also, if you already have Docker installed, you can run the tests in a docker 
+container. First, create a container:
 
 ```sh
 ./dockerfile.sh | docker build -t msgpack -
@@ -664,7 +682,8 @@ Ignored                     0               0
 ```
 </details>
 
-You may change default benchmark settings by defining the following environment variables:
+You may change default benchmark settings by defining the following environment 
+variables:
 
 Name | Default
 ---- | -------
@@ -905,4 +924,5 @@ Ignored                    16              16             0               7
 
 ## License
 
-The library is released under the MIT License. See the bundled [LICENSE](LICENSE) file for details.
+The library is released under the MIT License. See the bundled [LICENSE](LICENSE) 
+file for details.
