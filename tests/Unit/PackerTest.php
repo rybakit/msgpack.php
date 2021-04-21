@@ -47,7 +47,7 @@ final class PackerTest extends TestCase
     public function testPackThrowsExceptionOnUnsupportedType($value, string $type) : void
     {
         $this->expectException(PackingFailedException::class);
-        $this->expectExceptionMessage("Unsupported type: $type");
+        $this->expectExceptionMessage("Unsupported type \"$type\", maybe you forgot to register the type transformer?");
 
         $this->packer->pack($value);
     }
@@ -183,7 +183,7 @@ final class PackerTest extends TestCase
         $packer = $this->packer->extendWith($transformer);
 
         $this->expectException(PackingFailedException::class);
-        $this->expectExceptionMessage('Unsupported type: stdClass');
+        $this->expectExceptionMessage('Unsupported type "stdClass", maybe you forgot to register the type transformer?');
 
         $packer->pack($obj);
     }
