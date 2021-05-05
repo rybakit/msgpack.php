@@ -42,17 +42,17 @@ class StructListExtension implements Extension
 
         $keys = \array_keys(\reset($value->list));
 
-        $data = '';
+        $values = '';
         foreach ($value->list as $item) {
             foreach ($keys as $key) {
-                $data .= $packer->pack($item[$key]);
+                $values .= $packer->pack($item[$key]);
             }
         }
 
         return $packer->packExt($this->type,
             $packer->packArray($keys).
             $packer->packArrayHeader($size).
-            $data
+            $values
         );
     }
 
