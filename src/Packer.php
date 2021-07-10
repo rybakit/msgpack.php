@@ -13,6 +13,7 @@ namespace MessagePack;
 
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
+use MessagePack\TypeTransformer\CanBePacked;
 use MessagePack\TypeTransformer\CanPack;
 
 class Packer
@@ -126,8 +127,8 @@ class Packer
                 }
             }
         }
-        if ($value instanceof Ext) {
-            return $this->packExt($value->type, $value->data);
+        if ($value instanceof CanBePacked) {
+            return $value->pack($this);
         }
 
         throw PackingFailedException::unsupportedType($value);

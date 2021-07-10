@@ -9,16 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack;
+namespace MessagePack\TypeTransformer;
 
-final class Ext
+use MessagePack\Packer;
+
+interface CanBePacked
 {
-    public $type;
-    public $data;
-
-    public function __construct(int $type, string $data)
-    {
-        $this->type = $type;
-        $this->data = $data;
-    }
+    public function pack(Packer $packer) : string;
 }

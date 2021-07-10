@@ -14,17 +14,19 @@ namespace MessagePack\Type;
 use MessagePack\Packer;
 use MessagePack\TypeTransformer\CanBePacked;
 
-final class Map implements CanBePacked
+final class Ext implements CanBePacked
 {
-    public $map;
+    public $type;
+    public $data;
 
-    public function __construct(array $map)
+    public function __construct(int $type, string $data)
     {
-        $this->map = $map;
+        $this->type = $type;
+        $this->data = $data;
     }
 
     public function pack(Packer $packer) : string
     {
-        return $packer->packMap($this->map);
+        return $packer->packExt($this->type, $this->data);
     }
 }

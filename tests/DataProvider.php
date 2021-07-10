@@ -16,7 +16,7 @@
 
 namespace MessagePack\Tests;
 
-use MessagePack\Ext;
+use MessagePack\Type\Ext;
 
 class DataProvider
 {

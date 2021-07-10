@@ -15,6 +15,7 @@ use Decimal\Decimal;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
+use MessagePack\Type\Ext;
 use MessagePack\TypeTransformer\Extension;
 
 class BufferUnpacker

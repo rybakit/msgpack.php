@@ -10,15 +10,13 @@
  */
 
 use MessagePack\Packer;
-use MessagePack\PackOptions;
 use MessagePack\Type\Bin;
-use MessagePack\TypeTransformer\BinTransformer;
 
 require __DIR__.'/autoload.php';
 
 // https://stackoverflow.com/questions/40808984/msgpack-between-php-and-javascript
 
-$packer = new Packer(PackOptions::FORCE_STR, [new BinTransformer()]);
+$packer = new Packer();
 $packed = $packer->pack(['name' => new Bin('value')]);
 
 echo '[', implode(', ', unpack('C*', $packed)), "]\n";

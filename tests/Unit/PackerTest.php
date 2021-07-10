@@ -13,9 +13,9 @@ namespace MessagePack\Tests\Unit;
 
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
-use MessagePack\Ext;
 use MessagePack\Packer;
 use MessagePack\PackOptions;
+use MessagePack\Type\Ext;
 use MessagePack\TypeTransformer\CanPack;
 use PHPUnit\Framework\TestCase;
 

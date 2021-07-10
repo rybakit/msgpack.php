@@ -11,12 +11,20 @@
 
 namespace MessagePack\Type;
 
-final class Bin
+use MessagePack\Packer;
+use MessagePack\TypeTransformer\CanBePacked;
+
+final class Bin implements CanBePacked
 {
     public $data;
 
     public function __construct(string $data)
     {
         $this->data = $data;
+    }
+
+    public function pack(Packer $packer) : string
+    {
+        return $packer->packBin($this->data);
     }
 }

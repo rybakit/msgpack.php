@@ -11,11 +11,10 @@
 
 use MessagePack\Packer;
 use MessagePack\Type\Map;
-use MessagePack\TypeTransformer\MapTransformer;
 
 require __DIR__.'/autoload.php';
 
-$packer = new Packer(null, [new MapTransformer()]);
+$packer = new Packer();
 
 $packedMap = $packer->pack(new Map([1, 2, 3]));
 $packedArray = $packer->pack([1, 2, 3]);
