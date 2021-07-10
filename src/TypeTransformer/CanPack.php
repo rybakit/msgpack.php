@@ -15,5 +15,8 @@ use MessagePack\Packer;
 
 interface CanPack
 {
+    /**
+     * @param mixed $value
+     */
     public function pack(Packer $packer, $value) : ?string;
 }

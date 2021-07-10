@@ -216,6 +216,8 @@ class DataProvider
     {
         return array_merge(self::provideMapData(), [
             'fix map #5' => [[], "\x80"],
+            // overflowed integer keys are always converted to strings
+            'fix map #6' => [['18446744073709551615' => 1], "\xdf\x00\x00\x00\x01\xcf\xff\xff\xff\xff\xff\xff\xff\xff\x01"],
         ]);
     }
 

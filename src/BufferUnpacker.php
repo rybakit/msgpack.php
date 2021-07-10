@@ -20,14 +20,19 @@ use MessagePack\TypeTransformer\Extension;
 
 class BufferUnpacker
 {
+    /** @var string */
     private $buffer;
+
+    /** @var int */
     private $offset = 0;
+
+    /** @var bool */
     private $isBigIntAsDec;
+
+    /** @var bool */
     private $isBigIntAsGmp;
 
-    /**
-     * @var Extension[]
-     */
+    /** @var Extension[] */
     private $extensions = [];
 
     /**
@@ -109,6 +114,9 @@ class BufferUnpacker
         return $this;
     }
 
+    /**
+     * @param positive-int $length
+     */
     public function skip(int $length) : self
     {
         $offset = $this->offset + $length;
@@ -179,6 +187,9 @@ class BufferUnpacker
         return $data;
     }
 
+    /**
+     * @return mixed
+     */
     public function unpack()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -280,6 +291,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unknownCode($c);
     }
 
+    /**
+     * @return null
+     */
     public function unpackNil()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -295,6 +309,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode(\ord($this->buffer[$this->offset++]), 'nil');
     }
 
+    /**
+     * @return bool
+     */
     public function unpackBool()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -314,6 +331,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'bool');
     }
 
+    /**
+     * @return Decimal|\GMP|int|string
+     */
     public function unpackInt()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -348,6 +368,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'int');
     }
 
+    /**
+     * @return float
+     */
     public function unpackFloat()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -367,6 +390,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'float');
     }
 
+    /**
+     * @return string
+     */
     public function unpackStr()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -392,6 +418,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'str');
     }
 
+    /**
+     * @return string
+     */
     public function unpackBin()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -414,6 +443,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'bin');
     }
 
+    /**
+     * @return array
+     */
     public function unpackArray()
     {
         $size = $this->unpackArrayHeader();
@@ -426,6 +458,9 @@ class BufferUnpacker
         return $array;
     }
 
+    /**
+     * @return int
+     */
     public function unpackArrayHeader()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -448,6 +483,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'array');
     }
 
+    /**
+     * @return array
+     */
     public function unpackMap()
     {
         $size = $this->unpackMapHeader();
@@ -460,6 +498,9 @@ class BufferUnpacker
         return $map;
     }
 
+    /**
+     * @return int
+     */
     public function unpackMapHeader()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -482,6 +523,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'map');
     }
 
+    /**
+     * @return mixed
+     */
     public function unpackExt()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -505,6 +549,9 @@ class BufferUnpacker
         throw UnpackingFailedException::unexpectedCode($c, 'ext');
     }
 
+    /**
+     * @return int
+     */
     private function unpackUint8()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -514,6 +561,9 @@ class BufferUnpacker
         return \ord($this->buffer[$this->offset++]);
     }
 
+    /**
+     * @return int
+     */
     private function unpackUint16()
     {
         if (!isset($this->buffer[$this->offset + 1])) {
@@ -524,6 +574,9 @@ class BufferUnpacker
             | \ord($this->buffer[$this->offset++]);
     }
 
+    /**
+     * @return int
+     */
     private function unpackUint32()
     {
         if (!isset($this->buffer[$this->offset + 3])) {
@@ -536,6 +589,9 @@ class BufferUnpacker
             | \ord($this->buffer[$this->offset++]);
     }
 
+    /**
+     * @return Decimal|\GMP|int|string
+     */
     private function unpackUint64()
     {
         if (!isset($this->buffer[$this->offset + 7])) {
@@ -558,6 +614,24 @@ class BufferUnpacker
         return \sprintf('%u', $num);
     }
 
+    /**
+     * @return int|string
+     */
+    private function unpackUint64MapKey()
+    {
+        if (!isset($this->buffer[$this->offset + 7])) {
+            throw new InsufficientDataException();
+        }
+
+        $num = \unpack('J', $this->buffer, $this->offset)[1];
+        $this->offset += 8;
+
+        return $num >= 0 ? $num : \sprintf('%u', $num);
+    }
+
+    /**
+     * @return int
+     */
     private function unpackInt8()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -570,6 +644,9 @@ class BufferUnpacker
         return $num > 0x7f ? $num - 0x100 : $num;
     }
 
+    /**
+     * @return int
+     */
     private function unpackInt16()
     {
         if (!isset($this->buffer[$this->offset + 1])) {
@@ -583,6 +660,9 @@ class BufferUnpacker
         return $num > 0x7fff ? $num - 0x10000 : $num;
     }
 
+    /**
+     * @return int
+     */
     private function unpackInt32()
     {
         if (!isset($this->buffer[$this->offset + 3])) {
@@ -598,6 +678,9 @@ class BufferUnpacker
         return $num > 0x7fffffff ? $num - 0x100000000 : $num;
     }
 
+    /**
+     * @return int
+     */
     private function unpackInt64()
     {
         if (!isset($this->buffer[$this->offset + 7])) {
@@ -610,6 +693,9 @@ class BufferUnpacker
         return $num;
     }
 
+    /**
+     * @return float
+     */
     private function unpackFloat32()
     {
         if (!isset($this->buffer[$this->offset + 3])) {
@@ -622,6 +708,9 @@ class BufferUnpacker
         return $num;
     }
 
+    /**
+     * @return float
+     */
     private function unpackFloat64()
     {
         if (!isset($this->buffer[$this->offset + 7])) {
@@ -634,6 +723,11 @@ class BufferUnpacker
         return $num;
     }
 
+    /**
+     * @param int $size
+     *
+     * @return array
+     */
     private function unpackArrayData($size)
     {
         $array = [];
@@ -644,6 +738,11 @@ class BufferUnpacker
         return $array;
     }
 
+    /**
+     * @param int $size
+     *
+     * @return array
+     */
     private function unpackMapData($size)
     {
         $map = [];
@@ -654,6 +753,9 @@ class BufferUnpacker
         return $map;
     }
 
+    /**
+     * @return int|string
+     */
     private function unpackMapKey()
     {
         if (!isset($this->buffer[$this->offset])) {
@@ -681,7 +783,7 @@ class BufferUnpacker
             case 0xcc: return $this->unpackUint8();
             case 0xcd: return $this->unpackUint16();
             case 0xce: return $this->unpackUint32();
-            case 0xcf: return $this->unpackUint64();
+            case 0xcf: return $this->unpackUint64MapKey();
             // int
             case 0xd0: return $this->unpackInt8();
             case 0xd1: return $this->unpackInt16();
@@ -700,6 +802,11 @@ class BufferUnpacker
         throw UnpackingFailedException::invalidMapKeyType($c);
     }
 
+    /**
+     * @param int $length
+     *
+     * @return mixed
+     */
     private function unpackExtData($length)
     {
         if (!isset($this->buffer[$this->offset + $length])) { // 1 (type) + length - 1

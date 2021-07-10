@@ -676,6 +676,22 @@ final class BufferUnpackerTest extends TestCase
         }
     }
 
+    public function testOverflowedUint64MapKeyIsConvertedToString() : void
+    {
+        $packedMap = "\xdf\x00\x00\x00\x01\xcf\xff\xff\xff\xff\xff\xff\xff\xff\x01"; // {18446744073709551615: 1}
+
+        foreach ([
+            UnpackOptions::BIGINT_AS_STR,
+            UnpackOptions::BIGINT_AS_GMP,
+            UnpackOptions::BIGINT_AS_DEC,
+        ] as $bigIntMode) {
+            $unpacker = new BufferUnpacker($packedMap, $bigIntMode);
+            $unpacked = $unpacker->unpack();
+
+            self::assertSame(['18446744073709551615' => 1], $unpacked);
+        }
+    }
+
     /**
      * @dataProvider \MessagePack\Tests\DataProvider::provideExtData
      */

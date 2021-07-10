@@ -19,31 +19,29 @@ final class UnpackOptions
     public const BIGINT_AS_GMP = 0b010;
     public const BIGINT_AS_DEC = 0b100;
 
+    /** @var int */
     private $bigIntMode;
 
-    private function __construct()
+    /**
+     * @param int $bigIntMode
+     */
+    private function __construct($bigIntMode)
     {
+        $this->bigIntMode = $bigIntMode;
     }
 
     public static function fromDefaults() : self
     {
-        $self = new self();
-        $self->bigIntMode = self::BIGINT_AS_STR;
-
-        return $self;
+        return new self(self::BIGINT_AS_STR);
     }
 
     public static function fromBitmask(int $bitmask) : self
     {
-        $self = new self();
-
-        $self->bigIntMode = self::getSingleOption('bigint', $bitmask,
-            self::BIGINT_AS_STR |
-            self::BIGINT_AS_GMP |
-            self::BIGINT_AS_DEC
-        ) ?: self::BIGINT_AS_STR;
-
-        return $self;
+        return new self(
+            self::getSingleOption('bigint', $bitmask,
+                self::BIGINT_AS_STR | self::BIGINT_AS_GMP | self::BIGINT_AS_DEC
+            ) ?: self::BIGINT_AS_STR
+        );
     }
 
     public function isBigIntAsStrMode() : bool

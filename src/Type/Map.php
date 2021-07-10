@@ -16,6 +16,7 @@ use MessagePack\TypeTransformer\CanBePacked;
 
 final class Map implements CanBePacked
 {
+    /** @readonly */
     public $map;
 
     public function __construct(array $map)

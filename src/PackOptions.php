@@ -24,46 +24,51 @@ final class PackOptions
     public const FORCE_FLOAT32     = 0b01000000;
     public const FORCE_FLOAT64     = 0b10000000;
 
+    /** @var int */
     private $strBinMode;
+
+    /** @var int */
     private $arrMapMode;
+
+    /** @var int */
     private $floatMode;
 
-    private function __construct()
+    /**
+     * @param int $strBinMode
+     * @param int $arrMapMode
+     * @param int $floatMode
+     */
+    private function __construct($strBinMode, $arrMapMode, $floatMode)
     {
+        $this->strBinMode = $strBinMode;
+        $this->arrMapMode = $arrMapMode;
+        $this->floatMode = $floatMode;
     }
 
     public static function fromDefaults() : self
     {
-        $self = new self();
-        $self->strBinMode = self::FORCE_STR;
-        $self->arrMapMode = self::DETECT_ARR_MAP;
-        $self->floatMode = self::FORCE_FLOAT64;
-
-        return $self;
+        return new self(
+            self::FORCE_STR,
+            self::DETECT_ARR_MAP,
+            self::FORCE_FLOAT64
+        );
     }
 
     public static function fromBitmask(int $bitmask) : self
     {
-        $self = new self();
+        return new self(
+            self::getSingleOption('str/bin', $bitmask,
+                self::FORCE_STR | self::FORCE_BIN | self::DETECT_STR_BIN
+            ) ?: self::FORCE_STR,
 
-        $self->strBinMode = self::getSingleOption('str/bin', $bitmask,
-            self::FORCE_STR |
-            self::FORCE_BIN |
-            self::DETECT_STR_BIN
-        ) ?: self::FORCE_STR;
+            self::getSingleOption('arr/map', $bitmask,
+                self::FORCE_ARR | self::FORCE_MAP | self::DETECT_ARR_MAP
+            ) ?: self::DETECT_ARR_MAP,
 
-        $self->arrMapMode = self::getSingleOption('arr/map', $bitmask,
-            self::FORCE_ARR |
-            self::FORCE_MAP |
-            self::DETECT_ARR_MAP
-        ) ?: self::DETECT_ARR_MAP;
-
-        $self->floatMode = self::getSingleOption('float', $bitmask,
-            self::FORCE_FLOAT32 |
-            self::FORCE_FLOAT64
-        ) ?: self::FORCE_FLOAT64;
-
-        return $self;
+            self::getSingleOption('float', $bitmask,
+                self::FORCE_FLOAT32 | self::FORCE_FLOAT64
+            ) ?: self::FORCE_FLOAT64
+        );
     }
 
     public function isDetectStrBinMode() : bool

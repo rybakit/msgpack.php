@@ -16,7 +16,10 @@ use MessagePack\TypeTransformer\CanBePacked;
 
 final class Ext implements CanBePacked
 {
+    /** @readonly */
     public $type;
+
+    /** @readonly */
     public $data;
 
     public function __construct(int $type, string $data)

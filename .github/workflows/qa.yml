@@ -38,7 +38,9 @@ jobs:
       - name: Check code quality
         env: ${{ matrix.env }}
         if: ${{ env.QA }}
-        run: docker run --rm -v $PWD:/msgpack -w /msgpack msgpack php vendor/bin/php-cs-fixer fix --dry-run --diff --verbose .
+        run: |
+          docker run --rm -v $PWD:/msgpack -w /msgpack msgpack php vendor/bin/php-cs-fixer fix --dry-run --diff --verbose .
+          docker run --rm -v $PWD:/msgpack -w /msgpack msgpack php vendor/bin/psalm
 
       - name: Upload code coverage to Scrutinizer
         env: ${{ matrix.env }}

@@ -29,10 +29,19 @@ class Packer
         |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
         )*+\z/x';
 
+    /** @var bool */
     private $isDetectStrBin;
+
+    /** @var bool */
     private $isForceStr;
+
+    /** @var bool */
     private $isDetectArrMap;
+
+    /** @var bool */
     private $isForceArr;
+
+    /** @var bool */
     private $isForceFloat32;
 
     /**
@@ -77,6 +86,11 @@ class Packer
         return $new;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
     public function pack($value)
     {
         if (\is_int($value)) {
@@ -134,16 +148,29 @@ class Packer
         throw PackingFailedException::unsupportedType($value);
     }
 
+    /**
+     * @return string
+     */
     public function packNil()
     {
         return "\xc0";
     }
 
+    /**
+     * @param string $bool
+     *
+     * @return string
+     */
     public function packBool($bool)
     {
         return $bool ? "\xc3" : "\xc2";
     }
 
+    /**
+     * @param int $int
+     *
+     * @return string
+     */
     public function packInt($int)
     {
         if ($int >= 0) {
@@ -179,6 +206,11 @@ class Packer
         return \pack('CJ', 0xd3, $int);
     }
 
+    /**
+     * @param float $float
+     *
+     * @return string
+     */
     public function packFloat($float)
     {
         return $this->isForceFloat32
@@ -186,16 +218,31 @@ class Packer
             : "\xcb".\pack('E', $float);
     }
 
+    /**
+     * @param float $float
+     *
+     * @return string
+     */
     public function packFloat32($float)
     {
         return "\xca".\pack('G', $float);
     }
 
+    /**
+     * @param float $float
+     *
+     * @return string
+     */
     public function packFloat64($float)
     {
         return "\xcb".\pack('E', $float);
     }
 
+    /**
+     * @param string $str
+     *
+     * @return string
+     */
     public function packStr($str)
     {
         $length = \strlen($str);
@@ -213,6 +260,11 @@ class Packer
         return \pack('CN', 0xdb, $length).$str;
     }
 
+    /**
+     * @param string $str
+     *
+     * @return string
+     */
     public function packBin($str)
     {
         $length = \strlen($str);
@@ -227,6 +279,11 @@ class Packer
         return \pack('CN', 0xc6, $length).$str;
     }
 
+    /**
+     * @param array $array
+     *
+     * @return string
+     */
     public function packArray($array)
     {
         $data = $this->packArrayHeader(\count($array));
@@ -238,6 +295,11 @@ class Packer
         return $data;
     }
 
+    /**
+     * @param int $size
+     *
+     * @return string
+     */
     public function packArrayHeader($size)
     {
         if ($size <= 0xf) {
@@ -250,6 +312,11 @@ class Packer
         return \pack('CN', 0xdd, $size);
     }
 
+    /**
+     * @param array $map
+     *
+     * @return string
+     */
     public function packMap($map)
     {
         $data = $this->packMapHeader(\count($map));
@@ -282,6 +349,11 @@ class Packer
         return $data;
     }
 
+    /**
+     * @param int $size
+     *
+     * @return string
+     */
     public function packMapHeader($size)
     {
         if ($size <= 0xf) {
@@ -294,6 +366,12 @@ class Packer
         return \pack('CN', 0xdf, $size);
     }
 
+    /**
+     * @param int $type
+     * @param string $data
+     *
+     * @return string
+     */
     public function packExt($type, $data)
     {
         $length = \strlen($data);

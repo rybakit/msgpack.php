@@ -15,8 +15,12 @@ use MessagePack\Packer;
 
 class TraversableTransformer implements CanPack
 {
+    /** @var bool */
     private $toMap;
 
+    /**
+     * @param bool $toMap
+     */
     private function __construct($toMap)
     {
         $this->toMap = $toMap;

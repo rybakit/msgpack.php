@@ -13,6 +13,9 @@ namespace MessagePack\Exception;
 
 class PackingFailedException extends \RuntimeException
 {
+    /**
+     * @param mixed $value
+     */
     public static function unsupportedType($value) : self
     {
         return new self(\sprintf('Unsupported type "%s", maybe you forgot to register the type transformer?',

@@ -6,3 +6,4 @@ tests export-ignore
 .php_cs.dist export-ignore
 dockerfile.sh export-ignore
 phpunit.xml.dist export-ignore
+psalm.xml export-ignore

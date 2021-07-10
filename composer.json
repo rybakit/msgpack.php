@@ -16,7 +16,8 @@
     "require-dev": {
         "ext-gmp": "*",
         "friendsofphp/php-cs-fixer": "^2.14",
-        "phpunit/phpunit": "^7.1|^8|^9"
+        "phpunit/phpunit": "^7.1|^8|^9",
+        "vimeo/psalm": "^3.9|^4"
     },
     "suggest": {
         "ext-decimal": "For converting overflowed integers to Decimal objects",

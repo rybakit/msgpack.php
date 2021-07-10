@@ -17,5 +17,8 @@ interface Extension extends CanPack
 {
     public function getType() : int;
 
+    /**
+     * @return mixed
+     */
     public function unpackExt(BufferUnpacker $unpacker, int $extLength);
 }

@@ -16,6 +16,7 @@ use MessagePack\TypeTransformer\CanBePacked;
 
 final class Bin implements CanBePacked
 {
+    /** @readonly */
     public $data;
 
     public function __construct(string $data)
