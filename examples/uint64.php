@@ -10,7 +10,6 @@
  */
 
 use App\MessagePack\Uint64;
-use App\MessagePack\Uint64Transformer;
 use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
 use MessagePack\UnpackOptions;
@@ -22,12 +21,12 @@ if (!extension_loaded('gmp')) {
     exit(1);
 }
 
-$packer = new Packer(null, [new Uint64Transformer()]);
+$packer = new Packer();
 
 $uint64 = new Uint64('18446744073709551615');
 $packed = $packer->pack($uint64);
 
-printf("Packed (%s): %s\n", $uint64, bin2hex($packed));
+printf("Packed (%s): %s\n", (string) $uint64, bin2hex($packed));
 printf("Unpacked: %s\n", (new BufferUnpacker($packed, UnpackOptions::BIGINT_AS_STR))->unpack());
 
 /* OUTPUT

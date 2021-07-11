@@ -11,8 +11,12 @@
 
 namespace App\MessagePack;
 
-final class Uint64
+use MessagePack\Packer;
+use MessagePack\TypeTransformer\CanBePacked;
+
+final class Uint64 implements CanBePacked
 {
+    /** @readonly */
     public $value;
 
     public function __construct(string $value)
@@ -23,5 +27,10 @@ final class Uint64
     public function __toString() : string
     {
         return $this->value;
+    }
+
+    public function pack(Packer $packer) : string
+    {
+        return "\xcf".\gmp_export($this->value);
     }
 }

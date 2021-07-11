@@ -13,6 +13,7 @@ namespace App\MessagePack;
 
 final class StructList
 {
+    /** @readonly */
     public $list;
 
     public function __construct(array $list)

@@ -13,6 +13,7 @@ namespace App\MessagePack;
 
 final class Text
 {
+    /** @readonly */
     public $str;
 
     public function __construct(string $str)
