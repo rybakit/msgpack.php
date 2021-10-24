@@ -363,7 +363,7 @@ $unpacker = new BufferUnpacker();
 $unpacker = $unpacker->extendWith($dateTimeExtension);
 
 $packedDate = $packer->pack(new DateTimeImmutable());
-$originalDate = $unpacker->reset($packed)->unpack();
+$originalDate = $unpacker->reset($packedDate)->unpack();
 ```
 
 If you unpack a value from an extension that is not known to the unpacker, an [Ext](src/Type/Ext.php) 
