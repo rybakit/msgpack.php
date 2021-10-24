@@ -12,8 +12,8 @@
 namespace App\MessagePack;
 
 use MessagePack\BufferUnpacker;
+use MessagePack\Extension;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Extension;
 
 class TextExtension implements Extension
 {

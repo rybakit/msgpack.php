@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\TypeTransformer;
-
-use MessagePack\BufferUnpacker;
+namespace MessagePack;
 
 interface Extension extends CanPack
 {

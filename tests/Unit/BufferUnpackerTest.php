@@ -16,9 +16,9 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
+use MessagePack\Extension;
 use MessagePack\Tests\DataProvider;
 use MessagePack\Type\Ext;
-use MessagePack\TypeTransformer\Extension;
 use MessagePack\UnpackOptions;
 use PHPUnit\Framework\TestCase;
 

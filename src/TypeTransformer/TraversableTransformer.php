@@ -11,19 +11,20 @@
 
 namespace MessagePack\TypeTransformer;
 
+use MessagePack\CanPack;
 use MessagePack\Packer;
 
 class TraversableTransformer implements CanPack
 {
     /** @var bool */
-    private $toMap;
+    private $packToMap;
 
     /**
-     * @param bool $toMap
+     * @param bool $packToMap
      */
-    private function __construct($toMap)
+    private function __construct($packToMap)
     {
-        $this->toMap = $toMap;
+        $this->packToMap = $packToMap;
     }
 
     public static function toMap() : self
@@ -42,7 +43,7 @@ class TraversableTransformer implements CanPack
             return null;
         }
 
-        return $this->toMap
+        return $this->packToMap
             ? self::packMap($packer, $value)
             : self::packArray($packer, $value);
     }

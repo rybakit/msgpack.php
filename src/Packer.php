@@ -13,8 +13,6 @@ namespace MessagePack;
 
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
-use MessagePack\TypeTransformer\CanBePacked;
-use MessagePack\TypeTransformer\CanPack;
 
 class Packer
 {

@@ -11,8 +11,8 @@
 
 namespace App\MessagePack;
 
+use MessagePack\CanBePacked;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\CanBePacked;
 
 final class Uint64 implements CanBePacked
 {

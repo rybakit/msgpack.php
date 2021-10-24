@@ -26,8 +26,10 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
      * [Packing options](#packing-options)
    * [Unpacking](#unpacking)
      * [Unpacking options](#unpacking-options)
- * [Extensions](#extensions)
- * [Type transformers](#type-transformers)
+ * [Custom types](#custom-types)
+   * [Type objects](#type-objects)
+   * [Type transformers](#type-transformers)
+   * [Extensions](#extensions)
  * [Exceptions](#exceptions)
  * [Tests](#tests)
     * [Fuzzing](#fuzzing)
@@ -108,7 +110,7 @@ $packer->packMap(['a' => 1]); // MP map
 $packer->packExt(1, "\xaa");  // MP ext
 ```
 
-> *Check the ["Type transformers"](#type-transformers) section below on how to pack custom types.*
+> *Check the ["Custom types"](#custom-types) section below on how to pack custom types.*
 
 
 #### Packing options
@@ -135,8 +137,9 @@ the packing process (defaults are in bold):
 > UTF-8 strings or/and associative arrays), you can eliminate this overhead by 
 > forcing the packer to use the appropriate type, which will save it from running 
 > the auto-detection routine. Another option is to explicitly specify the value 
-> type. The library provides 2 auxiliary classes for this, `Map` and `Bin`.
-> Check the ["Type transformers"](#type-transformers) section below for details.*
+> type. The library provides 2 auxiliary classes for this, [Map](src/Type/Map.php) 
+> and [Bin](src/Type/Bin.php). Check the ["Custom types"](#custom-types) section 
+> below for details.*
 
 Examples:
 
@@ -180,7 +183,8 @@ $value = MessagePack::unpack($packed);
 
 If the packed data is received in chunks (e.g. when reading from a stream), 
 use the `tryUnpack` method, which attempts to unpack data and returns an array 
-of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
+of unpacked messages (if any) instead of throwing 
+an [InsufficientDataException](src/Exception/InsufficientDataException.php):
 
 ```php
 while ($chunk = ...) {
@@ -284,120 +288,65 @@ var_dump($unpacker->unpack()); // object(Decimal\Decimal) {...}
 ```
 
 
-### Extensions
+### Custom types
 
-The `Ext` class is used to represent [extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types):
+In addition to the [basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
+the library provides functionality to serialize and deserialize arbitrary types.
+This can be done in several ways, depending on your use case. Let's take a look at them.
 
-```php
-use MessagePack\Ext;
-use MessagePack\MessagePack;
+#### Type objects
 
-$packed = MessagePack::pack(new Ext(42, "\xaa"));
-$ext = MessagePack::unpack($packed);
-
-assert($ext->type === 42);
-assert($ext->data === "\xaa");
-```
-
-Although it can be useful for dealing with types that are not supported by your 
-setup, in most cases you will not use `Ext`, but rather type transformers that 
-make extension types first-class citizens in your code.
-
-
-### Type transformers
-
-In addition to [the basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
-the library provides functionality to serialize and deserialize arbitrary types. 
-In order to support a custom type you need to create and register a transformer.
-The transformer should implement either the `CanPack` interface or the `Extension` 
-interface.
-
-The purpose of `CanPack` transformers is to serialize a specific value to 
-one of the basic MessagePack types. A good example of such a transformer is 
-a `MapTransformer` that comes with the library. It serializes `Map` objects 
-(which are simple wrappers around PHP arrays) to MessagePack maps. This is 
-useful when you want to explicitly mark that a given PHP array must be packed 
-as a MessagePack map, without triggering the type's auto-detection routine.
-
-> *More types and type transformers can be found in [src/Type](src/Type) 
-> and [src/TypeTransformer](src/TypeTransformer) directories.*
-
-The implementation is trivial:
-
-```php
-namespace MessagePack\TypeTransformer;
-
-use MessagePack\Packer;
-use MessagePack\Type\Map;
-
-class MapTransformer implements CanPack
-{
-    public function pack(Packer $packer, $value) : ?string
-    {
-        return $value instanceof Map
-            ? $packer->packMap($value->map)
-            : null;
-    }
-}
-```
-
-Once `MapTransformer` is registered, you can pack `Map` objects:
+If you need to *serialize* a specific value into one of the basic MessagePack types, it is recommended 
+to use an instance of a class that implements the [CanBePacked](src/CanBePacked.php) interface. A good 
+example of such a class is the [Map](src/Type/Map.php) type class that comes with the library. This type 
+is useful when you want to explicitly specify that a given PHP array should be packed as a MessagePack 
+map without triggering an automatic type detection routine:
 
 ```php
 use MessagePack\Packer;
 use MessagePack\Type\Map;
-use MessagePack\TypeTransformer\MapTransformer;
 
-$packer = new Packer(null, [new MapTransformer()]);
+$packer = new Packer();
 
-$packed = $packer->pack([
-    [1, 2, 3],          // MP array
-    new Map([1, 2, 3]), // MP map
-]);
+$packedMap = $packer->pack(new Map([1, 2, 3]));
+$packedArray = $packer->pack([1, 2, 3]);
 ```
 
-Transformers implementing the `Extension` interface are intended to handle 
-[extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types). 
-For example, the code below shows how to create an extension that allows you 
-to work transparently with `DateTime` objects:
+> *More type examples can be found in the [src/Type](src/Type) directory.*
+
+#### Type transformers
+
+As with type objects, type transformers are only responsible for *serializing* values. They should be 
+used when you need to serialize a value that does not implement the [CanBePacked](src/CanBePacked.php) 
+interface. Examples of such values could be instances of built-in or third-party classes that you don't 
+own, or non-objects such as resources. 
+
+A transformer class must implement the [CanPack](src/CanPack.php) interface. To use a transformer, 
+it must first be registered in the packer. Here is an example of how to serialize PHP streams into 
+the MessagePack `bin` format type using one of the supplied transformers, `StreamTransformer`:
 
 ```php
-use MessagePack\BufferUnpacker;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\Extension;
+use MessagePack\TypeTransformer\StreamTransformer;
 
-class DateTimeExtension implements Extension 
-{
-    private $type;
+$packer = new Packer(null, [new StreamTransformer()]);
 
-    public function __construct(int $type)
-    {
-        $this->type = $type;
-    }
-
-    public function getType() : int
-    {
-        return $this->type;
-    }
-
-    public function pack(Packer $packer, $value) : ?string
-    {
-        if (!$value instanceof \DateTimeInterface) {
-            return null;
-        }
-
-        return $packer->packExt($this->type, $value->format('YmdHisue'));
-    }
-
-    public function unpackExt(BufferUnpacker $unpacker, int $extLength)
-    {
-        return \DateTimeImmutable::createFromFormat('YmdHisue', $unpacker->read($extLength));
-    }
-}
+$packedBin = $packer->pack(fopen('/path/to/file', 'r+'));
 ```
 
-Register `DateTimeExtension` for both the packer and the unpacker with a unique 
-extension type (an integer from 0 to 127) and you're ready to go:
+> *More type transformer examples can be found in the [src/TypeTransformer](src/TypeTransformer) directory.*
+
+#### Extensions
+
+In contrast to the cases described above, extensions are intended to handle
+[extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types)
+and are responsible for *serializing* and *deserializing* values. An extension class must implement 
+the [Extension](src/Extension.php) interface.
+
+For example, to make the built-in PHP `DateTime` objects first-class citizens in your code, you can 
+create a corresponding extension, as shown in the [example](examples/MessagePack/DateTimeExtension.php). 
+Register the extension for both the packer and the unpacker with a unique extension type (an integer 
+from 0 to 127) and you're ready to go:
 
 ```php
 use App\MessagePack\DateTimeExtension;
@@ -412,21 +361,37 @@ $packer = $packer->extendWith($dateTimeExtension);
 $unpacker = new BufferUnpacker();
 $unpacker = $unpacker->extendWith($dateTimeExtension);
 
-$packed = $packer->pack(new DateTimeImmutable());
-$date = $unpacker->reset($packed)->unpack();
+$packedDate = $packer->pack(new DateTimeImmutable());
+$originalDate = $unpacker->reset($packed)->unpack();
 ```
 
-> *More type transformer examples can be found in the [examples](examples) directory.* 
+If you unpack a value from an extension that is not known to the unpacker, an [Ext](src/Type/Ext.php) 
+object will be returned. It can also be used to pack an extension:
+
+```php
+use MessagePack\Ext;
+use MessagePack\MessagePack;
+
+$packed = MessagePack::pack(new Ext(42, "\xaa"));
+$ext = MessagePack::unpack($packed);
+
+assert($ext->type === 42);
+assert($ext->data === "\xaa");
+```
+
+> *More extension examples can be found in the [examples/MessagePack](examples/MessagePack) directory.*
 
 
 ## Exceptions
 
-If an error occurs during packing/unpacking, a `PackingFailedException` or 
-an `UnpackingFailedException` will be thrown, respectively. In addition, 
-an `InsufficientDataException` can be thrown during unpacking.
+If an error occurs during packing/unpacking, 
+a [PackingFailedException](src/Exception/PackingFailedException.php) or 
+an [UnpackingFailedException](src/Exception/UnpackingFailedException.php) will be thrown, respectively. 
+In addition, an [InsufficientDataException](src/Exception/InsufficientDataException.php) can be thrown 
+during unpacking.
 
-An `InvalidOptionException` will be thrown in case an invalid option 
-(or a combination of mutually exclusive options) is used.
+An [InvalidOptionException](src/Exception/InvalidOptionException.php) will be thrown in case an invalid 
+option (or a combination of mutually exclusive options) is used.
 
 
 ## Tests
@@ -924,5 +889,4 @@ Ignored                    16              16             0               7
 
 ## License
 
-The library is released under the MIT License. See the bundled [LICENSE](LICENSE) 
-file for details.
+The library is released under the MIT License. See the bundled [LICENSE](LICENSE) file for details.

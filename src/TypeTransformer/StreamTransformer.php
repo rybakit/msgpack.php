@@ -11,6 +11,7 @@
 
 namespace MessagePack\TypeTransformer;
 
+use MessagePack\CanPack;
 use MessagePack\Packer;
 
 class StreamTransformer implements CanPack

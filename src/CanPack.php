@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MessagePack\TypeTransformer;
-
-use MessagePack\Packer;
+namespace MessagePack;
 
 interface CanPack
 {

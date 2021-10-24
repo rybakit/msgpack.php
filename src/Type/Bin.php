@@ -11,8 +11,8 @@
 
 namespace MessagePack\Type;
 
+use MessagePack\CanBePacked;
 use MessagePack\Packer;
-use MessagePack\TypeTransformer\CanBePacked;
 
 final class Bin implements CanBePacked
 {
