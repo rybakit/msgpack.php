@@ -13,7 +13,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
    including **bin**, **str** and **ext** types
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
- * Supports [object serialization](#type-transformers)
+ * Supports [object serialization](#custom-types)
  * [Fully tested](https://github.com/rybakit/msgpack.php/actions?query=workflow%3AQA)
  * [Relatively fast](#performance)
 
