@@ -323,7 +323,8 @@ own, or non-objects such as resources.
 
 A transformer class must implement the [CanPack](src/CanPack.php) interface. To use a transformer, 
 it must first be registered in the packer. Here is an example of how to serialize PHP streams into 
-the MessagePack `bin` format type using one of the supplied transformers, `StreamTransformer`:
+the MessagePack `bin` format type using one of the supplied transformers, 
+[StreamTransformer](src/TypeTransformer/StreamTransformer.php):
 
 ```php
 use MessagePack\Packer;
