@@ -296,11 +296,11 @@ This can be done in several ways, depending on your use case. Let's take a look 
 
 #### Type objects
 
-If you need to *serialize* a specific value into one of the basic MessagePack types, it is recommended 
-to use an instance of a class that implements the [CanBePacked](src/CanBePacked.php) interface. A good 
-example of such a class is the [Map](src/Type/Map.php) type class that comes with the library. This type 
-is useful when you want to explicitly specify that a given PHP array should be packed as a MessagePack 
-map without triggering an automatic type detection routine:
+If you need to *serialize* an instance of one of your classes, the best way to do it is to implement 
+the [CanBePacked](src/CanBePacked.php) interface in the class. A good example of such a class is 
+the [Map](src/Type/Map.php) type class that comes with the library. This type is useful when you want 
+to explicitly specify that a given PHP array should be packed as a MessagePack map without triggering 
+an automatic type detection routine:
 
 ```php
 use MessagePack\Packer;
@@ -381,6 +381,9 @@ assert($ext->data === "\xaa");
 ```
 
 > *More extension examples can be found in the [examples/MessagePack](examples/MessagePack) directory.*
+
+> *To learn more about how extension types can be useful, check out this 
+> [article](https://dev.to/tarantool/advanced-messagepack-capabilities-4735).*
 
 
 ## Exceptions
