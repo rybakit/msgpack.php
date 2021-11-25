@@ -42,9 +42,7 @@ class Packer
     /** @var bool */
     private $isForceFloat32;
 
-    /**
-     * @var CanPack[]
-     */
+    /** @var CanPack[] */
     private $transformers = [];
 
     /**
