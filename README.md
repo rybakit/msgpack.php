@@ -244,7 +244,7 @@ $unpacker->unpackStr();   // PHP UTF-8 string
 $unpacker->unpackBin();   // PHP binary string
 $unpacker->unpackArray(); // PHP sequential array
 $unpacker->unpackMap();   // PHP associative array
-$unpacker->unpackExt();   // PHP MessagePack\Ext class
+$unpacker->unpackExt();   // PHP MessagePack\Type\Ext object
 ```
 
 
@@ -370,8 +370,8 @@ If you unpack a value from an extension that is not known to the unpacker, an [E
 object will be returned. It can also be used to pack an extension:
 
 ```php
-use MessagePack\Ext;
 use MessagePack\MessagePack;
+use MessagePack\Type\Ext;
 
 $packed = MessagePack::pack(new Ext(42, "\xaa"));
 $ext = MessagePack::unpack($packed);
