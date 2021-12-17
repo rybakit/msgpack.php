@@ -413,11 +413,11 @@ container. First, create a container:
 ./dockerfile.sh | docker build -t msgpack -
 ```
 
-The command above will create a container named `msgpack` with PHP 8.0 runtime.
+The command above will create a container named `msgpack` with PHP 8.1 runtime.
 You may change the default runtime by defining the `PHP_IMAGE` environment variable:
 
 ```sh
-PHP_IMAGE='php:7.4-cli' ./dockerfile.sh | docker build -t msgpack -
+PHP_IMAGE='php:8.0-cli' ./dockerfile.sh | docker build -t msgpack -
 ```
 
 > *See a list of various images [here](https://hub.docker.com/_/php).*

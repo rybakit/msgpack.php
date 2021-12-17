@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -z "$PHP_IMAGE" ]]; then
-    PHP_IMAGE='php:8.0-cli'
+    PHP_IMAGE='php:8.1-cli'
 fi
 
 RUN_CMDS=''
