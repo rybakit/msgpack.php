@@ -9,8 +9,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
 
 ## Features
 
- * Fully compliant with the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md),
-   including **bin**, **str** and **ext** types
+ * Fully compliant with the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md)
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#custom-types)
@@ -30,6 +29,8 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
    * [Type objects](#type-objects)
    * [Type transformers](#type-transformers)
    * [Extensions](#extensions)
+     * [Timestamp](#timestamp)
+     * [Application-specific extensions](#application-specific-extensions)
  * [Exceptions](#exceptions)
  * [Tests](#tests)
     * [Fuzzing](#fuzzing)
@@ -53,31 +54,20 @@ composer require rybakit/msgpack
 To pack values you can either use an instance of a `Packer`:
 
 ```php
-use MessagePack\Packer;
-
 $packer = new Packer();
-
-...
-
 $packed = $packer->pack($value);
 ```
 
 or call a static method on the `MessagePack` class:
 
 ```php
-use MessagePack\MessagePack;
-
-...
-
 $packed = MessagePack::pack($value);
 ```
 
-In the examples above, the method `pack` automatically packs a value depending 
-on its type. However, not all PHP types can be uniquely translated to MessagePack 
-types. For example, the MessagePack format defines `map` and `array` types, 
-which are represented by a single `array` type in PHP. By default, the packer 
-will pack a PHP array as a MessagePack array if it has sequential numeric keys, 
-starting from `0` and as a MessagePack map otherwise:
+In the examples above, the method `pack` automatically packs a value depending on its type. However, not all PHP types 
+can be uniquely translated to MessagePack types. For example, the MessagePack format defines `map` and `array` types, 
+which are represented by a single `array` type in PHP. By default, the packer will pack a PHP array as a MessagePack 
+array if it has sequential numeric keys, starting from `0` and as a MessagePack map otherwise:
 
 ```php
 $mpArr1 = $packer->pack([1, 2]);               // MP array [1, 2]
@@ -137,16 +127,12 @@ the packing process (defaults are in bold):
 > UTF-8 strings or/and associative arrays), you can eliminate this overhead by 
 > forcing the packer to use the appropriate type, which will save it from running 
 > the auto-detection routine. Another option is to explicitly specify the value 
-> type. The library provides 2 auxiliary classes for this, [Map](src/Type/Map.php) 
-> and [Bin](src/Type/Bin.php). Check the ["Custom types"](#custom-types) section 
-> below for details.*
+> type. The library provides 2 auxiliary classes for this, `Map` and `Bin`. 
+> Check the ["Custom types"](#custom-types) section below for details.*
 
 Examples:
 
 ```php
-use MessagePack\Packer;
-use MessagePack\PackOptions;
-
 // detect str/bin type and pack PHP 64-bit floats (doubles) to MP 32-bit floats
 $packer = new Packer(PackOptions::DETECT_STR_BIN | PackOptions::FORCE_FLOAT32);
 
@@ -161,11 +147,7 @@ $packer = new Packer(PackOptions::FORCE_FLOAT32 | PackOptions::FORCE_FLOAT64);
 To unpack data you can either use an instance of a `BufferUnpacker`:
 
 ```php
-use MessagePack\BufferUnpacker;
-
 $unpacker = new BufferUnpacker();
-
-...
 
 $unpacker->reset($packed);
 $value = $unpacker->unpack();
@@ -174,17 +156,11 @@ $value = $unpacker->unpack();
 or call a static method on the `MessagePack` class:
 
 ```php
-use MessagePack\MessagePack;
-
-...
-
 $value = MessagePack::unpack($packed);
 ```
 
-If the packed data is received in chunks (e.g. when reading from a stream), 
-use the `tryUnpack` method, which attempts to unpack data and returns an array 
-of unpacked messages (if any) instead of throwing 
-an [InsufficientDataException](src/Exception/InsufficientDataException.php):
+If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts 
+to unpack data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
 
 ```php
 while ($chunk = ...) {
@@ -232,8 +208,7 @@ With the `read` method you can read raw (packed) data:
 $packedData = $unpacker->read(2); // read 2 bytes
 ```
 
-Besides the above methods `BufferUnpacker` provides type-specific unpacking 
-methods, namely:
+Besides the above methods `BufferUnpacker` provides type-specific unpacking methods, namely:
 
 ```php
 $unpacker->unpackNil();   // PHP null
@@ -250,8 +225,8 @@ $unpacker->unpackExt();   // PHP MessagePack\Type\Ext object
 
 #### Unpacking options
 
-The `BufferUnpacker` object supports a number of bitmask-based options for 
-fine-tuning the unpacking process (defaults are in bold):
+The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning 
+the unpacking process (defaults are in bold):
 
 | Name                | Description                                                              |
 | ------------------- | ------------------------------------------------------------------------ |
@@ -272,9 +247,6 @@ fine-tuning the unpacking process (defaults are in bold):
 Examples:
 
 ```php
-use MessagePack\BufferUnpacker;
-use MessagePack\UnpackOptions;
-
 $packedUint64 = "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff";
 
 $unpacker = new BufferUnpacker($packedUint64);
@@ -290,22 +262,18 @@ var_dump($unpacker->unpack()); // object(Decimal\Decimal) {...}
 
 ### Custom types
 
-In addition to the [basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
-the library provides functionality to serialize and deserialize arbitrary types.
-This can be done in several ways, depending on your use case. Let's take a look at them.
+In addition to the [basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system), the library 
+provides functionality to serialize and deserialize arbitrary types. This can be done in several ways, depending 
+on your use case. Let's take a look at them.
 
 #### Type objects
 
-If you need to *serialize* an instance of one of your classes, the best way to do it is to implement 
-the [CanBePacked](src/CanBePacked.php) interface in the class. A good example of such a class is 
-the [Map](src/Type/Map.php) type class that comes with the library. This type is useful when you want 
-to explicitly specify that a given PHP array should be packed as a MessagePack map without triggering 
-an automatic type detection routine:
+If you need to *serialize* an instance of one of your classes into one of the basic MessagePack types, the best way 
+to do this is to implement the [CanBePacked](src/CanBePacked.php) interface in the class. A good example of such 
+a class is the `Map` type class that comes with the library. This type is useful when you want to explicitly specify 
+that a given PHP array should be packed as a MessagePack map without triggering an automatic type detection routine:
 
 ```php
-use MessagePack\Packer;
-use MessagePack\Type\Map;
-
 $packer = new Packer();
 
 $packedMap = $packer->pack(new Map([1, 2, 3]));
@@ -323,13 +291,9 @@ own, or non-objects such as resources.
 
 A transformer class must implement the [CanPack](src/CanPack.php) interface. To use a transformer, 
 it must first be registered in the packer. Here is an example of how to serialize PHP streams into 
-the MessagePack `bin` format type using one of the supplied transformers, 
-[StreamTransformer](src/TypeTransformer/StreamTransformer.php):
+the MessagePack `bin` format type using one of the supplied transformers, `StreamTransformer`:
 
 ```php
-use MessagePack\Packer;
-use MessagePack\TypeTransformer\StreamTransformer;
-
 $packer = new Packer(null, [new StreamTransformer()]);
 
 $packedBin = $packer->pack(fopen('/path/to/file', 'r+'));
@@ -341,44 +305,48 @@ $packedBin = $packer->pack(fopen('/path/to/file', 'r+'));
 
 In contrast to the cases described above, extensions are intended to handle
 [extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types)
-and are responsible for *serializing* and *deserializing* values. An extension class must implement 
-the [Extension](src/Extension.php) interface.
+and are responsible for both *serialization* and *deserialization* of values (types). 
 
-For example, to make the built-in PHP `DateTime` objects first-class citizens in your code, you can 
-create a corresponding extension, as shown in the [example](examples/MessagePack/DateTimeExtension.php). 
-Register the extension for both the packer and the unpacker with a unique extension type (an integer 
-from 0 to 127) and you're ready to go:
+An extension class must implement the [Extension](src/Extension.php) interface. To use an extension, 
+it must first be registered in the packer and the unpacker.
+
+The MessagePack specification divides extension types into two groups: *predefined* and *application-specific*. 
+Currently, there is only one predefined type in the specification, Timestamp.
+
+##### Timestamp
+
+The Timestamp extension type is a [predefined](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type) 
+type. Support for this type in the library is done through the `TimestampExtension` class. This class is responsible 
+for handling `Timestamp` objects, which represent the number of seconds and optional adjustment in nanoseconds:
 
 ```php
-use App\MessagePack\DateTimeExtension;
-use MessagePack\BufferUnpacker;
-use MessagePack\Packer;
-
-$dateTimeExtension = new DateTimeExtension(42);
+$timestampExtension = new TimestampExtension();
 
 $packer = new Packer();
-$packer = $packer->extendWith($dateTimeExtension);
+$packer = $packer->extendWith($timestampExtension);
 
 $unpacker = new BufferUnpacker();
-$unpacker = $unpacker->extendWith($dateTimeExtension);
+$unpacker = $unpacker->extendWith($timestampExtension);
 
-$packedDate = $packer->pack(new DateTimeImmutable());
-$originalDate = $unpacker->reset($packedDate)->unpack();
+$packedTimestamp = $packer->pack(Timestamp::now());
+$timestamp = $unpacker->reset($packedTimestamp)->unpack();
+
+$seconds = $timestamp->getSeconds();
+$nanoseconds = $timestamp->getNanoseconds();
 ```
 
-If you unpack a value from an extension that is not known to the unpacker, an [Ext](src/Type/Ext.php) 
-object will be returned. It can also be used to pack an extension:
+When using the `MessagePack` class, the Timestamp extension is already registered:
 
 ```php
-use MessagePack\MessagePack;
-use MessagePack\Type\Ext;
-
-$packed = MessagePack::pack(new Ext(42, "\xaa"));
-$ext = MessagePack::unpack($packed);
-
-assert($ext->type === 42);
-assert($ext->data === "\xaa");
+$packedTimestamp = MessagePack::pack(Timestamp::now());
+$timestamp = MessagePack::unpack($packedTimestamp);
 ```
+
+##### Application-specific extensions
+
+In addition, the format can be extended with your own types. For example, to make the built-in PHP `DateTime` objects 
+first-class citizens in your code, you can create a corresponding extension, as shown in the [example](examples/MessagePack/DateTimeExtension.php).
+Please note, that custom extensions have to be registered with a unique extension ID (an integer from `0` to `127`).
 
 > *More extension examples can be found in the [examples/MessagePack](examples/MessagePack) directory.*
 
@@ -388,14 +356,11 @@ assert($ext->data === "\xaa");
 
 ## Exceptions
 
-If an error occurs during packing/unpacking, 
-a [PackingFailedException](src/Exception/PackingFailedException.php) or 
-an [UnpackingFailedException](src/Exception/UnpackingFailedException.php) will be thrown, respectively. 
-In addition, an [InsufficientDataException](src/Exception/InsufficientDataException.php) can be thrown 
-during unpacking.
+If an error occurs during packing/unpacking, a `PackingFailedException` or an `UnpackingFailedException` 
+will be thrown, respectively. In addition, an `InsufficientDataException` can be thrown during unpacking.
 
-An [InvalidOptionException](src/Exception/InvalidOptionException.php) will be thrown in case an invalid 
-option (or a combination of mutually exclusive options) is used.
+An `InvalidOptionException` will be thrown in case an invalid option (or a combination of mutually 
+exclusive options) is used.
 
 
 ## Tests
@@ -406,15 +371,14 @@ Run tests as follows:
 vendor/bin/phpunit
 ```
 
-Also, if you already have Docker installed, you can run the tests in a docker 
-container. First, create a container:
+Also, if you already have Docker installed, you can run the tests in a docker container. First, create a container:
 
 ```sh
 ./dockerfile.sh | docker build -t msgpack -
 ```
 
-The command above will create a container named `msgpack` with PHP 8.1 runtime.
-You may change the default runtime by defining the `PHP_IMAGE` environment variable:
+The command above will create a container named `msgpack` with PHP 8.1 runtime. You may change the default runtime 
+by defining the `PHP_IMAGE` environment variable:
 
 ```sh
 PHP_IMAGE='php:8.0-cli' ./dockerfile.sh | docker build -t msgpack -
@@ -431,10 +395,9 @@ docker run --rm -v $PWD:/msgpack -w /msgpack msgpack
 
 #### Fuzzing
 
-To ensure that the unpacking works correctly with malformed/semi-malformed data,
-you can use a testing technique called [Fuzzing](https://en.wikipedia.org/wiki/Fuzzing).
-The library ships with a help file (target) for [PHP-Fuzzer](https://github.com/nikic/PHP-Fuzzer)
-and can be used as follows:
+To ensure that the unpacking works correctly with malformed/semi-malformed data, you can use a testing technique 
+called [Fuzzing](https://en.wikipedia.org/wiki/Fuzzing). The library ships with a help file (target) 
+for [PHP-Fuzzer](https://github.com/nikic/PHP-Fuzzer) and can be used as follows:
 
 ```sh
 php-fuzzer fuzz tests/fuzz_buffer_unpacker.php
@@ -462,85 +425,93 @@ Iterations: 100000
 =============================================
 Test/Target            Packer  BufferUnpacker
 ---------------------------------------------
-nil .................. 0.0017 ........ 0.0138
-false ................ 0.0033 ........ 0.0131
-true ................. 0.0026 ........ 0.0136
-7-bit uint #1 ........ 0.0079 ........ 0.0125
-7-bit uint #2 ........ 0.0077 ........ 0.0126
-7-bit uint #3 ........ 0.0066 ........ 0.0128
-5-bit sint #1 ........ 0.0080 ........ 0.0140
-5-bit sint #2 ........ 0.0074 ........ 0.0134
-5-bit sint #3 ........ 0.0074 ........ 0.0183
-8-bit uint #1 ........ 0.0085 ........ 0.0211
-8-bit uint #2 ........ 0.0092 ........ 0.0226
-8-bit uint #3 ........ 0.0085 ........ 0.0208
-16-bit uint #1 ....... 0.0170 ........ 0.0245
-16-bit uint #2 ....... 0.0130 ........ 0.0250
-16-bit uint #3 ....... 0.0130 ........ 0.0249
-32-bit uint #1 ....... 0.0132 ........ 0.0341
-32-bit uint #2 ....... 0.0124 ........ 0.0343
-32-bit uint #3 ....... 0.0142 ........ 0.0323
-64-bit uint #1 ....... 0.0137 ........ 0.0314
-64-bit uint #2 ....... 0.0129 ........ 0.0309
-64-bit uint #3 ....... 0.0153 ........ 0.0320
-8-bit int #1 ......... 0.0104 ........ 0.0217
-8-bit int #2 ......... 0.0108 ........ 0.0236
-8-bit int #3 ......... 0.0088 ........ 0.0244
-16-bit int #1 ........ 0.0135 ........ 0.0245
-16-bit int #2 ........ 0.0134 ........ 0.0254
-16-bit int #3 ........ 0.0139 ........ 0.0252
-32-bit int #1 ........ 0.0133 ........ 0.0329
-32-bit int #2 ........ 0.0154 ........ 0.0364
-32-bit int #3 ........ 0.0131 ........ 0.0330
-64-bit int #1 ........ 0.0141 ........ 0.0312
-64-bit int #2 ........ 0.0137 ........ 0.0345
-64-bit int #3 ........ 0.0128 ........ 0.0335
-64-bit int #4 ........ 0.0141 ........ 0.0313
-64-bit float #1 ...... 0.0148 ........ 0.0300
-64-bit float #2 ...... 0.0147 ........ 0.0308
-64-bit float #3 ...... 0.0145 ........ 0.0302
-fix string #1 ....... -0.0032 ........ 0.0127
-fix string #2 ........ 0.0102 ........ 0.0250
-fix string #3 ........ 0.0132 ........ 0.0240
-fix string #4 ........ 0.0122 ........ 0.0243
-8-bit string #1 ...... 0.0121 ........ 0.0316
-8-bit string #2 ...... 0.0128 ........ 0.0325
-8-bit string #3 ...... 0.0146 ........ 0.0312
-16-bit string #1 ..... 0.0185 ........ 0.0353
-16-bit string #2 ..... 0.1541 ........ 0.1720
-32-bit string ........ 0.1541 ........ 0.1801
-wide char string #1 .. 0.0110 ........ 0.0260
-wide char string #2 .. 0.0127 ........ 0.0334
-8-bit binary #1 ...... 0.0107 ........ 0.0293
-8-bit binary #2 ...... 0.0121 ........ 0.0304
-8-bit binary #3 ...... 0.0131 ........ 0.0305
-16-bit binary ........ 0.0159 ........ 0.0355
-32-bit binary ........ 0.1564 ........ 0.1825
-fix array #1 ......... 0.0025 ........ 0.0128
-fix array #2 ......... 0.0296 ........ 0.0354
-fix array #3 ......... 0.0436 ........ 0.0505
-16-bit array #1 ...... 0.1416 ........ 0.1621
+nil .................. 0.0030 ........ 0.0139
+false ................ 0.0037 ........ 0.0144
+true ................. 0.0040 ........ 0.0137
+7-bit uint #1 ........ 0.0052 ........ 0.0120
+7-bit uint #2 ........ 0.0059 ........ 0.0114
+7-bit uint #3 ........ 0.0061 ........ 0.0119
+5-bit sint #1 ........ 0.0067 ........ 0.0126
+5-bit sint #2 ........ 0.0064 ........ 0.0132
+5-bit sint #3 ........ 0.0066 ........ 0.0135
+8-bit uint #1 ........ 0.0078 ........ 0.0200
+8-bit uint #2 ........ 0.0077 ........ 0.0212
+8-bit uint #3 ........ 0.0086 ........ 0.0203
+16-bit uint #1 ....... 0.0111 ........ 0.0271
+16-bit uint #2 ....... 0.0115 ........ 0.0260
+16-bit uint #3 ....... 0.0103 ........ 0.0273
+32-bit uint #1 ....... 0.0116 ........ 0.0326
+32-bit uint #2 ....... 0.0118 ........ 0.0332
+32-bit uint #3 ....... 0.0127 ........ 0.0325
+64-bit uint #1 ....... 0.0140 ........ 0.0277
+64-bit uint #2 ....... 0.0134 ........ 0.0294
+64-bit uint #3 ....... 0.0134 ........ 0.0281
+8-bit int #1 ......... 0.0086 ........ 0.0241
+8-bit int #2 ......... 0.0089 ........ 0.0225
+8-bit int #3 ......... 0.0085 ........ 0.0229
+16-bit int #1 ........ 0.0118 ........ 0.0280
+16-bit int #2 ........ 0.0121 ........ 0.0270
+16-bit int #3 ........ 0.0109 ........ 0.0274
+32-bit int #1 ........ 0.0128 ........ 0.0346
+32-bit int #2 ........ 0.0118 ........ 0.0339
+32-bit int #3 ........ 0.0135 ........ 0.0368
+64-bit int #1 ........ 0.0138 ........ 0.0276
+64-bit int #2 ........ 0.0132 ........ 0.0286
+64-bit int #3 ........ 0.0137 ........ 0.0274
+64-bit int #4 ........ 0.0180 ........ 0.0285
+64-bit float #1 ...... 0.0134 ........ 0.0284
+64-bit float #2 ...... 0.0125 ........ 0.0275
+64-bit float #3 ...... 0.0126 ........ 0.0283
+fix string #1 ........ 0.0035 ........ 0.0133
+fix string #2 ........ 0.0094 ........ 0.0216
+fix string #3 ........ 0.0094 ........ 0.0222
+fix string #4 ........ 0.0091 ........ 0.0241
+8-bit string #1 ...... 0.0122 ........ 0.0301
+8-bit string #2 ...... 0.0118 ........ 0.0304
+8-bit string #3 ...... 0.0119 ........ 0.0315
+16-bit string #1 ..... 0.0150 ........ 0.0388
+16-bit string #2 ..... 0.1545 ........ 0.1665
+32-bit string ........ 0.1570 ........ 0.1756
+wide char string #1 .. 0.0091 ........ 0.0236
+wide char string #2 .. 0.0122 ........ 0.0313
+8-bit binary #1 ...... 0.0100 ........ 0.0302
+8-bit binary #2 ...... 0.0123 ........ 0.0324
+8-bit binary #3 ...... 0.0126 ........ 0.0327
+16-bit binary ........ 0.0168 ........ 0.0372
+32-bit binary ........ 0.1588 ........ 0.1754
+fix array #1 ......... 0.0042 ........ 0.0131
+fix array #2 ......... 0.0294 ........ 0.0367
+fix array #3 ......... 0.0412 ........ 0.0472
+16-bit array #1 ...... 0.1378 ........ 0.1596
 16-bit array #2 ........... S ............. S
 32-bit array .............. S ............. S
-complex array ........ 0.1695 ........ 0.2323
-fix map #1 ........... 0.0776 ........ 0.1083
-fix map #2 ........... 0.0368 ........ 0.0419
-fix map #3 ........... 0.0407 ........ 0.0603
-fix map #4 ........... 0.0454 ........ 0.0527
-16-bit map #1 ........ 0.2320 ........ 0.3022
+complex array ........ 0.1865 ........ 0.2283
+fix map #1 ........... 0.0725 ........ 0.1048
+fix map #2 ........... 0.0319 ........ 0.0405
+fix map #3 ........... 0.0356 ........ 0.0665
+fix map #4 ........... 0.0465 ........ 0.0497
+16-bit map #1 ........ 0.2540 ........ 0.3028
 16-bit map #2 ............. S ............. S
 32-bit map ................ S ............. S
-complex map .......... 0.2327 ........ 0.2729
-fixext 1 ............. 0.0156 ........ 0.0371
-fixext 2 ............. 0.0154 ........ 0.0360
-fixext 4 ............. 0.0185 ........ 0.0358
-fixext 8 ............. 0.0150 ........ 0.0361
-fixext 16 ............ 0.0183 ........ 0.0361
-8-bit ext ............ 0.0189 ........ 0.0433
-16-bit ext ........... 0.0208 ........ 0.0467
-32-bit ext ........... 0.1595 ........ 0.1927
+complex map .......... 0.2372 ........ 0.2710
+fixext 1 ............. 0.0283 ........ 0.0358
+fixext 2 ............. 0.0291 ........ 0.0371
+fixext 4 ............. 0.0302 ........ 0.0355
+fixext 8 ............. 0.0288 ........ 0.0384
+fixext 16 ............ 0.0293 ........ 0.0359
+8-bit ext ............ 0.0302 ........ 0.0439
+16-bit ext ........... 0.0334 ........ 0.0499
+32-bit ext ........... 0.1845 ........ 0.1888
+32-bit timestamp #1 .. 0.0337 ........ 0.0547
+32-bit timestamp #2 .. 0.0335 ........ 0.0560
+64-bit timestamp #1 .. 0.0371 ........ 0.0575
+64-bit timestamp #2 .. 0.0374 ........ 0.0542
+64-bit timestamp #3 .. 0.0356 ........ 0.0533
+96-bit timestamp #1 .. 0.0362 ........ 0.0699
+96-bit timestamp #2 .. 0.0381 ........ 0.0701
+96-bit timestamp #3 .. 0.0367 ........ 0.0687
 =============================================
-Total                  2.3793          3.6580
+Total                  2.7618          4.0820
 Skipped                     4               4
 Failed                      0               0
 Ignored                     0               0
@@ -566,85 +537,93 @@ Iterations: 100000
 =============================================
 Test/Target            Packer  BufferUnpacker
 ---------------------------------------------
-nil .................. 0.0002 ........ 0.0058
-false ................ 0.0012 ........ 0.0072
-true ................. 0.0013 ........ 0.0075
-7-bit uint #1 ........ 0.0027 ........ 0.0067
-7-bit uint #2 ........ 0.0028 ........ 0.0066
-7-bit uint #3 ........ 0.0029 ........ 0.0068
-5-bit sint #1 ........ 0.0039 ........ 0.0098
-5-bit sint #2 ........ 0.0036 ........ 0.0067
-5-bit sint #3 ........ 0.0065 ........ 0.0071
-8-bit uint #1 ........ 0.0068 ........ 0.0100
-8-bit uint #2 ........ 0.0066 ........ 0.0100
-8-bit uint #3 ........ 0.0062 ........ 0.0099
-16-bit uint #1 ....... 0.0096 ........ 0.0119
-16-bit uint #2 ....... 0.0097 ........ 0.0117
-16-bit uint #3 ....... 0.0096 ........ 0.0116
-32-bit uint #1 ....... 0.0105 ........ 0.0155
-32-bit uint #2 ....... 0.0136 ........ 0.0148
-32-bit uint #3 ....... 0.0106 ........ 0.0148
-64-bit uint #1 ....... 0.0111 ........ 0.0232
-64-bit uint #2 ....... 0.0111 ........ 0.0231
-64-bit uint #3 ....... 0.0109 ........ 0.0231
-8-bit int #1 ......... 0.0103 ........ 0.0108
-8-bit int #2 ......... 0.0067 ........ 0.0106
-8-bit int #3 ......... 0.0067 ........ 0.0106
-16-bit int #1 ........ 0.0095 ........ 0.0118
-16-bit int #2 ........ 0.0136 ........ 0.0116
-16-bit int #3 ........ 0.0097 ........ 0.0159
-32-bit int #1 ........ 0.0107 ........ 0.0153
-32-bit int #2 ........ 0.0105 ........ 0.0152
-32-bit int #3 ........ 0.0106 ........ 0.0151
-64-bit int #1 ........ 0.0111 ........ 0.0236
-64-bit int #2 ........ 0.0154 ........ 0.0235
-64-bit int #3 ........ 0.0153 ........ 0.0236
-64-bit int #4 ........ 0.0111 ........ 0.0292
-64-bit float #1 ...... 0.0146 ........ 0.0230
-64-bit float #2 ...... 0.0104 ........ 0.0228
-64-bit float #3 ...... 0.0104 ........ 0.0228
-fix string #1 ........ 0.0016 ........ 0.0066
-fix string #2 ........ 0.0066 ........ 0.0147
-fix string #3 ........ 0.0066 ........ 0.0167
-fix string #4 ........ 0.0063 ........ 0.0119
-8-bit string #1 ...... 0.0143 ........ 0.0163
-8-bit string #2 ...... 0.0103 ........ 0.0212
-8-bit string #3 ...... 0.0106 ........ 0.0161
-16-bit string #1 ..... 0.0138 ........ 0.0237
-16-bit string #2 ..... 0.1612 ........ 0.1572
-32-bit string ........ 0.1549 ........ 0.1693
-wide char string #1 .. 0.0064 ........ 0.0164
-wide char string #2 .. 0.0098 ........ 0.0162
-8-bit binary #1 ...... 0.0097 ........ 0.0143
-8-bit binary #2 ...... 0.0101 ........ 0.0161
-8-bit binary #3 ...... 0.0104 ........ 0.0212
-16-bit binary ........ 0.0137 ........ 0.0184
-32-bit binary ........ 0.1549 ........ 0.1589
-fix array #1 ......... 0.0014 ........ 0.0072
-fix array #2 ......... 0.0173 ........ 0.0205
-fix array #3 ......... 0.0257 ........ 0.0288
-16-bit array #1 ...... 0.0713 ........ 0.0561
+nil .................. 0.0005 ........ 0.0054
+false ................ 0.0004 ........ 0.0059
+true ................. 0.0004 ........ 0.0059
+7-bit uint #1 ........ 0.0010 ........ 0.0047
+7-bit uint #2 ........ 0.0010 ........ 0.0046
+7-bit uint #3 ........ 0.0010 ........ 0.0046
+5-bit sint #1 ........ 0.0025 ........ 0.0046
+5-bit sint #2 ........ 0.0023 ........ 0.0046
+5-bit sint #3 ........ 0.0024 ........ 0.0045
+8-bit uint #1 ........ 0.0043 ........ 0.0081
+8-bit uint #2 ........ 0.0043 ........ 0.0079
+8-bit uint #3 ........ 0.0041 ........ 0.0080
+16-bit uint #1 ....... 0.0064 ........ 0.0095
+16-bit uint #2 ....... 0.0064 ........ 0.0091
+16-bit uint #3 ....... 0.0064 ........ 0.0094
+32-bit uint #1 ....... 0.0085 ........ 0.0114
+32-bit uint #2 ....... 0.0077 ........ 0.0122
+32-bit uint #3 ....... 0.0077 ........ 0.0120
+64-bit uint #1 ....... 0.0085 ........ 0.0159
+64-bit uint #2 ....... 0.0086 ........ 0.0157
+64-bit uint #3 ....... 0.0086 ........ 0.0158
+8-bit int #1 ......... 0.0042 ........ 0.0080
+8-bit int #2 ......... 0.0042 ........ 0.0080
+8-bit int #3 ......... 0.0042 ........ 0.0081
+16-bit int #1 ........ 0.0065 ........ 0.0095
+16-bit int #2 ........ 0.0065 ........ 0.0090
+16-bit int #3 ........ 0.0056 ........ 0.0085
+32-bit int #1 ........ 0.0067 ........ 0.0107
+32-bit int #2 ........ 0.0066 ........ 0.0106
+32-bit int #3 ........ 0.0063 ........ 0.0104
+64-bit int #1 ........ 0.0072 ........ 0.0162
+64-bit int #2 ........ 0.0073 ........ 0.0174
+64-bit int #3 ........ 0.0072 ........ 0.0164
+64-bit int #4 ........ 0.0077 ........ 0.0161
+64-bit float #1 ...... 0.0053 ........ 0.0135
+64-bit float #2 ...... 0.0053 ........ 0.0135
+64-bit float #3 ...... 0.0052 ........ 0.0135
+fix string #1 ....... -0.0002 ........ 0.0044
+fix string #2 ........ 0.0035 ........ 0.0067
+fix string #3 ........ 0.0035 ........ 0.0077
+fix string #4 ........ 0.0033 ........ 0.0078
+8-bit string #1 ...... 0.0059 ........ 0.0110
+8-bit string #2 ...... 0.0063 ........ 0.0121
+8-bit string #3 ...... 0.0064 ........ 0.0124
+16-bit string #1 ..... 0.0099 ........ 0.0146
+16-bit string #2 ..... 0.1522 ........ 0.1474
+32-bit string ........ 0.1511 ........ 0.1483
+wide char string #1 .. 0.0039 ........ 0.0084
+wide char string #2 .. 0.0073 ........ 0.0123
+8-bit binary #1 ...... 0.0040 ........ 0.0112
+8-bit binary #2 ...... 0.0075 ........ 0.0123
+8-bit binary #3 ...... 0.0077 ........ 0.0129
+16-bit binary ........ 0.0096 ........ 0.0145
+32-bit binary ........ 0.1535 ........ 0.1479
+fix array #1 ......... 0.0008 ........ 0.0061
+fix array #2 ......... 0.0121 ........ 0.0165
+fix array #3 ......... 0.0193 ........ 0.0222
+16-bit array #1 ...... 0.0607 ........ 0.0479
 16-bit array #2 ........... S ............. S
 32-bit array .............. S ............. S
-complex array ........ 0.0831 ........ 0.0896
-fix map #1 ........... 0.0385 ........ 0.0490
-fix map #2 ........... 0.0204 ........ 0.0254
-fix map #3 ........... 0.0255 ........ 0.0313
-fix map #4 ........... 0.0294 ........ 0.0300
-16-bit map #1 ........ 0.0956 ........ 0.1025
+complex array ........ 0.0749 ........ 0.0824
+fix map #1 ........... 0.0329 ........ 0.0431
+fix map #2 ........... 0.0161 ........ 0.0189
+fix map #3 ........... 0.0205 ........ 0.0262
+fix map #4 ........... 0.0252 ........ 0.0205
+16-bit map #1 ........ 0.1016 ........ 0.0927
 16-bit map #2 ............. S ............. S
 32-bit map ................ S ............. S
-complex map .......... 0.1161 ........ 0.1267
-fixext 1 ............. 0.0157 ........ 0.0304
-fixext 2 ............. 0.0121 ........ 0.0232
-fixext 4 ............. 0.0117 ........ 0.0229
-fixext 8 ............. 0.0118 ........ 0.0233
-fixext 16 ............ 0.0114 ........ 0.0245
-8-bit ext ............ 0.0130 ........ 0.0266
-16-bit ext ........... 0.0162 ........ 0.0275
-32-bit ext ........... 0.1561 ........ 0.1665
+complex map .......... 0.1096 ........ 0.1030
+fixext 1 ............. 0.0157 ........ 0.0161
+fixext 2 ............. 0.0175 ........ 0.0183
+fixext 4 ............. 0.0156 ........ 0.0185
+fixext 8 ............. 0.0163 ........ 0.0184
+fixext 16 ............ 0.0164 ........ 0.0182
+8-bit ext ............ 0.0158 ........ 0.0207
+16-bit ext ........... 0.0203 ........ 0.0219
+32-bit ext ........... 0.1614 ........ 0.1539
+32-bit timestamp #1 .. 0.0195 ........ 0.0249
+32-bit timestamp #2 .. 0.0188 ........ 0.0260
+64-bit timestamp #1 .. 0.0207 ........ 0.0281
+64-bit timestamp #2 .. 0.0212 ........ 0.0291
+64-bit timestamp #3 .. 0.0207 ........ 0.0295
+96-bit timestamp #1 .. 0.0222 ........ 0.0358
+96-bit timestamp #2 .. 0.0228 ........ 0.0353
+96-bit timestamp #3 .. 0.0210 ........ 0.0319
 =============================================
-Total                  1.6916          2.1562
+Total                  1.6432          1.9674
 Skipped                     4               4
 Failed                      0               0
 Ignored                     0               0
@@ -654,14 +633,13 @@ Ignored                     0               0
 You may change default benchmark settings by defining the following environment 
 variables:
 
-Name | Default
----- | -------
-MP_BENCH_TARGETS | `pure_p,pure_u`, *see a [list](tests/bench.php#L83) of available targets*
-MP_BENCH_ITERATIONS | `100_000`
-MP_BENCH_DURATION | *not set*
-MP_BENCH_ROUNDS | `3`
-MP_BENCH_TESTS | `-@slow`, *see a [list](tests/DataProvider.php) of available tests*
-
+| Name                | Default                                                                   |
+|---------------------|---------------------------------------------------------------------------|
+| MP_BENCH_TARGETS    | `pure_p,pure_u`, *see a [list](tests/bench.php#L83) of available targets* |
+| MP_BENCH_ITERATIONS | `100_000`                                                                 |
+| MP_BENCH_DURATION   | *not set*                                                                 |
+| MP_BENCH_ROUNDS     | `3`                                                                       |
+| MP_BENCH_TESTS      | `-@slow`, *see a [list](tests/DataProvider.php) of available tests*       |
 
 For example:
 
@@ -697,75 +675,75 @@ Iterations: 100000
 ===========================================================================
 Test/Target            Packer  BufferUnpacker  msgpack_pack  msgpack_unpack
 ---------------------------------------------------------------------------
-nil .................. 0.0025 ........ 0.0129 ...... 0.0037 ........ 0.0015
-false ................ 0.0028 ........ 0.0132 ...... 0.0037 ........ 0.0024
-true ................. 0.0030 ........ 0.0133 ...... 0.0044 ........ 0.0042
-7-bit uint #1 ........ 0.0066 ........ 0.0127 ...... 0.0042 ........ 0.0024
-7-bit uint #2 ........ 0.0062 ........ 0.0120 ...... 0.0045 ........ 0.0020
-7-bit uint #3 ........ 0.0066 ........ 0.0125 ...... 0.0040 ........ 0.0022
-5-bit sint #1 ........ 0.0067 ........ 0.0135 ...... 0.0050 ........ 0.0025
-5-bit sint #2 ........ 0.0062 ........ 0.0133 ...... 0.0040 ........ 0.0016
-5-bit sint #3 ........ 0.0067 ........ 0.0128 ...... 0.0044 ........ 0.0027
-8-bit uint #1 ........ 0.0088 ........ 0.0229 ...... 0.0068 ........ 0.0027
-8-bit uint #2 ........ 0.0093 ........ 0.0207 ...... 0.0062 ........ 0.0033
-8-bit uint #3 ........ 0.0093 ........ 0.0204 ...... 0.0043 ........ 0.0028
-16-bit uint #1 ....... 0.0120 ........ 0.0253 ...... 0.0050 ........ 0.0030
-16-bit uint #2 ....... 0.0131 ........ 0.0242 ...... 0.0053 ........ 0.0034
-16-bit uint #3 ....... 0.0131 ........ 0.0243 ...... 0.0053 ........ 0.0033
-32-bit uint #1 ....... 0.0126 ........ 0.0332 ...... 0.0043 ........ 0.0024
-32-bit uint #2 ....... 0.0121 ........ 0.0333 ...... 0.0041 ........ 0.0030
-32-bit uint #3 ....... 0.0130 ........ 0.0327 ...... 0.0040 ........ 0.0029
-64-bit uint #1 ....... 0.0138 ........ 0.0314 ...... 0.0040 ........ 0.0033
-64-bit uint #2 ....... 0.0153 ........ 0.0303 ...... 0.0042 ........ 0.0047
-64-bit uint #3 ....... 0.0132 ........ 0.0326 ...... 0.0054 ........ 0.0039
-8-bit int #1 ......... 0.0118 ........ 0.0216 ...... 0.0036 ........ 0.0024
-8-bit int #2 ......... 0.0093 ........ 0.0214 ...... 0.0037 ........ 0.0036
-8-bit int #3 ......... 0.0084 ........ 0.0201 ...... 0.0062 ........ 0.0025
-16-bit int #1 ........ 0.0137 ........ 0.0262 ...... 0.0036 ........ 0.0040
-16-bit int #2 ........ 0.0151 ........ 0.0246 ...... 0.0059 ........ 0.0031
-16-bit int #3 ........ 0.0132 ........ 0.0281 ...... 0.0045 ........ 0.0028
-32-bit int #1 ........ 0.0151 ........ 0.0378 ...... 0.0050 ........ 0.0039
-32-bit int #2 ........ 0.0137 ........ 0.0356 ...... 0.0040 ........ 0.0031
-32-bit int #3 ........ 0.0134 ........ 0.0335 ...... 0.0048 ........ 0.0020
-64-bit int #1 ........ 0.0135 ........ 0.0313 ...... 0.0043 ........ 0.0026
-64-bit int #2 ........ 0.0135 ........ 0.0301 ...... 0.0043 ........ 0.0029
-64-bit int #3 ........ 0.0131 ........ 0.0312 ...... 0.0046 ........ 0.0030
-64-bit int #4 ........ 0.0160 ........ 0.0330 ...... 0.0044 ........ 0.0028
-64-bit float #1 ...... 0.0147 ........ 0.0295 ...... 0.0051 ........ 0.0047
-64-bit float #2 ...... 0.0145 ........ 0.0313 ...... 0.0040 ........ 0.0025
-64-bit float #3 ...... 0.0142 ........ 0.0301 ...... 0.0042 ........ 0.0026
-fix string #1 ........ 0.0027 ........ 0.0134 ...... 0.0052 ........ 0.0025
-fix string #2 ........ 0.0108 ........ 0.0251 ...... 0.0054 ........ 0.0049
-fix string #3 ........ 0.0106 ........ 0.0232 ...... 0.0053 ........ 0.0044
-fix string #4 ........ 0.0108 ........ 0.0232 ...... 0.0066 ........ 0.0051
-8-bit string #1 ...... 0.0125 ........ 0.0330 ...... 0.0055 ........ 0.0046
-8-bit string #2 ...... 0.0124 ........ 0.0304 ...... 0.0047 ........ 0.0051
-8-bit string #3 ...... 0.0106 ........ 0.0314 ...... 0.0097 ........ 0.0045
-16-bit string #1 ..... 0.0162 ........ 0.0356 ...... 0.0103 ........ 0.0041
-16-bit string #2 ..... 0.1552 ........ 0.1797 ...... 0.1457 ........ 0.1418
-32-bit string ........ 0.1559 ........ 0.1813 ...... 0.1467 ........ 0.1425
-wide char string #1 .. 0.0100 ........ 0.0236 ...... 0.0053 ........ 0.0041
-wide char string #2 .. 0.0124 ........ 0.0303 ...... 0.0053 ........ 0.0061
+nil .................. 0.0031 ........ 0.0141 ...... 0.0055 ........ 0.0064
+false ................ 0.0039 ........ 0.0154 ...... 0.0056 ........ 0.0053
+true ................. 0.0038 ........ 0.0139 ...... 0.0056 ........ 0.0044
+7-bit uint #1 ........ 0.0061 ........ 0.0110 ...... 0.0059 ........ 0.0046
+7-bit uint #2 ........ 0.0065 ........ 0.0119 ...... 0.0042 ........ 0.0029
+7-bit uint #3 ........ 0.0054 ........ 0.0117 ...... 0.0045 ........ 0.0025
+5-bit sint #1 ........ 0.0047 ........ 0.0103 ...... 0.0038 ........ 0.0022
+5-bit sint #2 ........ 0.0048 ........ 0.0117 ...... 0.0038 ........ 0.0022
+5-bit sint #3 ........ 0.0046 ........ 0.0102 ...... 0.0038 ........ 0.0023
+8-bit uint #1 ........ 0.0063 ........ 0.0174 ...... 0.0039 ........ 0.0031
+8-bit uint #2 ........ 0.0063 ........ 0.0167 ...... 0.0040 ........ 0.0029
+8-bit uint #3 ........ 0.0063 ........ 0.0168 ...... 0.0039 ........ 0.0030
+16-bit uint #1 ....... 0.0092 ........ 0.0222 ...... 0.0049 ........ 0.0030
+16-bit uint #2 ....... 0.0096 ........ 0.0227 ...... 0.0042 ........ 0.0046
+16-bit uint #3 ....... 0.0123 ........ 0.0274 ...... 0.0059 ........ 0.0051
+32-bit uint #1 ....... 0.0136 ........ 0.0331 ...... 0.0060 ........ 0.0048
+32-bit uint #2 ....... 0.0130 ........ 0.0336 ...... 0.0070 ........ 0.0048
+32-bit uint #3 ....... 0.0127 ........ 0.0329 ...... 0.0051 ........ 0.0048
+64-bit uint #1 ....... 0.0126 ........ 0.0268 ...... 0.0055 ........ 0.0049
+64-bit uint #2 ....... 0.0135 ........ 0.0281 ...... 0.0052 ........ 0.0046
+64-bit uint #3 ....... 0.0131 ........ 0.0274 ...... 0.0069 ........ 0.0044
+8-bit int #1 ......... 0.0077 ........ 0.0236 ...... 0.0058 ........ 0.0044
+8-bit int #2 ......... 0.0087 ........ 0.0244 ...... 0.0058 ........ 0.0048
+8-bit int #3 ......... 0.0084 ........ 0.0241 ...... 0.0055 ........ 0.0049
+16-bit int #1 ........ 0.0112 ........ 0.0271 ...... 0.0048 ........ 0.0045
+16-bit int #2 ........ 0.0124 ........ 0.0292 ...... 0.0057 ........ 0.0049
+16-bit int #3 ........ 0.0118 ........ 0.0270 ...... 0.0058 ........ 0.0050
+32-bit int #1 ........ 0.0137 ........ 0.0366 ...... 0.0058 ........ 0.0051
+32-bit int #2 ........ 0.0133 ........ 0.0366 ...... 0.0056 ........ 0.0049
+32-bit int #3 ........ 0.0129 ........ 0.0350 ...... 0.0052 ........ 0.0048
+64-bit int #1 ........ 0.0145 ........ 0.0254 ...... 0.0034 ........ 0.0025
+64-bit int #2 ........ 0.0097 ........ 0.0214 ...... 0.0034 ........ 0.0025
+64-bit int #3 ........ 0.0096 ........ 0.0287 ...... 0.0059 ........ 0.0050
+64-bit int #4 ........ 0.0143 ........ 0.0277 ...... 0.0059 ........ 0.0046
+64-bit float #1 ...... 0.0134 ........ 0.0281 ...... 0.0057 ........ 0.0052
+64-bit float #2 ...... 0.0141 ........ 0.0281 ...... 0.0057 ........ 0.0050
+64-bit float #3 ...... 0.0144 ........ 0.0282 ...... 0.0057 ........ 0.0050
+fix string #1 ........ 0.0036 ........ 0.0143 ...... 0.0066 ........ 0.0053
+fix string #2 ........ 0.0107 ........ 0.0222 ...... 0.0065 ........ 0.0068
+fix string #3 ........ 0.0116 ........ 0.0245 ...... 0.0063 ........ 0.0069
+fix string #4 ........ 0.0105 ........ 0.0253 ...... 0.0083 ........ 0.0077
+8-bit string #1 ...... 0.0126 ........ 0.0318 ...... 0.0075 ........ 0.0088
+8-bit string #2 ...... 0.0121 ........ 0.0295 ...... 0.0076 ........ 0.0086
+8-bit string #3 ...... 0.0125 ........ 0.0293 ...... 0.0130 ........ 0.0093
+16-bit string #1 ..... 0.0159 ........ 0.0368 ...... 0.0117 ........ 0.0086
+16-bit string #2 ..... 0.1547 ........ 0.1686 ...... 0.1516 ........ 0.1373
+32-bit string ........ 0.1558 ........ 0.1729 ...... 0.1511 ........ 0.1396
+wide char string #1 .. 0.0098 ........ 0.0237 ...... 0.0066 ........ 0.0065
+wide char string #2 .. 0.0128 ........ 0.0291 ...... 0.0061 ........ 0.0082
 8-bit binary #1 ........... I ............. I ........... F ............. I
 8-bit binary #2 ........... I ............. I ........... F ............. I
 8-bit binary #3 ........... I ............. I ........... F ............. I
 16-bit binary ............. I ............. I ........... F ............. I
 32-bit binary ............. I ............. I ........... F ............. I
-fix array #1 ......... 0.0040 ........ 0.0134 ...... 0.0141 ........ 0.0034
-fix array #2 ......... 0.0292 ........ 0.0347 ...... 0.0149 ........ 0.0133
-fix array #3 ......... 0.0443 ........ 0.0494 ...... 0.0169 ........ 0.0164
-16-bit array #1 ...... 0.1390 ........ 0.1634 ...... 0.0290 ........ 0.0325
+fix array #1 ......... 0.0040 ........ 0.0129 ...... 0.0120 ........ 0.0058
+fix array #2 ......... 0.0279 ........ 0.0390 ...... 0.0143 ........ 0.0165
+fix array #3 ......... 0.0415 ........ 0.0463 ...... 0.0162 ........ 0.0187
+16-bit array #1 ...... 0.1349 ........ 0.1628 ...... 0.0334 ........ 0.0341
 16-bit array #2 ........... S ............. S ........... S ............. S
 32-bit array .............. S ............. S ........... S ............. S
 complex array ............. I ............. I ........... F ............. F
 fix map #1 ................ I ............. I ........... F ............. I
-fix map #2 ........... 0.0336 ........ 0.0407 ...... 0.0180 ........ 0.0159
+fix map #2 ........... 0.0345 ........ 0.0391 ...... 0.0143 ........ 0.0168
 fix map #3 ................ I ............. I ........... F ............. I
-fix map #4 ........... 0.0455 ........ 0.0489 ...... 0.0163 ........ 0.0165
-16-bit map #1 ........ 0.2265 ........ 0.3023 ...... 0.0320 ........ 0.0439
+fix map #4 ........... 0.0459 ........ 0.0473 ...... 0.0151 ........ 0.0163
+16-bit map #1 ........ 0.2518 ........ 0.2962 ...... 0.0400 ........ 0.0490
 16-bit map #2 ............. S ............. S ........... S ............. S
 32-bit map ................ S ............. S ........... S ............. S
-complex map .......... 0.2354 ........ 0.2730 ...... 0.0532 ........ 0.0520
+complex map .......... 0.2380 ........ 0.2682 ...... 0.0545 ........ 0.0579
 fixext 1 .................. I ............. I ........... F ............. F
 fixext 2 .................. I ............. I ........... F ............. F
 fixext 4 .................. I ............. I ........... F ............. F
@@ -774,11 +752,19 @@ fixext 16 ................. I ............. I ........... F ............. F
 8-bit ext ................. I ............. I ........... F ............. F
 16-bit ext ................ I ............. I ........... F ............. F
 32-bit ext ................ I ............. I ........... F ............. F
+32-bit timestamp #1 ....... I ............. I ........... F ............. F
+32-bit timestamp #2 ....... I ............. I ........... F ............. F
+64-bit timestamp #1 ....... I ............. I ........... F ............. F
+64-bit timestamp #2 ....... I ............. I ........... F ............. F
+64-bit timestamp #3 ....... I ............. I ........... F ............. F
+96-bit timestamp #1 ....... I ............. I ........... F ............. F
+96-bit timestamp #2 ....... I ............. I ........... F ............. F
+96-bit timestamp #3 ....... I ............. I ........... F ............. F
 ===========================================================================
-Total                  1.5836          2.4687        0.7192          0.6321
+Total                  1.5625          2.3866        0.7735          0.7243
 Skipped                     4               4             4               4
-Failed                      0               0            16               9
-Ignored                    16              16             0               7
+Failed                      0               0            24              17
+Ignored                    24              24             0               7
 ```
 </details>
 
@@ -803,75 +789,75 @@ Iterations: 100000
 ===========================================================================
 Test/Target            Packer  BufferUnpacker  msgpack_pack  msgpack_unpack
 ---------------------------------------------------------------------------
-nil .................. 0.0003 ........ 0.0061 ...... 0.0064 ........ 0.0047
-false ................ 0.0015 ........ 0.0070 ...... 0.0065 ........ 0.0047
-true ................. 0.0017 ........ 0.0072 ...... 0.0107 ........ 0.0050
-7-bit uint #1 ........ 0.0032 ........ 0.0065 ...... 0.0080 ........ 0.0044
-7-bit uint #2 ........ 0.0033 ........ 0.0064 ...... 0.0082 ........ 0.0044
-7-bit uint #3 ........ 0.0034 ........ 0.0063 ...... 0.0079 ........ 0.0045
-5-bit sint #1 ........ 0.0047 ........ 0.0067 ...... 0.0081 ........ 0.0076
-5-bit sint #2 ........ 0.0045 ........ 0.0068 ...... 0.0152 ........ 0.0047
-5-bit sint #3 ........ 0.0044 ........ 0.0068 ...... 0.0080 ........ 0.0046
-8-bit uint #1 ........ 0.0075 ........ 0.0096 ...... 0.0082 ........ 0.0051
-8-bit uint #2 ........ 0.0078 ........ 0.0098 ...... 0.0080 ........ 0.0082
-8-bit uint #3 ........ 0.0076 ........ 0.0096 ...... 0.0108 ........ 0.0051
-16-bit uint #1 ....... 0.0109 ........ 0.0121 ...... 0.0081 ........ 0.0053
-16-bit uint #2 ....... 0.0106 ........ 0.0160 ...... 0.0101 ........ 0.0050
-16-bit uint #3 ....... 0.0109 ........ 0.0118 ...... 0.0081 ........ 0.0050
-32-bit uint #1 ....... 0.0112 ........ 0.0153 ...... 0.0081 ........ 0.0050
-32-bit uint #2 ....... 0.0111 ........ 0.0150 ...... 0.0081 ........ 0.0049
-32-bit uint #3 ....... 0.0113 ........ 0.0151 ...... 0.0080 ........ 0.0049
-64-bit uint #1 ....... 0.0116 ........ 0.0233 ...... 0.0082 ........ 0.0051
-64-bit uint #2 ....... 0.0160 ........ 0.0234 ...... 0.0079 ........ 0.0054
-64-bit uint #3 ....... 0.0116 ........ 0.0234 ...... 0.0080 ........ 0.0052
-8-bit int #1 ......... 0.0076 ........ 0.0107 ...... 0.0081 ........ 0.0085
-8-bit int #2 ......... 0.0077 ........ 0.0100 ...... 0.0155 ........ 0.0054
-8-bit int #3 ......... 0.0077 ........ 0.0107 ...... 0.0079 ........ 0.0081
-16-bit int #1 ........ 0.0105 ........ 0.0119 ...... 0.0082 ........ 0.0050
-16-bit int #2 ........ 0.0103 ........ 0.0118 ...... 0.0081 ........ 0.0080
-16-bit int #3 ........ 0.0108 ........ 0.0118 ...... 0.0108 ........ 0.0050
-32-bit int #1 ........ 0.0112 ........ 0.0205 ...... 0.0116 ........ 0.0052
-32-bit int #2 ........ 0.0109 ........ 0.0153 ...... 0.0078 ........ 0.0050
-32-bit int #3 ........ 0.0112 ........ 0.0154 ...... 0.0082 ........ 0.0078
-64-bit int #1 ........ 0.0118 ........ 0.0235 ...... 0.0153 ........ 0.0052
-64-bit int #2 ........ 0.0117 ........ 0.0237 ...... 0.0080 ........ 0.0048
-64-bit int #3 ........ 0.0117 ........ 0.0238 ...... 0.0080 ........ 0.0050
-64-bit int #4 ........ 0.0119 ........ 0.0235 ...... 0.0082 ........ 0.0046
-64-bit float #1 ...... 0.0108 ........ 0.0286 ...... 0.0145 ........ 0.0052
-64-bit float #2 ...... 0.0107 ........ 0.0230 ...... 0.0076 ........ 0.0051
-64-bit float #3 ...... 0.0108 ........ 0.0218 ...... 0.0076 ........ 0.0051
-fix string #1 ........ 0.0019 ........ 0.0068 ...... 0.0084 ........ 0.0051
-fix string #2 ........ 0.0070 ........ 0.0108 ...... 0.0085 ........ 0.0069
-fix string #3 ........ 0.0071 ........ 0.0122 ...... 0.0088 ........ 0.0069
-fix string #4 ........ 0.0106 ........ 0.0120 ...... 0.0084 ........ 0.0066
-8-bit string #1 ...... 0.0104 ........ 0.0208 ...... 0.0122 ........ 0.0074
-8-bit string #2 ...... 0.0108 ........ 0.0159 ...... 0.0086 ........ 0.0070
-8-bit string #3 ...... 0.0111 ........ 0.0162 ...... 0.0165 ........ 0.0073
-16-bit string #1 ..... 0.0141 ........ 0.0181 ...... 0.0144 ........ 0.0090
-16-bit string #2 ..... 0.1550 ........ 0.1644 ...... 0.1534 ........ 0.1488
-32-bit string ........ 0.1547 ........ 0.1591 ...... 0.1572 ........ 0.1561
-wide char string #1 .. 0.0070 ........ 0.0118 ...... 0.0084 ........ 0.0070
-wide char string #2 .. 0.0106 ........ 0.0161 ...... 0.0089 ........ 0.0112
+nil .................. 0.0001 ........ 0.0052 ...... 0.0053 ........ 0.0042
+false ................ 0.0007 ........ 0.0060 ...... 0.0057 ........ 0.0043
+true ................. 0.0008 ........ 0.0060 ...... 0.0056 ........ 0.0041
+7-bit uint #1 ........ 0.0031 ........ 0.0046 ...... 0.0062 ........ 0.0041
+7-bit uint #2 ........ 0.0021 ........ 0.0043 ...... 0.0062 ........ 0.0041
+7-bit uint #3 ........ 0.0022 ........ 0.0044 ...... 0.0061 ........ 0.0040
+5-bit sint #1 ........ 0.0030 ........ 0.0048 ...... 0.0062 ........ 0.0040
+5-bit sint #2 ........ 0.0032 ........ 0.0046 ...... 0.0062 ........ 0.0040
+5-bit sint #3 ........ 0.0031 ........ 0.0046 ...... 0.0062 ........ 0.0040
+8-bit uint #1 ........ 0.0054 ........ 0.0079 ...... 0.0062 ........ 0.0050
+8-bit uint #2 ........ 0.0051 ........ 0.0079 ...... 0.0064 ........ 0.0044
+8-bit uint #3 ........ 0.0051 ........ 0.0082 ...... 0.0062 ........ 0.0044
+16-bit uint #1 ....... 0.0077 ........ 0.0094 ...... 0.0065 ........ 0.0045
+16-bit uint #2 ....... 0.0077 ........ 0.0094 ...... 0.0063 ........ 0.0045
+16-bit uint #3 ....... 0.0077 ........ 0.0095 ...... 0.0064 ........ 0.0047
+32-bit uint #1 ....... 0.0088 ........ 0.0119 ...... 0.0063 ........ 0.0043
+32-bit uint #2 ....... 0.0089 ........ 0.0117 ...... 0.0062 ........ 0.0039
+32-bit uint #3 ....... 0.0089 ........ 0.0118 ...... 0.0063 ........ 0.0044
+64-bit uint #1 ....... 0.0097 ........ 0.0155 ...... 0.0063 ........ 0.0045
+64-bit uint #2 ....... 0.0095 ........ 0.0153 ...... 0.0061 ........ 0.0045
+64-bit uint #3 ....... 0.0096 ........ 0.0156 ...... 0.0063 ........ 0.0047
+8-bit int #1 ......... 0.0053 ........ 0.0083 ...... 0.0062 ........ 0.0044
+8-bit int #2 ......... 0.0052 ........ 0.0080 ...... 0.0062 ........ 0.0044
+8-bit int #3 ......... 0.0052 ........ 0.0080 ...... 0.0062 ........ 0.0043
+16-bit int #1 ........ 0.0089 ........ 0.0097 ...... 0.0069 ........ 0.0046
+16-bit int #2 ........ 0.0075 ........ 0.0093 ...... 0.0063 ........ 0.0043
+16-bit int #3 ........ 0.0075 ........ 0.0094 ...... 0.0062 ........ 0.0046
+32-bit int #1 ........ 0.0086 ........ 0.0122 ...... 0.0063 ........ 0.0044
+32-bit int #2 ........ 0.0087 ........ 0.0120 ...... 0.0066 ........ 0.0046
+32-bit int #3 ........ 0.0086 ........ 0.0121 ...... 0.0060 ........ 0.0044
+64-bit int #1 ........ 0.0096 ........ 0.0149 ...... 0.0060 ........ 0.0045
+64-bit int #2 ........ 0.0096 ........ 0.0157 ...... 0.0062 ........ 0.0044
+64-bit int #3 ........ 0.0096 ........ 0.0160 ...... 0.0063 ........ 0.0046
+64-bit int #4 ........ 0.0097 ........ 0.0157 ...... 0.0061 ........ 0.0044
+64-bit float #1 ...... 0.0079 ........ 0.0153 ...... 0.0056 ........ 0.0044
+64-bit float #2 ...... 0.0079 ........ 0.0152 ...... 0.0057 ........ 0.0045
+64-bit float #3 ...... 0.0079 ........ 0.0155 ...... 0.0057 ........ 0.0044
+fix string #1 ........ 0.0010 ........ 0.0045 ...... 0.0071 ........ 0.0044
+fix string #2 ........ 0.0048 ........ 0.0075 ...... 0.0070 ........ 0.0060
+fix string #3 ........ 0.0048 ........ 0.0086 ...... 0.0068 ........ 0.0060
+fix string #4 ........ 0.0050 ........ 0.0088 ...... 0.0070 ........ 0.0059
+8-bit string #1 ...... 0.0081 ........ 0.0129 ...... 0.0069 ........ 0.0062
+8-bit string #2 ...... 0.0086 ........ 0.0128 ...... 0.0069 ........ 0.0065
+8-bit string #3 ...... 0.0086 ........ 0.0126 ...... 0.0115 ........ 0.0065
+16-bit string #1 ..... 0.0105 ........ 0.0137 ...... 0.0128 ........ 0.0068
+16-bit string #2 ..... 0.1510 ........ 0.1486 ...... 0.1526 ........ 0.1391
+32-bit string ........ 0.1517 ........ 0.1475 ...... 0.1504 ........ 0.1370
+wide char string #1 .. 0.0044 ........ 0.0085 ...... 0.0067 ........ 0.0057
+wide char string #2 .. 0.0081 ........ 0.0125 ...... 0.0069 ........ 0.0063
 8-bit binary #1 ........... I ............. I ........... F ............. I
 8-bit binary #2 ........... I ............. I ........... F ............. I
 8-bit binary #3 ........... I ............. I ........... F ............. I
 16-bit binary ............. I ............. I ........... F ............. I
 32-bit binary ............. I ............. I ........... F ............. I
-fix array #1 ......... 0.0024 ........ 0.0075 ...... 0.0163 ........ 0.0063
-fix array #2 ......... 0.0179 ........ 0.0198 ...... 0.0192 ........ 0.0176
-fix array #3 ......... 0.0261 ........ 0.0340 ...... 0.0231 ........ 0.0269
-16-bit array #1 ...... 0.0662 ........ 0.0546 ...... 0.0345 ........ 0.0391
+fix array #1 ......... 0.0014 ........ 0.0059 ...... 0.0132 ........ 0.0055
+fix array #2 ......... 0.0146 ........ 0.0156 ...... 0.0155 ........ 0.0148
+fix array #3 ......... 0.0211 ........ 0.0229 ...... 0.0179 ........ 0.0180
+16-bit array #1 ...... 0.0673 ........ 0.0498 ...... 0.0343 ........ 0.0388
 16-bit array #2 ........... S ............. S ........... S ............. S
 32-bit array .............. S ............. S ........... S ............. S
 complex array ............. I ............. I ........... F ............. F
 fix map #1 ................ I ............. I ........... F ............. I
-fix map #2 ........... 0.0214 ........ 0.0306 ...... 0.0197 ........ 0.0207
+fix map #2 ........... 0.0148 ........ 0.0180 ...... 0.0156 ........ 0.0179
 fix map #3 ................ I ............. I ........... F ............. I
-fix map #4 ........... 0.0292 ........ 0.0270 ...... 0.0306 ........ 0.0209
-16-bit map #1 ........ 0.1031 ........ 0.0896 ...... 0.0378 ........ 0.0506
+fix map #4 ........... 0.0252 ........ 0.0201 ...... 0.0214 ........ 0.0167
+16-bit map #1 ........ 0.1027 ........ 0.0836 ...... 0.0388 ........ 0.0510
 16-bit map #2 ............. S ............. S ........... S ............. S
 32-bit map ................ S ............. S ........... S ............. S
-complex map .......... 0.1164 ........ 0.1131 ...... 0.0591 ........ 0.0583
+complex map .......... 0.1104 ........ 0.1010 ...... 0.0556 ........ 0.0602
 fixext 1 .................. I ............. I ........... F ............. F
 fixext 2 .................. I ............. I ........... F ............. F
 fixext 4 .................. I ............. I ........... F ............. F
@@ -880,11 +866,19 @@ fixext 16 ................. I ............. I ........... F ............. F
 8-bit ext ................. I ............. I ........... F ............. F
 16-bit ext ................ I ............. I ........... F ............. F
 32-bit ext ................ I ............. I ........... F ............. F
+32-bit timestamp #1 ....... I ............. I ........... F ............. F
+32-bit timestamp #2 ....... I ............. I ........... F ............. F
+64-bit timestamp #1 ....... I ............. I ........... F ............. F
+64-bit timestamp #2 ....... I ............. I ........... F ............. F
+64-bit timestamp #3 ....... I ............. I ........... F ............. F
+96-bit timestamp #1 ....... I ............. I ........... F ............. F
+96-bit timestamp #2 ....... I ............. I ........... F ............. F
+96-bit timestamp #3 ....... I ............. I ........... F ............. F
 ===========================================================================
-Total                  1.1056          1.3705        0.9900          0.8214
+Total                  0.9642          1.0909        0.8224          0.7213
 Skipped                     4               4             4               4
-Failed                      0               0            16               9
-Ignored                    16              16             0               7
+Failed                      0               0            24              17
+Ignored                    24              24             0               7
 ```
 </details>
 

@@ -17,6 +17,7 @@ use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension;
+use MessagePack\Extension\TimestampExtension;
 use MessagePack\Tests\DataProvider;
 use MessagePack\Type\Ext;
 use MessagePack\UnpackOptions;
@@ -33,7 +34,7 @@ final class BufferUnpackerTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->unpacker = new BufferUnpacker();
+        $this->unpacker = new BufferUnpacker('', null, [new TimestampExtension()]);
     }
 
     /**

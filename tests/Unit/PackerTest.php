@@ -14,6 +14,7 @@ namespace MessagePack\Tests\Unit;
 use MessagePack\CanPack;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
+use MessagePack\Extension\TimestampExtension;
 use MessagePack\Packer;
 use MessagePack\PackOptions;
 use MessagePack\Type\Ext;
@@ -30,7 +31,7 @@ final class PackerTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->packer = new Packer(PackOptions::DETECT_STR_BIN);
+        $this->packer = new Packer(PackOptions::DETECT_STR_BIN, [new TimestampExtension()]);
     }
 
     /**

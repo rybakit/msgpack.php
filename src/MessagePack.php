@@ -14,9 +14,13 @@ namespace MessagePack;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
 use MessagePack\Exception\UnpackingFailedException;
+use MessagePack\Extension\TimestampExtension;
 
 final class MessagePack
 {
+    /** @var Extension[]|null */
+    private static $extensions;
+
     /**
      * @codeCoverageIgnore
      */
@@ -33,7 +37,7 @@ final class MessagePack
      */
     public static function pack($value, $options = null) : string
     {
-        return (new Packer($options))->pack($value);
+        return (new Packer($options, self::getBuiltInExtensions()))->pack($value);
     }
 
     /**
@@ -46,6 +50,13 @@ final class MessagePack
      */
     public static function unpack(string $data, $options = null)
     {
-        return (new BufferUnpacker($data, $options))->unpack();
+        return (new BufferUnpacker($data, $options, self::getBuiltInExtensions()))->unpack();
+    }
+
+    private static function getBuiltInExtensions() : array
+    {
+        return self::$extensions ?? self::$extensions = [
+            new TimestampExtension(),
+        ];
     }
 }

@@ -12,6 +12,7 @@
 namespace MessagePack\Tests\Perf\Target;
 
 use MessagePack\BufferUnpacker;
+use MessagePack\Extension\TimestampExtension;
 use MessagePack\Tests\Perf\Test;
 
 class BufferUnpackerTarget implements Target
@@ -21,7 +22,7 @@ class BufferUnpackerTarget implements Target
 
     public function __construct(string $name = null, BufferUnpacker $bufferUnpacker = null)
     {
-        $this->bufferUnpacker = $bufferUnpacker ?: new BufferUnpacker();
+        $this->bufferUnpacker = $bufferUnpacker ?: new BufferUnpacker('', null, [new TimestampExtension()]);
         $this->name = $name ?: get_class($this->bufferUnpacker);
     }
 
