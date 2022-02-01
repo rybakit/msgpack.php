@@ -17,9 +17,13 @@
 namespace MessagePack\Tests;
 
 use MessagePack\Type\Ext;
+use MessagePack\Type\Timestamp;
 
 class DataProvider
 {
+    /**
+     * @return array<string, array{mixed, string}>
+     */
     public static function provideData() : array
     {
         return array_merge(
@@ -31,10 +35,14 @@ class DataProvider
             self::provideBinData(),
             self::provideArrayData(),
             self::provideMapData(),
-            self::provideExtData()
+            self::provideExtData(),
+            self::provideExtTimestampData()
         );
     }
 
+    /**
+     * @return array<string, array{mixed, string}>
+     */
     public static function provideUnpackData() : array
     {
         return array_merge(
@@ -46,10 +54,14 @@ class DataProvider
             self::provideBinData(),
             self::provideArrayData(),
             self::provideMapUnpackData(),
-            self::provideExtData()
+            self::provideExtData(),
+            self::provideExtTimestampData()
         );
     }
 
+    /**
+     * @return array<string, array{null, string}>
+     */
     public static function provideNilData() : array
     {
         return [
@@ -57,6 +69,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, array{bool, string}>
+     */
     public static function provideBoolData() : array
     {
         return [
@@ -65,6 +80,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, array{int, string}>
+     */
     public static function provideIntData() : array
     {
         return [
@@ -112,6 +130,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, array{int, string}>
+     */
     public static function provideIntUnpackData() : array
     {
         return array_merge(self::provideIntData(), [
@@ -129,6 +150,9 @@ class DataProvider
         ]);
     }
 
+    /**
+     * @return array<string, array{float, string}>
+     */
     public static function provideFloat32Data() : array
     {
         return [
@@ -137,6 +161,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, array{float, string}>
+     */
     public static function provideFloat64Data() : array
     {
         return [
@@ -146,6 +173,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, array{float, string}>
+     */
     public static function provideFloatUnpackData() : array
     {
         return array_merge(
@@ -154,6 +184,9 @@ class DataProvider
         );
     }
 
+    /**
+     * @return array<string, array{string, string}>
+     */
     public static function provideStrData() : array
     {
         return [
@@ -174,6 +207,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, array{string, string}>
+     */
     public static function provideBinData() : array
     {
         return [
@@ -185,6 +221,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, {array<int, mixed>, string}>
+     */
     public static function provideArrayData() : array
     {
         return [
@@ -198,6 +237,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, {array, string}>
+     */
     public static function provideMapData() : array
     {
         return [
@@ -212,6 +254,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, {array, string}>
+     */
     public static function provideMapUnpackData() : array
     {
         return array_merge(self::provideMapData(), [
@@ -221,6 +266,9 @@ class DataProvider
         ]);
     }
 
+    /**
+     * @return array<string, array{Ext, string}>
+     */
     public static function provideExtData() : array
     {
         return [
@@ -235,6 +283,28 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return array<string, array{Timestamp, string}>
+     */
+    public static function provideExtTimestampData() : array
+    {
+        return [
+            '32-bit timestamp #1' => [new Timestamp(0), "\xd6\xff\x00\x00\x00\x00"],
+            '32-bit timestamp #2' => [new Timestamp(0xffffffff), "\xd6\xff\xff\xff\xff\xff"],
+
+            '64-bit timestamp #1' => [new Timestamp(0, 1), "\xd7\xff\x00\x00\x00\x04\x00\x00\x00\x00"],
+            '64-bit timestamp #2' => [new Timestamp(0xffffffff + 1), "\xd7\xff\x00\x00\x00\x01\x00\x00\x00\x00"],
+            '64-bit timestamp #3' => [new Timestamp(0x3ffffffff, 999999999), "\xd7\xff\xee\x6b\x27\xff\xff\xff\xff\xff"],
+
+            '96-bit timestamp #1' => [new Timestamp(PHP_INT_MIN), "\xc7\x0c\xff\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x00"],
+            '96-bit timestamp #2' => [new Timestamp(0x3ffffffff + 1, 0), "\xc7\x0c\xff\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00"],
+            '96-bit timestamp #3' => [new Timestamp(PHP_INT_MAX, 999999999), "\xc7\x0c\xff\x3b\x9a\xc9\xff\x7f\xff\xff\xff\xff\xff\xff\xff"],
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
     public static function getSlowTestNames() : array
     {
         return [
@@ -245,6 +315,9 @@ class DataProvider
         ];
     }
 
+    /**
+     * @return list<string>
+     */
     public static function getPeclIncompatibleTestNames() : array
     {
         return [
@@ -265,6 +338,14 @@ class DataProvider
             '8-bit ext',
             '16-bit ext',
             '32-bit ext',
+            '32-bit timestamp #1',
+            '32-bit timestamp #2',
+            '64-bit timestamp #1',
+            '64-bit timestamp #2',
+            '64-bit timestamp #3',
+            '96-bit timestamp #1',
+            '96-bit timestamp #2',
+            '96-bit timestamp #3',
         ];
     }
 }

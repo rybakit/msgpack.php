@@ -13,6 +13,7 @@ namespace MessagePack\Tests\Unit;
 
 use MessagePack\MessagePack;
 use MessagePack\PackOptions;
+use MessagePack\Tests\DataProvider;
 use MessagePack\UnpackOptions;
 use PHPUnit\Framework\TestCase;
 
@@ -39,5 +40,19 @@ final class MessagePackTest extends TestCase
         $unpacked = '18446744073709551615';
 
         self::assertSame($unpacked, MessagePack::unpack($packed, UnpackOptions::BIGINT_AS_STR));
+    }
+
+    public function testPackSupportsTimestamp() : void
+    {
+        [$timestamp, $packed] = current(DataProvider::provideExtTimestampData());
+
+        self::assertSame($packed, MessagePack::pack($timestamp));
+    }
+
+    public function testUnpackSupportsTimestamp() : void
+    {
+        [$timestamp, $packed] = current(DataProvider::provideExtTimestampData());
+
+        self::assertEquals($timestamp, MessagePack::unpack($packed));
     }
 }
