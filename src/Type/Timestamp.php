@@ -22,19 +22,6 @@ final class Timestamp
         $this->nanoseconds = $nanoseconds;
     }
 
-    public static function parse(string $datetime) : self
-    {
-        if (!$date = \date_create($datetime)) {
-            throw new \InvalidArgumentException("Failed to parse date: $datetime");
-        }
-
-        if (!\preg_match('/\d\d?[.:]\d\d?[.:]\d\d?[.:](\d{1,9})/', $datetime, $matches)) {
-            return new self($date->getTimestamp());
-        }
-
-        return new self($date->getTimestamp(), (int) \str_pad($matches[1], 9, '0'));
-    }
-
     public static function now() : self
     {
         $date = new \DateTime();
