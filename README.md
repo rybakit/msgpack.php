@@ -30,6 +30,8 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
    * [Type objects](#type-objects)
    * [Type transformers](#type-transformers)
    * [Extensions](#extensions)
+     * [Timestamp](#timestamp)
+     * [Application-specific extensions](#application-specific-extensions)
  * [Exceptions](#exceptions)
  * [Tests](#tests)
     * [Fuzzing](#fuzzing)
@@ -53,31 +55,20 @@ composer require rybakit/msgpack
 To pack values you can either use an instance of a `Packer`:
 
 ```php
-use MessagePack\Packer;
-
 $packer = new Packer();
-
-...
-
 $packed = $packer->pack($value);
 ```
 
 or call a static method on the `MessagePack` class:
 
 ```php
-use MessagePack\MessagePack;
-
-...
-
 $packed = MessagePack::pack($value);
 ```
 
-In the examples above, the method `pack` automatically packs a value depending 
-on its type. However, not all PHP types can be uniquely translated to MessagePack 
-types. For example, the MessagePack format defines `map` and `array` types, 
-which are represented by a single `array` type in PHP. By default, the packer 
-will pack a PHP array as a MessagePack array if it has sequential numeric keys, 
-starting from `0` and as a MessagePack map otherwise:
+In the examples above, the method `pack` automatically packs a value depending on its type. However, not all PHP types 
+can be uniquely translated to MessagePack types. For example, the MessagePack format defines `map` and `array` types, 
+which are represented by a single `array` type in PHP. By default, the packer will pack a PHP array as a MessagePack 
+array if it has sequential numeric keys, starting from `0` and as a MessagePack map otherwise:
 
 ```php
 $mpArr1 = $packer->pack([1, 2]);               // MP array [1, 2]
@@ -137,16 +128,12 @@ the packing process (defaults are in bold):
 > UTF-8 strings or/and associative arrays), you can eliminate this overhead by 
 > forcing the packer to use the appropriate type, which will save it from running 
 > the auto-detection routine. Another option is to explicitly specify the value 
-> type. The library provides 2 auxiliary classes for this, [Map](src/Type/Map.php) 
-> and [Bin](src/Type/Bin.php). Check the ["Custom types"](#custom-types) section 
-> below for details.*
+> type. The library provides 2 auxiliary classes for this, `Map` and `Bin`. 
+> Check the ["Custom types"](#custom-types) section below for details.*
 
 Examples:
 
 ```php
-use MessagePack\Packer;
-use MessagePack\PackOptions;
-
 // detect str/bin type and pack PHP 64-bit floats (doubles) to MP 32-bit floats
 $packer = new Packer(PackOptions::DETECT_STR_BIN | PackOptions::FORCE_FLOAT32);
 
@@ -161,11 +148,7 @@ $packer = new Packer(PackOptions::FORCE_FLOAT32 | PackOptions::FORCE_FLOAT64);
 To unpack data you can either use an instance of a `BufferUnpacker`:
 
 ```php
-use MessagePack\BufferUnpacker;
-
 $unpacker = new BufferUnpacker();
-
-...
 
 $unpacker->reset($packed);
 $value = $unpacker->unpack();
@@ -174,17 +157,11 @@ $value = $unpacker->unpack();
 or call a static method on the `MessagePack` class:
 
 ```php
-use MessagePack\MessagePack;
-
-...
-
 $value = MessagePack::unpack($packed);
 ```
 
-If the packed data is received in chunks (e.g. when reading from a stream), 
-use the `tryUnpack` method, which attempts to unpack data and returns an array 
-of unpacked messages (if any) instead of throwing 
-an [InsufficientDataException](src/Exception/InsufficientDataException.php):
+If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts 
+to unpack data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
 
 ```php
 while ($chunk = ...) {
@@ -232,8 +209,7 @@ With the `read` method you can read raw (packed) data:
 $packedData = $unpacker->read(2); // read 2 bytes
 ```
 
-Besides the above methods `BufferUnpacker` provides type-specific unpacking 
-methods, namely:
+Besides the above methods `BufferUnpacker` provides type-specific unpacking methods, namely:
 
 ```php
 $unpacker->unpackNil();   // PHP null
@@ -250,8 +226,8 @@ $unpacker->unpackExt();   // PHP MessagePack\Type\Ext object
 
 #### Unpacking options
 
-The `BufferUnpacker` object supports a number of bitmask-based options for 
-fine-tuning the unpacking process (defaults are in bold):
+The `BufferUnpacker` object supports a number of bitmask-based options for fine-tuning 
+the unpacking process (defaults are in bold):
 
 | Name                | Description                                                              |
 | ------------------- | ------------------------------------------------------------------------ |
@@ -272,9 +248,6 @@ fine-tuning the unpacking process (defaults are in bold):
 Examples:
 
 ```php
-use MessagePack\BufferUnpacker;
-use MessagePack\UnpackOptions;
-
 $packedUint64 = "\xcf"."\xff\xff\xff\xff"."\xff\xff\xff\xff";
 
 $unpacker = new BufferUnpacker($packedUint64);
@@ -290,22 +263,18 @@ var_dump($unpacker->unpack()); // object(Decimal\Decimal) {...}
 
 ### Custom types
 
-In addition to the [basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system),
-the library provides functionality to serialize and deserialize arbitrary types.
-This can be done in several ways, depending on your use case. Let's take a look at them.
+In addition to the [basic types](https://github.com/msgpack/msgpack/blob/master/spec.md#type-system), the library 
+provides functionality to serialize and deserialize arbitrary types. This can be done in several ways, depending 
+on your use case. Let's take a look at them.
 
 #### Type objects
 
-If you need to *serialize* an instance of one of your classes, the best way to do it is to implement 
-the [CanBePacked](src/CanBePacked.php) interface in the class. A good example of such a class is 
-the [Map](src/Type/Map.php) type class that comes with the library. This type is useful when you want 
-to explicitly specify that a given PHP array should be packed as a MessagePack map without triggering 
-an automatic type detection routine:
+If you need to *serialize* an instance of one of your classes into one of the basic MessagePack types, the best way 
+to do this is to implement the [CanBePacked](src/CanBePacked.php) interface in the class. A good example of such 
+a class is the `Map` type class that comes with the library. This type is useful when you want to explicitly specify 
+that a given PHP array should be packed as a MessagePack map without triggering an automatic type detection routine:
 
 ```php
-use MessagePack\Packer;
-use MessagePack\Type\Map;
-
 $packer = new Packer();
 
 $packedMap = $packer->pack(new Map([1, 2, 3]));
@@ -323,13 +292,9 @@ own, or non-objects such as resources.
 
 A transformer class must implement the [CanPack](src/CanPack.php) interface. To use a transformer, 
 it must first be registered in the packer. Here is an example of how to serialize PHP streams into 
-the MessagePack `bin` format type using one of the supplied transformers, 
-[StreamTransformer](src/TypeTransformer/StreamTransformer.php):
+the MessagePack `bin` format type using one of the supplied transformers, `StreamTransformer`:
 
 ```php
-use MessagePack\Packer;
-use MessagePack\TypeTransformer\StreamTransformer;
-
 $packer = new Packer(null, [new StreamTransformer()]);
 
 $packedBin = $packer->pack(fopen('/path/to/file', 'r+'));
@@ -341,44 +306,48 @@ $packedBin = $packer->pack(fopen('/path/to/file', 'r+'));
 
 In contrast to the cases described above, extensions are intended to handle
 [extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types)
-and are responsible for *serializing* and *deserializing* values. An extension class must implement 
-the [Extension](src/Extension.php) interface.
+and are responsible for both *serialization* and *deserialization* of values (types). 
 
-For example, to make the built-in PHP `DateTime` objects first-class citizens in your code, you can 
-create a corresponding extension, as shown in the [example](examples/MessagePack/DateTimeExtension.php). 
-Register the extension for both the packer and the unpacker with a unique extension type (an integer 
-from 0 to 127) and you're ready to go:
+An extension class must implement the [Extension](src/Extension.php) interface. To use an extension, 
+it must first be registered in the packer and the unpacker.
+
+The MessagePack specification divides extension types into two groups: *predefined* and *application-specific*. 
+Currently, there is only one predefined type in the specification, Timestamp.
+
+##### Timestamp
+
+The Timestamp extension type is a [predefined](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type) 
+type. Support for this type in the library is done through the `TimestampExtension` class. This class is responsible 
+for handling `Timestamp` objects, which represent the number of seconds and optional adjustment in nanoseconds:
 
 ```php
-use App\MessagePack\DateTimeExtension;
-use MessagePack\BufferUnpacker;
-use MessagePack\Packer;
-
-$dateTimeExtension = new DateTimeExtension(42);
+$timestampExtension = new TimestampExtension();
 
 $packer = new Packer();
-$packer = $packer->extendWith($dateTimeExtension);
+$packer = $packer->extendWith($timestampExtension);
 
 $unpacker = new BufferUnpacker();
-$unpacker = $unpacker->extendWith($dateTimeExtension);
+$unpacker = $unpacker->extendWith($timestampExtension);
 
-$packedDate = $packer->pack(new DateTimeImmutable());
-$originalDate = $unpacker->reset($packedDate)->unpack();
+$packedTimestamp = $packer->pack(Timestamp::now());
+$timestamp = $unpacker->reset($packedTimestamp)->unpack();
+
+$seconds = $timestamp->getSeconds();
+$nanoseconds = $timestamp->getNanoseconds();
 ```
 
-If you unpack a value from an extension that is not known to the unpacker, an [Ext](src/Type/Ext.php) 
-object will be returned. It can also be used to pack an extension:
+When using the `MessagePack` class, the Timestamp extension is already registered:
 
 ```php
-use MessagePack\MessagePack;
-use MessagePack\Type\Ext;
-
-$packed = MessagePack::pack(new Ext(42, "\xaa"));
-$ext = MessagePack::unpack($packed);
-
-assert($ext->type === 42);
-assert($ext->data === "\xaa");
+$packedTimestamp = MessagePack::pack(Timestamp::now());
+$timestamp = MessagePack::unpack($packedTimestamp);
 ```
+
+##### Application-specific extensions
+
+In addition, the format can be extended with your own types. For example, to make the built-in PHP `DateTime` objects 
+first-class citizens in your code, you can create a corresponding extension, as shown in the [example](examples/MessagePack/DateTimeExtension.php).
+Please note, that custom extensions have to be registered with a unique extension ID (an integer from `0` to `127`).
 
 > *More extension examples can be found in the [examples/MessagePack](examples/MessagePack) directory.*
 
@@ -388,14 +357,11 @@ assert($ext->data === "\xaa");
 
 ## Exceptions
 
-If an error occurs during packing/unpacking, 
-a [PackingFailedException](src/Exception/PackingFailedException.php) or 
-an [UnpackingFailedException](src/Exception/UnpackingFailedException.php) will be thrown, respectively. 
-In addition, an [InsufficientDataException](src/Exception/InsufficientDataException.php) can be thrown 
-during unpacking.
+If an error occurs during packing/unpacking, a `PackingFailedException` or an `UnpackingFailedException` 
+will be thrown, respectively. In addition, an `InsufficientDataException` can be thrown during unpacking.
 
-An [InvalidOptionException](src/Exception/InvalidOptionException.php) will be thrown in case an invalid 
-option (or a combination of mutually exclusive options) is used.
+An `InvalidOptionException` will be thrown in case an invalid option (or a combination of mutually 
+exclusive options) is used.
 
 
 ## Tests
@@ -406,15 +372,14 @@ Run tests as follows:
 vendor/bin/phpunit
 ```
 
-Also, if you already have Docker installed, you can run the tests in a docker 
-container. First, create a container:
+Also, if you already have Docker installed, you can run the tests in a docker container. First, create a container:
 
 ```sh
 ./dockerfile.sh | docker build -t msgpack -
 ```
 
-The command above will create a container named `msgpack` with PHP 8.1 runtime.
-You may change the default runtime by defining the `PHP_IMAGE` environment variable:
+The command above will create a container named `msgpack` with PHP 8.1 runtime. You may change the default runtime 
+by defining the `PHP_IMAGE` environment variable:
 
 ```sh
 PHP_IMAGE='php:8.0-cli' ./dockerfile.sh | docker build -t msgpack -
@@ -431,10 +396,9 @@ docker run --rm -v $PWD:/msgpack -w /msgpack msgpack
 
 #### Fuzzing
 
-To ensure that the unpacking works correctly with malformed/semi-malformed data,
-you can use a testing technique called [Fuzzing](https://en.wikipedia.org/wiki/Fuzzing).
-The library ships with a help file (target) for [PHP-Fuzzer](https://github.com/nikic/PHP-Fuzzer)
-and can be used as follows:
+To ensure that the unpacking works correctly with malformed/semi-malformed data, you can use a testing technique 
+called [Fuzzing](https://en.wikipedia.org/wiki/Fuzzing). The library ships with a help file (target) 
+for [PHP-Fuzzer](https://github.com/nikic/PHP-Fuzzer) and can be used as follows:
 
 ```sh
 php-fuzzer fuzz tests/fuzz_buffer_unpacker.php
@@ -654,14 +618,13 @@ Ignored                     0               0
 You may change default benchmark settings by defining the following environment 
 variables:
 
-Name | Default
----- | -------
-MP_BENCH_TARGETS | `pure_p,pure_u`, *see a [list](tests/bench.php#L83) of available targets*
-MP_BENCH_ITERATIONS | `100_000`
-MP_BENCH_DURATION | *not set*
-MP_BENCH_ROUNDS | `3`
-MP_BENCH_TESTS | `-@slow`, *see a [list](tests/DataProvider.php) of available tests*
-
+| Name                | Default                                                                   |
+|---------------------|---------------------------------------------------------------------------|
+| MP_BENCH_TARGETS    | `pure_p,pure_u`, *see a [list](tests/bench.php#L83) of available targets* |
+| MP_BENCH_ITERATIONS | `100_000`                                                                 |
+| MP_BENCH_DURATION   | *not set*                                                                 |
+| MP_BENCH_ROUNDS     | `3`                                                                       |
+| MP_BENCH_TESTS      | `-@slow`, *see a [list](tests/DataProvider.php) of available tests*       |
 
 For example:
 
