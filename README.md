@@ -9,8 +9,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
 
 ## Features
 
- * Fully compliant with the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md),
-   including **bin**, **str** and **ext** types
+ * Fully compliant with the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md)
  * Supports [streaming unpacking](#unpacking)
  * Supports [unsigned 64-bit integers handling](#unpacking-options)
  * Supports [object serialization](#custom-types)
