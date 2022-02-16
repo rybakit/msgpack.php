@@ -84,6 +84,8 @@ final class BufferUnpackerTest extends TestCase
             'int64' => ["\xd3"],
             'float32' => ["\xca"],
             'float64' => ["\xcb"],
+            'mapkey' => ["\xdf\x00\x00\x00\x01"],
+            'mapkey_uint64' => ["\xdf\x00\x00\x00\x01\xcf"],
             'fixext1' => ["\xd4"],
             'fixext1t' => ["\xd4\x01"],
             'fixext2' => ["\xd5"],
@@ -675,6 +677,9 @@ final class BufferUnpackerTest extends TestCase
                 yield ["\x81{$packed}\x00", $type]; // [$raw => 0]
             }
         }
+
+        // unknown key type
+        yield ["\x81\xc1\x00", '0xc1'];
     }
 
     public function testOverflowedUint64MapKeyIsConvertedToString() : void
