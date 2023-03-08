@@ -20,6 +20,7 @@ echo -e "
 FROM $PHP_IMAGE
 
 RUN apt-get update && apt-get install -y curl git unzip libgmp-dev libonig-dev && \\
+    git config --global --add safe.directory '*' && \\
     ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \\
     echo memory_limit = 256M > \$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/zz-custom.ini && \\
     docker-php-ext-install mbstring gmp${RUN_CMDS}
