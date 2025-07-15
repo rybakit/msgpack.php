@@ -377,11 +377,11 @@ Also, if you already have Docker installed, you can run the tests in a docker co
 ./dockerfile.sh | docker build -t msgpack -
 ```
 
-The command above will create a container named `msgpack` with PHP 8.2 runtime. You may change the default runtime 
+The command above will create a container named `msgpack` with PHP 8.4 runtime. You may change the default runtime 
 by defining the `PHP_IMAGE` environment variable:
 
 ```sh
-PHP_IMAGE='php:8.1-cli' ./dockerfile.sh | docker build -t msgpack -
+PHP_IMAGE='php:8.3-cli' ./dockerfile.sh | docker build -t msgpack -
 ```
 
 > *See a list of various images [here](https://hub.docker.com/_/php).*
@@ -633,13 +633,13 @@ Ignored                     0               0
 You may change default benchmark settings by defining the following environment 
 variables:
 
-| Name                | Default                                                                   |
-|---------------------|---------------------------------------------------------------------------|
-| MP_BENCH_TARGETS    | `pure_p,pure_u`, *see a [list](tests/bench.php#L83) of available targets* |
-| MP_BENCH_ITERATIONS | `100_000`                                                                 |
-| MP_BENCH_DURATION   | *not set*                                                                 |
-| MP_BENCH_ROUNDS     | `3`                                                                       |
-| MP_BENCH_TESTS      | `-@slow`, *see a [list](tests/DataProvider.php) of available tests*       |
+| Name                | Default                                                                     |
+|---------------------|-----------------------------------------------------------------------------|
+| MP_BENCH_TARGETS    | `pure_p,pure_u`, *see the [list](tests/bench.php#L83) of available targets* |
+| MP_BENCH_ITERATIONS | `100_000`                                                                   |
+| MP_BENCH_DURATION   | *not set*                                                                   |
+| MP_BENCH_ROUNDS     | `3`                                                                         |
+| MP_BENCH_TESTS      | `-@slow`, *see the [list](tests/DataProvider.php) of available tests*       |
 
 For example:
 
