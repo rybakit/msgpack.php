@@ -177,7 +177,7 @@ class Packer
                 return "\xcc".\chr($int);
             }
             if ($int <= 0xffff) {
-                return "\xcd".\chr($int >> 8).\chr($int);
+                return "\xcd".\chr($int >> 8).\chr($int & 0xff);
             }
             if ($int <= 0xffffffff) {
                 return \pack('CN', 0xce, $int);
@@ -190,10 +190,10 @@ class Packer
             return \chr(0xe0 | $int);
         }
         if ($int >= -0x80) {
-            return "\xd0".\chr($int);
+            return "\xd0".\chr($int & 0xff);
         }
         if ($int >= -0x8000) {
-            return "\xd1".\chr($int >> 8).\chr($int);
+            return "\xd1".\chr($int >> 8 & 0xff).\chr($int & 0xff);
         }
         if ($int >= -0x80000000) {
             return \pack('CN', 0xd2, $int);
@@ -250,7 +250,7 @@ class Packer
             return "\xd9".\chr($length).$str;
         }
         if ($length <= 0xffff) {
-            return "\xda".\chr($length >> 8).\chr($length).$str;
+            return "\xda".\chr($length >> 8).\chr($length & 0xff).$str;
         }
 
         return \pack('CN', 0xdb, $length).$str;
@@ -269,7 +269,7 @@ class Packer
             return "\xc4".\chr($length).$str;
         }
         if ($length <= 0xffff) {
-            return "\xc5".\chr($length >> 8).\chr($length).$str;
+            return "\xc5".\chr($length >> 8).\chr($length & 0xff).$str;
         }
 
         return \pack('CN', 0xc6, $length).$str;
@@ -302,7 +302,7 @@ class Packer
             return \chr(0x90 | $size);
         }
         if ($size <= 0xffff) {
-            return "\xdc".\chr($size >> 8).\chr($size);
+            return "\xdc".\chr($size >> 8).\chr($size & 0xff);
         }
 
         return \pack('CN', 0xdd, $size);
@@ -356,7 +356,7 @@ class Packer
             return \chr(0x80 | $size);
         }
         if ($size <= 0xffff) {
-            return "\xde".\chr($size >> 8).\chr($size);
+            return "\xde".\chr($size >> 8).\chr($size & 0xff);
         }
 
         return \pack('CN', 0xdf, $size);
