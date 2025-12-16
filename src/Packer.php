@@ -187,7 +187,7 @@ class Packer
         }
 
         if ($int >= -0x20) {
-            return \chr(0xe0 | $int);
+            return \chr(0xe0 | $int & 0xff);
         }
         if ($int >= -0x80) {
             return "\xd0".\chr($int & 0xff);
@@ -373,15 +373,15 @@ class Packer
         $length = \strlen($data);
 
         switch ($length) {
-            case 1: return "\xd4".\chr($type).$data;
-            case 2: return "\xd5".\chr($type).$data;
-            case 4: return "\xd6".\chr($type).$data;
-            case 8: return "\xd7".\chr($type).$data;
-            case 16: return "\xd8".\chr($type).$data;
+            case 1: return "\xd4".\chr($type & 0xff).$data;
+            case 2: return "\xd5".\chr($type & 0xff).$data;
+            case 4: return "\xd6".\chr($type & 0xff).$data;
+            case 8: return "\xd7".\chr($type & 0xff).$data;
+            case 16: return "\xd8".\chr($type & 0xff).$data;
         }
 
         if ($length <= 0xff) {
-            return "\xc7".\chr($length).\chr($type).$data;
+            return "\xc7".\chr($length).\chr($type & 0xff).$data;
         }
         if ($length <= 0xffff) {
             return \pack('CnC', 0xc8, $length, $type).$data;
