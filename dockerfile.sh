@@ -20,6 +20,11 @@ if [[ -z "$EXT_DISABLE_DECIMAL" || "0" == "$EXT_DISABLE_DECIMAL" || "false" == "
     MPDEC_TMP_DIR="/tmp/$MPDEC_RELEASE_NAME"
     MPDEC_TMP_ARCHIVE="$MPDEC_TMP_DIR/$MPDEC_RELEASE_NAME.tar.gz"
 
+    DECIMAL_PKG="decimal"
+    if [[ "$PHP_IMAGE" == *"php:7."* || "$PHP_IMAGE" == *"php:8.0"* || "$PHP_IMAGE" == *"php:8.1"* ]]; then
+        DECIMAL_PKG="decimal-1.4.0"
+    fi
+
     RUN_CMDS="$RUN_CMDS\\n\\nRUN"
     RUN_CMDS="$RUN_CMDS mkdir -p $MPDEC_TMP_DIR"
     RUN_CMDS="$RUN_CMDS && \\\\\n    cd $MPDEC_TMP_DIR"
@@ -29,7 +34,7 @@ if [[ -z "$EXT_DISABLE_DECIMAL" || "0" == "$EXT_DISABLE_DECIMAL" || "false" == "
     RUN_CMDS="$RUN_CMDS && \\\\\n    cd $MPDEC_RELEASE_NAME"
     RUN_CMDS="$RUN_CMDS && \\\\\n    ./configure && make && make install"
     RUN_CMDS="$RUN_CMDS && \\\\\n    rm -rf $MPDEC_TMP_DIR"
-    RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install decimal && docker-php-ext-enable decimal"
+    RUN_CMDS="$RUN_CMDS && \\\\\n    pecl install $DECIMAL_PKG && docker-php-ext-enable decimal"
 fi
 
 COMPOSER_REMOVE=''
