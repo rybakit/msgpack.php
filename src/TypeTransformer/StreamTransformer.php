@@ -16,10 +16,15 @@ use MessagePack\Packer;
 
 class StreamTransformer implements CanPack
 {
+    #[\Override]
     public function pack(Packer $packer, $value) : ?string
     {
-        return \is_resource($value) && 'stream' === \get_resource_type($value)
-            ? $packer->packBin(\stream_get_contents($value))
-            : null;
+        if (!\is_resource($value) || 'stream' !== \get_resource_type($value)) {
+            return null;
+        }
+
+        $contents = \stream_get_contents($value);
+
+        return false === $contents ? null : $packer->packBin($contents);
     }
 }

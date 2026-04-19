@@ -25,8 +25,6 @@ use PHPUnit\Framework\TestCase;
 
 final class BufferUnpackerTest extends TestCase
 {
-    use PhpUnitCompat;
-
     /**
      * @var BufferUnpacker
      */
@@ -70,7 +68,7 @@ final class BufferUnpackerTest extends TestCase
         self::fail(InsufficientDataException::class.' was not thrown');
     }
 
-    public function provideInsufficientData() : array
+    public static function provideInsufficientData() : array
     {
         return [
             'str' => [''],
@@ -338,6 +336,7 @@ final class BufferUnpackerTest extends TestCase
 
     /**
      * @dataProvider provideOptionsData
+     *
      * @doesNotPerformAssertions
      */
     public function testConstructorSetsOptions($options) : void
@@ -345,7 +344,7 @@ final class BufferUnpackerTest extends TestCase
         new BufferUnpacker('', $options);
     }
 
-    public function provideOptionsData() : iterable
+    public static function provideOptionsData() : iterable
     {
         return [
             [0],
@@ -367,7 +366,7 @@ final class BufferUnpackerTest extends TestCase
         new BufferUnpacker('', $options);
     }
 
-    public function provideInvalidOptionsData() : iterable
+    public static function provideInvalidOptionsData() : iterable
     {
         return [
             [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP],
@@ -661,7 +660,7 @@ final class BufferUnpackerTest extends TestCase
         $this->unpacker->unpack();
     }
 
-    public function provideMapWithInvalidKeyData() : iterable
+    public static function provideMapWithInvalidKeyData() : iterable
     {
         $data = static function () {
             yield 'nil' => DataProvider::provideNilData();
@@ -745,7 +744,7 @@ final class BufferUnpackerTest extends TestCase
         self::assertSame('', $ext->data);
     }
 
-    public function provideInvalidExtBodyData() : iterable
+    public static function provideInvalidExtBodyData() : iterable
     {
         return [
             'ext8' => ["\xc7\x00\x01"],

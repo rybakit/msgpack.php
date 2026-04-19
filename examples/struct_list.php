@@ -42,7 +42,7 @@ if (($unpackedList !== $profiles) || ($unpackedStructList !== $profiles)) {
 printf("Packed list size:        %dB\n", strlen($packedList));
 printf("Packed struct list size: %dB\n", strlen($packedStructList));
 printf("Space saved:             %dB\n", strlen($packedList) - strlen($packedStructList));
-printf("Percentage saved:        %d%%\n", round(1 - strlen($packedStructList) / strlen($packedList), 2) * 100);
+printf("Percentage saved:        %d%%\n", 100 - intdiv(strlen($packedStructList) * 100, strlen($packedList)));
 
 /* OUTPUT
 Packed list size:        5287B

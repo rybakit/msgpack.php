@@ -18,8 +18,13 @@ require __DIR__.'/autoload.php';
 
 $packer = new Packer();
 $packed = $packer->pack(['name' => new Bin('value')]);
+$bytes = unpack('C*', $packed);
 
-echo '[', implode(', ', unpack('C*', $packed)), "]\n";
+if (false === $bytes) {
+    exit(1);
+}
+
+echo '[', implode(', ', $bytes), "]\n";
 
 /* OUTPUT
 [129, 164, 110, 97, 109, 101, 196, 5, 118, 97, 108, 117, 101]

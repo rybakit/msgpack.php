@@ -24,6 +24,7 @@ final class Bin implements CanBePacked
         $this->data = $data;
     }
 
+    #[\Override]
     public function pack(Packer $packer) : string
     {
         return $packer->packBin($this->data);

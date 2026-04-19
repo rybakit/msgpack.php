@@ -13,15 +13,12 @@ namespace App\MessagePack;
 
 final class Text
 {
-    /** @readonly */
-    public $str;
-
-    public function __construct(string $str)
-    {
-        $this->str = $str;
+    public function __construct(
+        public readonly string $str,
+    ) {
     }
 
-    public function __toString()
+    public function __toString() : string
     {
         return $this->str;
     }

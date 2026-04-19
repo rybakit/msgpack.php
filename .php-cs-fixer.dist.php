@@ -3,20 +3,33 @@
 namespace MessagePack;
 
 use PhpCsFixer\Config;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\Fixer\ConstantNotation\NativeConstantInvocationFixer;
-use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Tokens;
 
-final class FilterableFixer implements FixerInterface
+final class FilterableFixer implements ConfigurableFixerInterface
 {
-    private $fixer;
-    private $pathRegex;
+    private ConfigurableFixerInterface $fixer;
+    private string $pathRegex;
 
-    public function __construct(FixerInterface $fixer, string $pathRegex)
+    public function __construct(ConfigurableFixerInterface $fixer, string $pathRegex)
     {
         $this->fixer = $fixer;
         $this->pathRegex = $pathRegex;
+    }
+
+    public function configure(array $configuration): void
+    {
+        $this->fixer->configure($configuration);
+    }
+
+    public function getConfigurationDefinition(): FixerConfigurationResolver
+    {
+        return $this->fixer->getConfigurationDefinition();
     }
 
     public function isCandidate(Tokens $tokens) : bool
@@ -52,7 +65,12 @@ final class FilterableFixer implements FixerInterface
 
         return $this->fixer->supports($file);
     }
-};
+
+    public function getDefinition() : FixerDefinitionInterface
+    {
+        return $this->fixer->getDefinition();
+    }
+}
 
 $header = <<<EOF
 This file is part of the rybakit/msgpack.php package.
@@ -63,7 +81,7 @@ For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
 EOF;
 
-return Config::create()
+return (new Config())
     ->setUsingCache(false)
     ->setRiskyAllowed(true)
     ->registerCustomFixers([
@@ -75,13 +93,17 @@ return Config::create()
         '@Symfony:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
         'binary_operator_spaces' => ['operators' => ['=' => null, '=>' => null]],
-        'is_null' => false, // https://github.com/FriendsOfPHP/PHP-CS-Fixer/issues/4015
+        'fully_qualified_strict_types' => false,
+        'integer_literal_case' => false,
+        'is_null' => false,
         'native_constant_invocation' => false,
         'native_function_invocation' => false,
-        'FilterableFixer/native_constant_invocation' => true,
-        'FilterableFixer/native_function_invocation' => true,
+        'FilterableFixer/native_constant_invocation' => ['strict' => false],
+        'FilterableFixer/native_function_invocation' => ['strict' => false],
         'no_useless_else' => true,
         'no_useless_return' => true,
+        'no_useless_concat_operator' => false,
+        'no_superfluous_phpdoc_tags' => false,
         'ordered_imports' => [
             'sort_algorithm' => 'alpha',
             'imports_order' => ['class', 'function', 'const'],
@@ -90,6 +112,7 @@ return Config::create()
         'phpdoc_order' => true,
         'phpdoc_to_comment' => false,
         'return_type_declaration' => ['space_before' => 'one'],
+        'statement_indentation' => false,
         'strict_comparison' => true,
         'header_comment' => [
             'comment_type' => 'PHPDoc',

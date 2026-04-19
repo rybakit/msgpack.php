@@ -11,13 +11,14 @@
         }
     ],
     "require": {
-        "php": "^7.1.1|^8"
+        "php": "^8.2"
     },
     "require-dev": {
+        "ext-decimal": "*",
         "ext-gmp": "*",
-        "friendsofphp/php-cs-fixer": "^2.14",
-        "phpunit/phpunit": "^7.1|^8|^9",
-        "vimeo/psalm": "^3.9|^4"
+        "friendsofphp/php-cs-fixer": "^3",
+        "phpunit/phpunit": "^11",
+        "vimeo/psalm": "^5 || ^6"
     },
     "suggest": {
         "ext-decimal": "For converting overflowed integers to Decimal objects",
