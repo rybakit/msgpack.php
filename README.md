@@ -51,7 +51,7 @@ composer require rybakit/msgpack
 
 ### Packing
 
-To pack values you can either use an instance of a `Packer`:
+To pack values, you can either use an instance of a `Packer`:
 
 ```php
 $packer = new Packer();
@@ -66,8 +66,8 @@ $packed = MessagePack::pack($value);
 
 In the examples above, the method `pack` automatically packs a value depending on its type. However, not all PHP types 
 can be uniquely translated to MessagePack types. For example, the MessagePack format defines `map` and `array` types, 
-which are represented by a single `array` type in PHP. By default, the packer will pack a PHP array as a MessagePack 
-array if it has sequential numeric keys, starting from `0` and as a MessagePack map otherwise:
+which are represented by a single `array` type in PHP. By default, the packer will pack a PHP array as a MessagePack
+array if it has sequential numeric keys starting from `0`, and as a MessagePack map otherwise:
 
 ```php
 $mpArr1 = $packer->pack([1, 2]);               // MP array [1, 2]
@@ -144,7 +144,7 @@ $packer = new Packer(PackOptions::FORCE_FLOAT32 | PackOptions::FORCE_FLOAT64);
 
 ### Unpacking
 
-To unpack data you can either use an instance of a `BufferUnpacker`:
+To unpack data, you can either use an instance of a `BufferUnpacker`:
 
 ```php
 $unpacker = new BufferUnpacker();
@@ -159,8 +159,8 @@ or call a static method on the `MessagePack` class:
 $value = MessagePack::unpack($packed);
 ```
 
-If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts 
-to unpack data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
+If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts
+to unpack the data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
 
 ```php
 while ($chunk = ...) {
@@ -286,8 +286,8 @@ $packedArray = $packer->pack([1, 2, 3]);
 
 As with type objects, type transformers are only responsible for *serializing* values. They should be 
 used when you need to serialize a value that does not implement the [CanBePacked](src/CanBePacked.php) 
-interface. Examples of such values could be instances of built-in or third-party classes that you don't 
-own, or non-objects such as resources. 
+interface. Examples of such values include instances of built-in or third-party classes that you do not
+own, or non-objects such as resources.
 
 A transformer class must implement the [CanPack](src/CanPack.php) interface. To use a transformer, 
 it must first be registered in the packer. Here is an example of how to serialize PHP streams into 
@@ -346,7 +346,7 @@ $timestamp = MessagePack::unpack($packedTimestamp);
 
 In addition, the format can be extended with your own types. For example, to make the built-in PHP `DateTime` objects 
 first-class citizens in your code, you can create a corresponding extension, as shown in the [example](examples/MessagePack/DateTimeExtension.php).
-Please note, that custom extensions have to be registered with a unique extension ID (an integer from `0` to `127`).
+Please note that custom extensions must be registered with a unique extension ID (an integer from `0` to `127`).
 
 > *More extension examples can be found in the [examples/MessagePack](examples/MessagePack) directory.*
 
@@ -371,7 +371,7 @@ Run tests as follows:
 vendor/bin/phpunit
 ```
 
-Also, if you already have Docker installed, you can run the tests in a docker container. First, create a container:
+Also, if you already have Docker installed, you can run the tests in a Docker container. First, create a container:
 
 ```sh
 ./dockerfile.sh | docker build -t msgpack -
@@ -396,7 +396,7 @@ docker run --rm -v $PWD:/msgpack -w /msgpack msgpack
 #### Fuzzing
 
 To ensure that the unpacking works correctly with malformed/semi-malformed data, you can use a testing technique 
-called [Fuzzing](https://en.wikipedia.org/wiki/Fuzzing). The library ships with a help file (target) 
+called [fuzzing](https://en.wikipedia.org/wiki/Fuzzing). The library ships with a helper file (target) 
 for [PHP-Fuzzer](https://github.com/nikic/PHP-Fuzzer) and can be used as follows:
 
 ```sh

@@ -23,9 +23,6 @@ class DurationBenchmark implements Benchmark
         $this->duration = $duration;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function benchmark(Target $target, Test $test)
     {
         $target->sanitize($test);

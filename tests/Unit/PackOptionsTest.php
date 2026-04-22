@@ -27,7 +27,7 @@ final class PackOptionsTest extends TestCase
         self::assertSame($expectedResult, $options->{$isserName}());
     }
 
-    public function provideIsserData() : array
+    public static function provideIsserData() : array
     {
         return [
             ['isDetectStrBinMode', false, 0],
@@ -82,7 +82,7 @@ final class PackOptionsTest extends TestCase
         self::fail(InvalidOptionException::class.' was not thrown');
     }
 
-    public function provideInvalidOptionsData() : iterable
+    public static function provideInvalidOptionsData() : iterable
     {
         yield [
             PackOptions::FORCE_STR | PackOptions::FORCE_BIN,

@@ -16,7 +16,7 @@ use MessagePack\Packer;
 use MessagePack\TypeTransformer\TraversableTransformer;
 use PHPUnit\Framework\TestCase;
 
-class TraversableTransformerTest extends TestCase
+final class TraversableTransformerTest extends TestCase
 {
     public function testPackTraversableToMap() : void
     {

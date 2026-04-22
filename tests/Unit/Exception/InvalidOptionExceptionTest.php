@@ -26,7 +26,7 @@ final class InvalidOptionExceptionTest extends TestCase
         self::assertSame($message, $exception->getMessage());
     }
 
-    public function provideOutOfRangeData() : array
+    public static function provideOutOfRangeData() : array
     {
         return [
             ['foobar', ['foo'], 'Invalid option foobar, use foo'],

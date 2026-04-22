@@ -16,7 +16,7 @@ class TestSkippedException extends \RuntimeException
     /** @var Test */
     private $test;
 
-    public function __construct(Test $test, int $code = 0, \Throwable $previous = null)
+    public function __construct(Test $test, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('"%s" test is skipped', $test->getName());
 

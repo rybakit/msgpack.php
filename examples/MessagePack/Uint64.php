@@ -16,12 +16,9 @@ use MessagePack\Packer;
 
 final class Uint64 implements CanBePacked
 {
-    /** @readonly */
-    public $value;
-
-    public function __construct(string $value)
-    {
-        $this->value = $value;
+    public function __construct(
+        public readonly string $value,
+    ) {
     }
 
     public function __toString() : string
@@ -29,6 +26,7 @@ final class Uint64 implements CanBePacked
         return $this->value;
     }
 
+    #[\Override]
     public function pack(Packer $packer) : string
     {
         return "\xcf".\gmp_export($this->value);

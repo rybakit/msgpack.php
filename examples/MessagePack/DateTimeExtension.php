@@ -15,20 +15,23 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Extension;
 use MessagePack\Packer;
 
-class DateTimeExtension implements Extension
+final class DateTimeExtension implements Extension
 {
-    private $type;
-
-    public function __construct(int $type)
-    {
-        $this->type = $type;
+    public function __construct(
+        private readonly int $type,
+    ) {
     }
 
+    #[\Override]
     public function getType() : int
     {
         return $this->type;
     }
 
+    /**
+     * @param mixed $value
+     */
+    #[\Override]
     public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \DateTimeInterface) {
@@ -38,6 +41,10 @@ class DateTimeExtension implements Extension
         return $packer->packExt($this->type, $value->format('YmdHisue'));
     }
 
+    /**
+     * @return \DateTimeImmutable|false
+     */
+    #[\Override]
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         return \DateTimeImmutable::createFromFormat('YmdHisue', $unpacker->read($extLength));

@@ -20,7 +20,7 @@ class PackerTarget implements Target
     private $name;
     private $packer;
 
-    public function __construct(string $name = null, Packer $packer = null)
+    public function __construct(?string $name = null, ?Packer $packer = null)
     {
         $this->packer = $packer ?: new Packer(null, [new TimestampExtension()]);
         $this->name = $name ?: get_class($this->packer);

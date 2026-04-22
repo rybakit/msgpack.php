@@ -110,11 +110,7 @@ class Packer
                 return $this->isDetectArrMap || $this->isForceArr ? "\x90" : "\x80";
             }
             if ($this->isDetectArrMap) {
-                if (!isset($value[0]) && !\array_key_exists(0, $value)) {
-                    return $this->packMap($value);
-                }
-
-                return \array_values($value) === $value
+                return \array_is_list($value)
                     ? $this->packArray($value)
                     : $this->packMap($value);
             }

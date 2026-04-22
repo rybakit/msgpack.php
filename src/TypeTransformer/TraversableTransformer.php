@@ -16,15 +16,9 @@ use MessagePack\Packer;
 
 class TraversableTransformer implements CanPack
 {
-    /** @var bool */
-    private $packToMap;
-
-    /**
-     * @param bool $packToMap
-     */
-    private function __construct($packToMap)
-    {
-        $this->packToMap = $packToMap;
+    private function __construct(
+        private readonly bool $packToMap,
+    ) {
     }
 
     public static function toMap() : self
@@ -37,6 +31,10 @@ class TraversableTransformer implements CanPack
         return new self(false);
     }
 
+    /**
+     * @param mixed $value
+     */
+    #[\Override]
     public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \Traversable) {

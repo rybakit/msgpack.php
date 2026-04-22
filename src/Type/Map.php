@@ -24,6 +24,7 @@ final class Map implements CanBePacked
         $this->map = $map;
     }
 
+    #[\Override]
     public function pack(Packer $packer) : string
     {
         return $packer->packMap($this->map);

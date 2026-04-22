@@ -33,7 +33,7 @@ if (extension_loaded('xdebug')) {
     exit(42);
 }
 
-function resolve_filter($testNames)
+function resolve_filter(string $testNames) : ListFilter|RegexFilter
 {
     if ('/' === $testNames[0]) {
         return new RegexFilter($testNames);
@@ -81,11 +81,11 @@ if ($testNames) {
 }
 
 $targetFactories = [
-    'pecl_p' => function () { return new PeclFunctionPackTarget(); },
-    'pecl_u' => function () { return new PeclFunctionUnpackTarget(); },
-    'pure_p' => function () { return new PackerTarget('Packer'); },
-    'pure_pdsb' => function () { return new PackerTarget('Packer (detect_str_bin)', new Packer(PackOptions::DETECT_STR_BIN)); },
-    'pure_u' => function () { return new BufferUnpackerTarget('BufferUnpacker'); },
+    'pecl_p' => static function () { return new PeclFunctionPackTarget(); },
+    'pecl_u' => static function () { return new PeclFunctionUnpackTarget(); },
+    'pure_p' => static function () { return new PackerTarget('Packer'); },
+    'pure_pdsb' => static function () { return new PackerTarget('Packer (detect_str_bin)', new Packer(PackOptions::DETECT_STR_BIN)); },
+    'pure_u' => static function () { return new BufferUnpackerTarget('BufferUnpacker'); },
 ];
 
 $targets = [];

@@ -597,6 +597,7 @@ class BufferUnpacker
             throw new InsufficientDataException();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $num = \unpack('J', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
@@ -604,7 +605,7 @@ class BufferUnpacker
             return $num;
         }
         if ($this->isBigIntAsDec) {
-            return new Decimal(\sprintf('%u', $num));
+            return Decimal::valueOf(\sprintf('%u', $num));
         }
         if ($this->isBigIntAsGmp) {
             return \gmp_import(\substr($this->buffer, $this->offset - 8, 8));
@@ -622,6 +623,7 @@ class BufferUnpacker
             throw new InsufficientDataException();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $num = \unpack('J', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
@@ -686,6 +688,7 @@ class BufferUnpacker
             throw new InsufficientDataException();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $num = \unpack('J', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 
@@ -701,6 +704,7 @@ class BufferUnpacker
             throw new InsufficientDataException();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $num = \unpack('G', $this->buffer, $this->offset)[1];
         $this->offset += 4;
 
@@ -716,6 +720,7 @@ class BufferUnpacker
             throw new InsufficientDataException();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $num = \unpack('E', $this->buffer, $this->offset)[1];
         $this->offset += 8;
 

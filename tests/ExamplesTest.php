@@ -29,7 +29,7 @@ final class ExamplesTest extends TestCase
         }
     }
 
-    public function provideExampleData() : iterable
+    public static function provideExampleData() : iterable
     {
         $dir = dirname(__DIR__).'/examples';
         foreach (glob("$dir/*.php") as $filename) {

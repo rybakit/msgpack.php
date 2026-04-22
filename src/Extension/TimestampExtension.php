@@ -20,11 +20,16 @@ final class TimestampExtension implements Extension
 {
     private const TYPE = -1;
 
+    #[\Override]
     public function getType() : int
     {
         return self::TYPE;
     }
 
+    /**
+     * @param mixed $value
+     */
+    #[\Override]
     public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof Timestamp) {
@@ -46,6 +51,7 @@ final class TimestampExtension implements Extension
     /**
      * @return Timestamp
      */
+    #[\Override]
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         if (4 === $extLength) {
@@ -61,6 +67,7 @@ final class TimestampExtension implements Extension
         if (8 === $extLength) {
             $data = $unpacker->read(8);
 
+            /** @psalm-suppress PossiblyInvalidArrayAccess */
             $num = \unpack('J', $data)[1];
             $nsec = $num >> 34;
             if ($nsec < 0) {
@@ -77,6 +84,7 @@ final class TimestampExtension implements Extension
             | \ord($data[2]) << 8
             | \ord($data[3]);
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         return new Timestamp(\unpack('J', $data, 4)[1], $nsec);
     }
 }

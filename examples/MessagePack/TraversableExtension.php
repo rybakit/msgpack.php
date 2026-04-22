@@ -15,20 +15,23 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Extension;
 use MessagePack\Packer;
 
-class TraversableExtension implements Extension
+final class TraversableExtension implements Extension
 {
-    private $type;
-
-    public function __construct(int $type)
-    {
-        $this->type = $type;
+    public function __construct(
+        private readonly int $type,
+    ) {
     }
 
+    #[\Override]
     public function getType() : int
     {
         return $this->type;
     }
 
+    /**
+     * @param mixed $value
+     */
+    #[\Override]
     public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof \Traversable) {
@@ -47,6 +50,10 @@ class TraversableExtension implements Extension
         );
     }
 
+    /**
+     * @return \Generator
+     */
+    #[\Override]
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         $size = $unpacker->unpackArrayHeader();

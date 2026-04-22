@@ -22,12 +22,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PackerTest extends TestCase
 {
-    use PhpUnitCompat;
-
-    /**
-     * @var Packer
-     */
-    private $packer;
+    private Packer $packer;
 
     protected function setUp() : void
     {
@@ -55,7 +50,7 @@ final class PackerTest extends TestCase
         $this->packer->pack($value);
     }
 
-    public function provideUnsupportedTypeData() : array
+    public static function provideUnsupportedTypeData() : array
     {
         return [
             [tmpfile(), 'resource'],
@@ -71,7 +66,7 @@ final class PackerTest extends TestCase
         self::assertSame($packed, (new Packer($options))->pack($raw));
     }
 
-    public function provideOptionsData() : array
+    public static function provideOptionsData() : array
     {
         return [
             [null, "\x80", "\xa1\x80"],
@@ -114,7 +109,7 @@ final class PackerTest extends TestCase
         new Packer($options);
     }
 
-    public function provideInvalidOptionsData() : array
+    public static function provideInvalidOptionsData() : array
     {
         return [
             [PackOptions::FORCE_STR | PackOptions::FORCE_BIN],

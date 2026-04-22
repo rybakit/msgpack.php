@@ -42,11 +42,11 @@ if (($unpackedString !== $longString) || ($unpackedCompressedString !== $longStr
 printf("Packed string size: %dB\n", strlen($packedString));
 printf("Packed text size:   %dB\n", strlen($packedCompressedString));
 printf("Space saved:        %dB\n", strlen($packedString) - strlen($packedCompressedString));
-printf("Percentage saved:   %d%%\n", round(1 - strlen($packedCompressedString) / strlen($packedString), 2) * 100);
+printf("Percentage saved:   %d%%\n", 100 - intdiv(strlen($packedCompressedString) * 100, strlen($packedString)));
 
 /* OUTPUT
 Packed string size: 448B
 Packed text size:   291B
 Space saved:        157B
-Percentage saved:   35%
+Percentage saved:   36%
 */

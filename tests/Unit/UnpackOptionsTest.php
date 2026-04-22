@@ -27,7 +27,7 @@ final class UnpackOptionsTest extends TestCase
         self::assertSame($expectedResult, $options->{$isserName}());
     }
 
-    public function provideIsserData() : array
+    public static function provideIsserData() : array
     {
         return [
             ['isBigIntAsStrMode', true, 0],
@@ -63,7 +63,7 @@ final class UnpackOptionsTest extends TestCase
         self::fail(InvalidOptionException::class.' was not thrown');
     }
 
-    public function provideInvalidOptionsData() : iterable
+    public static function provideInvalidOptionsData() : iterable
     {
         yield [
             UnpackOptions::BIGINT_AS_GMP | UnpackOptions::BIGINT_AS_STR,

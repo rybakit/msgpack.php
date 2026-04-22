@@ -20,7 +20,7 @@ class BufferUnpackerTarget implements Target
     private $name;
     private $bufferUnpacker;
 
-    public function __construct(string $name = null, BufferUnpacker $bufferUnpacker = null)
+    public function __construct(?string $name = null, ?BufferUnpacker $bufferUnpacker = null)
     {
         $this->bufferUnpacker = $bufferUnpacker ?: new BufferUnpacker('', null, [new TimestampExtension()]);
         $this->name = $name ?: get_class($this->bufferUnpacker);

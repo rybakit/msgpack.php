@@ -19,7 +19,7 @@ class PackingFailedException extends \RuntimeException
     public static function unsupportedType($value) : self
     {
         return new self(\sprintf('Unsupported type "%s", maybe you forgot to register the type transformer or extension?',
-            \is_object($value) ? \get_class($value) : \gettype($value)
+            \is_object($value) ? $value::class : \gettype($value)
         ));
     }
 }

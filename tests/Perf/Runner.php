@@ -20,7 +20,7 @@ class Runner
     private $testData;
     private $writer;
 
-    public function __construct(iterable $testData, Writer $writer = null)
+    public function __construct(iterable $testData, ?Writer $writer = null)
     {
         $this->testData = $testData;
         $this->writer = $writer ?: new TableWriter();

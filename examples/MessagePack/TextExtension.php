@@ -15,22 +15,24 @@ use MessagePack\BufferUnpacker;
 use MessagePack\Extension;
 use MessagePack\Packer;
 
-class TextExtension implements Extension
+final class TextExtension implements Extension
 {
-    private $type;
-    private $minLength;
-
-    public function __construct(int $type, int $minLength = 100)
-    {
-        $this->type = $type;
-        $this->minLength = $minLength;
+    public function __construct(
+        private readonly int $type,
+        private readonly int $minLength = 100,
+    ) {
     }
 
+    #[\Override]
     public function getType() : int
     {
         return $this->type;
     }
 
+    /**
+     * @param mixed $value
+     */
+    #[\Override]
     public function pack(Packer $packer, $value) : ?string
     {
         if (!$value instanceof Text) {
@@ -43,18 +45,31 @@ class TextExtension implements Extension
         }
 
         $context = \deflate_init(\ZLIB_ENCODING_GZIP);
+        if (false === $context) {
+            return $packer->packStr($value->str);
+        }
+
         $compressed = \deflate_add($context, $value->str, \ZLIB_FINISH);
+        if (false === $compressed) {
+            return $packer->packStr($value->str);
+        }
 
         return isset($compressed[$length - 1])
             ? $packer->packStr($value->str)
             : $packer->packExt($this->type, $compressed);
     }
 
+    /**
+     * @return string|false
+     */
+    #[\Override]
     public function unpackExt(BufferUnpacker $unpacker, int $extLength)
     {
         $compressed = $unpacker->read($extLength);
         $context = \inflate_init(\ZLIB_ENCODING_GZIP);
 
-        return \inflate_add($context, $compressed, \ZLIB_FINISH);
+        return false === $context
+            ? false
+            : \inflate_add($context, $compressed, \ZLIB_FINISH);
     }
 }

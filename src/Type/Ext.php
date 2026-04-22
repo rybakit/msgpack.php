@@ -28,6 +28,7 @@ final class Ext implements CanBePacked
         $this->data = $data;
     }
 
+    #[\Override]
     public function pack(Packer $packer) : string
     {
         return $packer->packExt($this->type, $this->data);

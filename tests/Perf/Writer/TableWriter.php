@@ -32,7 +32,7 @@ class TableWriter implements Writer
     private $failed = [];
     private $ignored = [];
 
-    public function __construct(bool $ignoreIncomplete = null)
+    public function __construct(?bool $ignoreIncomplete = null)
     {
         $this->ignoreIncomplete = $ignoreIncomplete ?? true;
     }
@@ -109,7 +109,7 @@ class TableWriter implements Writer
     {
         echo str_repeat('=', $this->width)."\n";
 
-        $this->writeSummary('Total', $this->total, function ($value) {
+        $this->writeSummary('Total', $this->total, static function ($value) {
             return sprintf('%.4f', $value);
         });
 
@@ -118,7 +118,7 @@ class TableWriter implements Writer
         $this->writeSummary('Ignored', $this->ignored);
     }
 
-    private function writeSummary(string $title, array $values, \Closure $formatter = null) : void
+    private function writeSummary(string $title, array $values, ?\Closure $formatter = null) : void
     {
         $cells = [$title];
 
