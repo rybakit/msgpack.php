@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
       - name: Build docker image
         env: ${{ matrix.env }}
@@ -42,5 +44,7 @@ jobs:
         env: ${{ matrix.env }}
         if: ${{ env.COVERAGE_FILE }}
         run: |
-          curl -sSOL https://scrutinizer-ci.com/ocular.phar
-          docker run --rm -v $PWD:/msgpack -w /msgpack msgpack php ocular.phar code-coverage:upload --format=php-clover "$COVERAGE_FILE"
+          docker run --rm -e COVERAGE_FILE -v $PWD:/msgpack -w /msgpack msgpack sh -lc '
+            composer global require --no-progress --no-interaction scrutinizer/ocular:^1.9 >/dev/null &&
+            "$(composer global config bin-dir --absolute)/ocular" code-coverage:upload --format=php-clover "$COVERAGE_FILE"
+          '
