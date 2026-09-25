@@ -462,9 +462,10 @@ class BufferUnpacker
 
         $size = $this->unpackArrayHeader();
 
+        --$maxDepth;
         $array = [];
         while ($size--) {
-            $array[] = $this->unpack($maxDepth - 1);
+            $array[] = $this->unpack($maxDepth);
         }
 
         return $array;
@@ -508,9 +509,10 @@ class BufferUnpacker
 
         $size = $this->unpackMapHeader();
 
+        --$maxDepth;
         $map = [];
         while ($size--) {
-            $map[$this->unpackMapKey()] = $this->unpack($maxDepth - 1);
+            $map[$this->unpackMapKey()] = $this->unpack($maxDepth);
         }
 
         return $map;
@@ -758,9 +760,10 @@ class BufferUnpacker
             throw UnpackingFailedException::maximumNestingDepthExceeded();
         }
 
+        --$maxDepth;
         $array = [];
         while ($size--) {
-            $array[] = $this->unpack($maxDepth - 1);
+            $array[] = $this->unpack($maxDepth);
         }
 
         return $array;
@@ -778,9 +781,10 @@ class BufferUnpacker
             throw UnpackingFailedException::maximumNestingDepthExceeded();
         }
 
+        --$maxDepth;
         $map = [];
         while ($size--) {
-            $map[$this->unpackMapKey()] = $this->unpack($maxDepth - 1);
+            $map[$this->unpackMapKey()] = $this->unpack($maxDepth);
         }
 
         return $map;
