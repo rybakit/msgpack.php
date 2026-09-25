@@ -19,6 +19,8 @@ use MessagePack\Type\Ext;
 
 class BufferUnpacker
 {
+    private const DEFAULT_MAX_DEPTH = 128;
+
     /** @var string */
     private $buffer;
 
@@ -187,9 +189,11 @@ class BufferUnpacker
     }
 
     /**
+     * @param int $maxDepth
+     *
      * @return mixed
      */
-    public function unpack()
+    public function unpack($maxDepth = self::DEFAULT_MAX_DEPTH)
     {
         if (!isset($this->buffer[$this->offset])) {
             throw new InsufficientDataException();
@@ -216,39 +220,39 @@ class BufferUnpacker
             case 0xc2: return false;
             case 0xc3: return true;
             // fixmap
-            case 0x80: return [];
-            case 0x81: return [$this->unpackMapKey() => $this->unpack()];
-            case 0x82: return [$this->unpackMapKey() => $this->unpack(), $this->unpackMapKey() => $this->unpack()];
-            case 0x83: return [$this->unpackMapKey() => $this->unpack(), $this->unpackMapKey() => $this->unpack(), $this->unpackMapKey() => $this->unpack()];
-            case 0x84: return $this->unpackMapData(4);
-            case 0x85: return $this->unpackMapData(5);
-            case 0x86: return $this->unpackMapData(6);
-            case 0x87: return $this->unpackMapData(7);
-            case 0x88: return $this->unpackMapData(8);
-            case 0x89: return $this->unpackMapData(9);
-            case 0x8a: return $this->unpackMapData(10);
-            case 0x8b: return $this->unpackMapData(11);
-            case 0x8c: return $this->unpackMapData(12);
-            case 0x8d: return $this->unpackMapData(13);
-            case 0x8e: return $this->unpackMapData(14);
-            case 0x8f: return $this->unpackMapData(15);
+            case 0x80: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [];
+            case 0x81: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [$this->unpackMapKey() => $this->unpack($maxDepth - 1)];
+            case 0x82: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [$this->unpackMapKey() => $this->unpack($maxDepth - 1), $this->unpackMapKey() => $this->unpack($maxDepth - 1)];
+            case 0x83: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [$this->unpackMapKey() => $this->unpack($maxDepth - 1), $this->unpackMapKey() => $this->unpack($maxDepth - 1), $this->unpackMapKey() => $this->unpack($maxDepth - 1)];
+            case 0x84: return $this->unpackMapData(4, $maxDepth);
+            case 0x85: return $this->unpackMapData(5, $maxDepth);
+            case 0x86: return $this->unpackMapData(6, $maxDepth);
+            case 0x87: return $this->unpackMapData(7, $maxDepth);
+            case 0x88: return $this->unpackMapData(8, $maxDepth);
+            case 0x89: return $this->unpackMapData(9, $maxDepth);
+            case 0x8a: return $this->unpackMapData(10, $maxDepth);
+            case 0x8b: return $this->unpackMapData(11, $maxDepth);
+            case 0x8c: return $this->unpackMapData(12, $maxDepth);
+            case 0x8d: return $this->unpackMapData(13, $maxDepth);
+            case 0x8e: return $this->unpackMapData(14, $maxDepth);
+            case 0x8f: return $this->unpackMapData(15, $maxDepth);
             // fixarray
-            case 0x90: return [];
-            case 0x91: return [$this->unpack()];
-            case 0x92: return [$this->unpack(), $this->unpack()];
-            case 0x93: return [$this->unpack(), $this->unpack(), $this->unpack()];
-            case 0x94: return $this->unpackArrayData(4);
-            case 0x95: return $this->unpackArrayData(5);
-            case 0x96: return $this->unpackArrayData(6);
-            case 0x97: return $this->unpackArrayData(7);
-            case 0x98: return $this->unpackArrayData(8);
-            case 0x99: return $this->unpackArrayData(9);
-            case 0x9a: return $this->unpackArrayData(10);
-            case 0x9b: return $this->unpackArrayData(11);
-            case 0x9c: return $this->unpackArrayData(12);
-            case 0x9d: return $this->unpackArrayData(13);
-            case 0x9e: return $this->unpackArrayData(14);
-            case 0x9f: return $this->unpackArrayData(15);
+            case 0x90: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [];
+            case 0x91: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [$this->unpack($maxDepth - 1)];
+            case 0x92: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [$this->unpack($maxDepth - 1), $this->unpack($maxDepth - 1)];
+            case 0x93: return ($maxDepth <= 0) ? throw UnpackingFailedException::maximumNestingDepthExceeded() : [$this->unpack($maxDepth - 1), $this->unpack($maxDepth - 1), $this->unpack($maxDepth - 1)];
+            case 0x94: return $this->unpackArrayData(4, $maxDepth);
+            case 0x95: return $this->unpackArrayData(5, $maxDepth);
+            case 0x96: return $this->unpackArrayData(6, $maxDepth);
+            case 0x97: return $this->unpackArrayData(7, $maxDepth);
+            case 0x98: return $this->unpackArrayData(8, $maxDepth);
+            case 0x99: return $this->unpackArrayData(9, $maxDepth);
+            case 0x9a: return $this->unpackArrayData(10, $maxDepth);
+            case 0x9b: return $this->unpackArrayData(11, $maxDepth);
+            case 0x9c: return $this->unpackArrayData(12, $maxDepth);
+            case 0x9d: return $this->unpackArrayData(13, $maxDepth);
+            case 0x9e: return $this->unpackArrayData(14, $maxDepth);
+            case 0x9f: return $this->unpackArrayData(15, $maxDepth);
             // bin
             case 0xc4: return $this->read($this->unpackUint8());
             case 0xc5: return $this->read($this->unpackUint16());
@@ -271,11 +275,11 @@ class BufferUnpacker
             case 0xda: return $this->read($this->unpackUint16());
             case 0xdb: return $this->read($this->unpackUint32());
             // array
-            case 0xdc: return $this->unpackArrayData($this->unpackUint16());
-            case 0xdd: return $this->unpackArrayData($this->unpackUint32());
+            case 0xdc: return $this->unpackArrayData($this->unpackUint16(), $maxDepth);
+            case 0xdd: return $this->unpackArrayData($this->unpackUint32(), $maxDepth);
             // map
-            case 0xde: return $this->unpackMapData($this->unpackUint16());
-            case 0xdf: return $this->unpackMapData($this->unpackUint32());
+            case 0xde: return $this->unpackMapData($this->unpackUint16(), $maxDepth);
+            case 0xdf: return $this->unpackMapData($this->unpackUint32(), $maxDepth);
             // ext
             case 0xd4: return $this->unpackExtData(1);
             case 0xd5: return $this->unpackExtData(2);
@@ -443,15 +447,21 @@ class BufferUnpacker
     }
 
     /**
+     * @param int $maxDepth
+     *
      * @return array
      */
-    public function unpackArray()
+    public function unpackArray($maxDepth = self::DEFAULT_MAX_DEPTH)
     {
+        if ($maxDepth <= 0) {
+            throw UnpackingFailedException::maximumNestingDepthExceeded();
+        }
+
         $size = $this->unpackArrayHeader();
 
         $array = [];
         while ($size--) {
-            $array[] = $this->unpack();
+            $array[] = $this->unpack($maxDepth - 1);
         }
 
         return $array;
@@ -483,15 +493,21 @@ class BufferUnpacker
     }
 
     /**
+     * @param int $maxDepth
+     *
      * @return array
      */
-    public function unpackMap()
+    public function unpackMap($maxDepth = self::DEFAULT_MAX_DEPTH)
     {
+        if ($maxDepth <= 0) {
+            throw UnpackingFailedException::maximumNestingDepthExceeded();
+        }
+
         $size = $this->unpackMapHeader();
 
         $map = [];
         while ($size--) {
-            $map[$this->unpackMapKey()] = $this->unpack();
+            $map[$this->unpackMapKey()] = $this->unpack($maxDepth - 1);
         }
 
         return $map;
@@ -729,14 +745,19 @@ class BufferUnpacker
 
     /**
      * @param int $size
+     * @param int $maxDepth
      *
      * @return array
      */
-    private function unpackArrayData($size)
+    private function unpackArrayData($size, $maxDepth)
     {
+        if ($maxDepth <= 0) {
+            throw UnpackingFailedException::maximumNestingDepthExceeded();
+        }
+
         $array = [];
         while ($size--) {
-            $array[] = $this->unpack();
+            $array[] = $this->unpack($maxDepth - 1);
         }
 
         return $array;
@@ -744,14 +765,19 @@ class BufferUnpacker
 
     /**
      * @param int $size
+     * @param int $maxDepth
      *
      * @return array
      */
-    private function unpackMapData($size)
+    private function unpackMapData($size, $maxDepth)
     {
+        if ($maxDepth <= 0) {
+            throw UnpackingFailedException::maximumNestingDepthExceeded();
+        }
+
         $map = [];
         while ($size--) {
-            $map[$this->unpackMapKey()] = $this->unpack();
+            $map[$this->unpackMapKey()] = $this->unpack($maxDepth - 1);
         }
 
         return $map;

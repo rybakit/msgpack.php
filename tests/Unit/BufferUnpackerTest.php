@@ -50,6 +50,49 @@ final class BufferUnpackerTest extends TestCase
         self::assertFalse($this->unpacker->hasRemaining());
     }
 
+    public function testUnpackHonorsMaximumNestingDepth() : void
+    {
+        $this->unpacker->reset("\x91\x91\x01");
+
+        self::assertSame([[1]], $this->unpacker->unpack(2));
+
+        $this->unpacker->reset("\x91\x91\x91\x01");
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Maximum nesting depth exceeded');
+
+        $this->unpacker->unpack(2);
+    }
+
+    public function testUnpackEnforcesDefaultMaximumNestingDepthForMaps() : void
+    {
+        $this->unpacker->reset(str_repeat("\x81\x00", 129)."\xc0");
+
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Maximum nesting depth exceeded');
+
+        $this->unpacker->unpack();
+    }
+
+    public function testUnpackArrayHonorsMaximumNestingDepth() : void
+    {
+        $this->unpacker->reset("\x91\x91\x01");
+
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Maximum nesting depth exceeded');
+
+        $this->unpacker->unpackArray(1);
+    }
+
+    public function testUnpackMapHonorsMaximumNestingDepth() : void
+    {
+        $this->unpacker->reset("\x81\x00\x80");
+
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Maximum nesting depth exceeded');
+
+        $this->unpacker->unpackMap(1);
+    }
+
     /**
      * @dataProvider provideInsufficientData
      */

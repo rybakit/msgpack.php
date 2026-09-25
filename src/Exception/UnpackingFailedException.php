@@ -13,6 +13,11 @@ namespace MessagePack\Exception;
 
 class UnpackingFailedException extends \RuntimeException
 {
+    public static function maximumNestingDepthExceeded() : self
+    {
+        return new self('Maximum nesting depth exceeded');
+    }
+
     public static function unknownCode(int $code) : self
     {
         return new self(\sprintf('Unknown code: 0x%x', $code));

@@ -11,7 +11,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
 
  * Fully compliant with the latest [MessagePack specification](https://github.com/msgpack/msgpack/blob/master/spec.md)
  * Supports [streaming unpacking](#unpacking)
- * Supports [unsigned 64-bit integers handling](#unpacking-options)
+ * Supports [handling unsigned 64-bit integers](#unpacking-options)
  * Supports [object serialization](#custom-types)
  * [Fully tested](https://github.com/rybakit/msgpack.php/actions?query=workflow%3AQA)
  * [Relatively fast](#performance)
@@ -42,6 +42,8 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
 
 The recommended way to install the library is through [Composer](http://getcomposer.org):
 
+This library requires 64-bit PHP. 32-bit PHP is not supported.
+
 ```sh
 composer require rybakit/msgpack
 ```
@@ -64,7 +66,7 @@ or call a static method on the `MessagePack` class:
 $packed = MessagePack::pack($value);
 ```
 
-In the examples above, the method `pack` automatically packs a value depending on its type. However, not all PHP types 
+In the examples above, the `pack()` method automatically packs a value depending on its type. However, not all PHP types
 can be uniquely translated to MessagePack types. For example, the MessagePack format defines `map` and `array` types, 
 which are represented by a single `array` type in PHP. By default, the packer will pack a PHP array as a MessagePack
 array if it has sequential numeric keys starting from `0`, and as a MessagePack map otherwise:
@@ -124,7 +126,7 @@ the packing process (defaults are in bold):
 > *The type detection mode (`DETECT_STR_BIN`/`DETECT_ARR_MAP`) adds some overhead 
 > which can be noticed when you pack large (16- and 32-bit) arrays or strings. 
 > However, if you know the value type in advance (for example, you only work with 
-> UTF-8 strings or/and associative arrays), you can eliminate this overhead by 
+> UTF-8 strings and/or associative arrays), you can eliminate this overhead by
 > forcing the packer to use the appropriate type, which will save it from running 
 > the auto-detection routine. Another option is to explicitly specify the value 
 > type. The library provides 2 auxiliary classes for this, `Map` and `Bin`. 
@@ -157,6 +159,13 @@ or call a static method on the `MessagePack` class:
 
 ```php
 $value = MessagePack::unpack($packed);
+```
+
+Unpacking allows up to 128 nested arrays or maps by default. Pass a different maximum depth to `unpack()`,
+`unpackArray()`, or `unpackMap()` when the input requires a different limit:
+
+```php
+$value = $unpacker->unpack(256);
 ```
 
 If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts
@@ -316,8 +325,8 @@ Currently, there is only one predefined type in the specification, Timestamp.
 ##### Timestamp
 
 The Timestamp extension type is a [predefined](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type) 
-type. Support for this type in the library is done through the `TimestampExtension` class. This class is responsible 
-for handling `Timestamp` objects, which represent the number of seconds and optional adjustment in nanoseconds:
+type. The library supports this type through the `TimestampExtension` class. This class is responsible
+for handling `Timestamp` objects, which represent the number of seconds and an optional adjustment in nanoseconds:
 
 ```php
 $timestampExtension = new TimestampExtension();
