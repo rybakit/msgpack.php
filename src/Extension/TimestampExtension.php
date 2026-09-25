@@ -12,6 +12,7 @@
 namespace MessagePack\Extension;
 
 use MessagePack\BufferUnpacker;
+use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension;
 use MessagePack\Packer;
 use MessagePack\Type\Timestamp;
@@ -75,6 +76,9 @@ final class TimestampExtension implements Extension
             }
 
             return new Timestamp($num & 0x3ffffffff, $nsec);
+        }
+        if (12 !== $extLength) {
+            throw new UnpackingFailedException(\sprintf('Invalid timestamp extension length: %d', $extLength));
         }
 
         $data = $unpacker->read(12);

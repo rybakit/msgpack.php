@@ -387,7 +387,7 @@ final class BufferUnpackerTest extends TestCase
         new BufferUnpacker('', $options);
     }
 
-    public static function provideOptionsData() : iterable
+    public static function provideOptionsData() : array
     {
         return [
             [0],
@@ -409,7 +409,7 @@ final class BufferUnpackerTest extends TestCase
         new BufferUnpacker('', $options);
     }
 
-    public static function provideInvalidOptionsData() : iterable
+    public static function provideInvalidOptionsData() : array
     {
         return [
             [UnpackOptions::BIGINT_AS_STR | UnpackOptions::BIGINT_AS_GMP],
@@ -768,6 +768,31 @@ final class BufferUnpackerTest extends TestCase
     }
 
     /**
+     * @dataProvider provideInvalidTimestampLength
+     */
+    public function testUnpackRejectsInvalidTimestampLength(int $length) : void
+    {
+        $packed = "\xc7".\chr($length)."\xff".\str_repeat("\x00", $length)."\x2a";
+
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Invalid timestamp extension length: '.$length);
+
+        $this->unpacker->reset($packed)->unpack();
+    }
+
+    public static function provideInvalidTimestampLength() : array
+    {
+        return [
+            'zero' => [0],
+            'short' => [3],
+            'between valid sizes' => [5],
+            'between valid sizes 2' => [9],
+            'just under 96-bit size' => [11],
+            'over 96-bit size' => [13],
+        ];
+    }
+
+    /**
      * @dataProvider provideInvalidExtBodyData
      */
     public function testUnpackExtAllowsZeroLengthExtData(string $data) : void
@@ -787,7 +812,7 @@ final class BufferUnpackerTest extends TestCase
         self::assertSame('', $ext->data);
     }
 
-    public static function provideInvalidExtBodyData() : iterable
+    public static function provideInvalidExtBodyData() : array
     {
         return [
             'ext8' => ["\xc7\x00\x01"],
