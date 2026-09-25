@@ -162,7 +162,7 @@ $value = MessagePack::unpack($packed);
 ```
 
 Unpacking allows up to 128 nested arrays or maps by default. Pass a different maximum depth to `unpack()`,
-`unpackArray()`, or `unpackMap()` when the input requires a different limit:
+`tryUnpack()`, `unpackArray()`, or `unpackMap()` when the input requires a different limit:
 
 ```php
 $value = $unpacker->unpack(256);

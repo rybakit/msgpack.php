@@ -360,6 +360,19 @@ final class BufferUnpackerTest extends TestCase
         self::assertSame([$foo, $bar], $this->unpacker->tryUnpack());
     }
 
+    public function testTryUnpackHonorsMaximumNestingDepthPerMessage() : void
+    {
+        $this->unpacker->reset("\x91\x91\x01\x91\x02");
+
+        self::assertSame([[[1]], [2]], $this->unpacker->tryUnpack(2));
+
+        $this->unpacker->reset("\x91\x91\x91\x01");
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('Maximum nesting depth exceeded');
+
+        $this->unpacker->tryUnpack(2);
+    }
+
     public function testTryUnpackTruncatesBuffer() : void
     {
         $this->unpacker->append("\xc3");

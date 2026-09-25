@@ -171,14 +171,17 @@ class BufferUnpacker
         return $data;
     }
 
-    public function tryUnpack() : array
+    /**
+     * @param int $maxDepth
+     */
+    public function tryUnpack($maxDepth = self::DEFAULT_MAX_DEPTH) : array
     {
         $data = [];
         $offset = $this->offset;
 
         try {
             do {
-                $data[] = $this->unpack();
+                $data[] = $this->unpack($maxDepth);
                 $offset = $this->offset;
             } while (isset($this->buffer[$this->offset]));
         } catch (InsufficientDataException $e) {
