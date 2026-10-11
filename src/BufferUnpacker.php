@@ -14,18 +14,26 @@ namespace MessagePack;
 use Decimal\Decimal;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\InvalidOptionException;
+use MessagePack\Exception\StreamingUnpackLimitException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Type\Ext;
 
 class BufferUnpacker
 {
     private const DEFAULT_MAX_DEPTH = 128;
+    private const DEFAULT_MAX_RETRIES = 64;
 
     /** @var string */
     private $buffer;
 
     /** @var int */
     private $offset = 0;
+
+    /** @var int */
+    private $incompleteUnpackRetries = 0;
+
+    /** @var int|null */
+    private $incompleteUnpackOffset;
 
     /** @var bool */
     private $isBigIntAsDec;
@@ -81,6 +89,8 @@ class BufferUnpacker
         $new = clone $this;
         $new->buffer = $buffer;
         $new->offset = 0;
+        $new->incompleteUnpackRetries = 0;
+        $new->incompleteUnpackOffset = null;
 
         return $new;
     }
@@ -96,6 +106,8 @@ class BufferUnpacker
     {
         $this->buffer = $buffer;
         $this->offset = 0;
+        $this->incompleteUnpackRetries = 0;
+        $this->incompleteUnpackOffset = null;
 
         return $this;
     }
@@ -111,12 +123,16 @@ class BufferUnpacker
         }
 
         $this->offset = $offset;
+        $this->incompleteUnpackRetries = 0;
+        $this->incompleteUnpackOffset = null;
 
         return $this;
     }
 
     /**
      * @param positive-int $length
+     *
+     * @throws InsufficientDataException
      */
     public function skip(int $length) : self
     {
@@ -127,6 +143,8 @@ class BufferUnpacker
         }
 
         $this->offset = $offset;
+        $this->incompleteUnpackRetries = 0;
+        $this->incompleteUnpackOffset = null;
 
         return $this;
     }
@@ -148,6 +166,12 @@ class BufferUnpacker
         }
 
         $releasedBytesCount = $this->offset;
+        if ($this->incompleteUnpackOffset === $releasedBytesCount) {
+            $this->incompleteUnpackOffset = 0;
+        } else {
+            $this->incompleteUnpackRetries = 0;
+            $this->incompleteUnpackOffset = null;
+        }
         $this->buffer = isset($this->buffer[$this->offset]) ? \substr($this->buffer, $this->offset) : '';
         $this->offset = 0;
 
@@ -173,19 +197,46 @@ class BufferUnpacker
 
     /**
      * @param int $maxDepth
+     * @param non-negative-int $maxRetries
+     *
+     * @throws StreamingUnpackLimitException
+     * @throws UnpackingFailedException
      */
-    public function tryUnpack($maxDepth = self::DEFAULT_MAX_DEPTH) : array
+    public function tryUnpack(int $maxDepth = self::DEFAULT_MAX_DEPTH, int $maxRetries = self::DEFAULT_MAX_RETRIES) : array
     {
+        if (!\is_null($this->incompleteUnpackOffset) && $this->incompleteUnpackOffset !== $this->offset) {
+            $this->incompleteUnpackRetries = 0;
+            $this->incompleteUnpackOffset = null;
+        }
+
+        if ($this->incompleteUnpackRetries > $maxRetries) {
+            throw new StreamingUnpackLimitException($maxRetries);
+        }
+
         $data = [];
         $offset = $this->offset;
 
         try {
             do {
                 $data[] = $this->unpack($maxDepth);
+                $this->incompleteUnpackRetries = 0;
+                $this->incompleteUnpackOffset = null;
                 $offset = $this->offset;
             } while (isset($this->buffer[$this->offset]));
-        } catch (InsufficientDataException $e) {
+        } catch (InsufficientDataException) {
             $this->offset = $offset;
+
+            if ($this->offset < \strlen($this->buffer)) {
+                if ($this->incompleteUnpackOffset === $this->offset) {
+                    ++$this->incompleteUnpackRetries;
+                } else {
+                    $this->incompleteUnpackOffset = $this->offset;
+                    $this->incompleteUnpackRetries = 1;
+                }
+            } else {
+                $this->incompleteUnpackRetries = 0;
+                $this->incompleteUnpackOffset = null;
+            }
         }
 
         return $data;

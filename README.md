@@ -169,7 +169,8 @@ $value = $unpacker->unpack(256);
 ```
 
 If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts
-to unpack the data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
+to unpack the data and returns an array of unpacked messages (if any) when the buffer ends partway through a message.
+Malformed data and other unpacking failures still throw exceptions:
 
 ```php
 while ($chunk = ...) {
@@ -179,6 +180,10 @@ while ($chunk = ...) {
     }
 }
 ```
+
+Because each retry decodes an incomplete value from its beginning, `tryUnpack()` allows 64 retries per incomplete value
+by default. Pass `maxRetries` to change this limit. Exceeding it throws `StreamingUnpackLimitException` and leaves the
+value buffered; a subsequent call with a different limit can retry it.
 
 If you want to unpack from a specific position in a buffer, use `seek`:
 
@@ -367,6 +372,8 @@ Please note that custom extensions must be registered with a unique extension ID
 
 If an error occurs during packing/unpacking, a `PackingFailedException` or an `UnpackingFailedException` 
 will be thrown, respectively. In addition, an `InsufficientDataException` can be thrown during unpacking.
+
+`StreamingUnpackLimitException`, a subclass of `UnpackingFailedException`, is thrown when `tryUnpack()` reaches its retry limit.
 
 An `InvalidOptionException` will be thrown in case an invalid option (or a combination of mutually 
 exclusive options) is used.
