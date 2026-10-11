@@ -15,6 +15,7 @@ use Decimal\Decimal;
 use MessagePack\BufferUnpacker;
 use MessagePack\Exception\InsufficientDataException;
 use MessagePack\Exception\InvalidOptionException;
+use MessagePack\Exception\StreamingUnpackLimitException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension;
 use MessagePack\Extension\TimestampExtension;
@@ -358,6 +359,46 @@ final class BufferUnpackerTest extends TestCase
 
         $this->unpacker->append($packed);
         self::assertSame([$foo, $bar], $this->unpacker->tryUnpack());
+    }
+
+    public function testTryUnpackCanContinueWithHigherRetryLimit() : void
+    {
+        $this->unpacker->append("\x91");
+        self::assertSame([], $this->unpacker->tryUnpack(maxRetries: 0));
+
+        try {
+            $this->unpacker->tryUnpack(maxRetries: 0);
+            self::fail('Retry limit was not enforced');
+        } catch (StreamingUnpackLimitException $e) {
+            self::assertSame(0, $e->getMaxRetries());
+        }
+
+        $this->unpacker->append("\x01");
+        self::assertSame([[1]], $this->unpacker->tryUnpack(maxRetries: 1));
+    }
+
+    public function testTryUnpackRetryLimitResetsAfterManualUnpack() : void
+    {
+        $this->unpacker->append("\x91");
+        self::assertSame([], $this->unpacker->tryUnpack(maxRetries: 0));
+
+        $this->unpacker->append("\x01");
+        self::assertSame([1], $this->unpacker->unpack());
+
+        $this->unpacker->append("\xc3");
+        self::assertSame([true], $this->unpacker->tryUnpack(maxRetries: 0));
+    }
+
+    public function testTryUnpackRetryLimitSurvivesRelease() : void
+    {
+        $this->unpacker->append("\xc3\x91");
+        self::assertSame([true], $this->unpacker->tryUnpack(maxRetries: 0));
+
+        $this->unpacker->release();
+        $this->unpacker->append("\x01");
+
+        $this->expectException(StreamingUnpackLimitException::class);
+        $this->unpacker->tryUnpack(maxRetries: 0);
     }
 
     public function testTryUnpackHonorsMaximumNestingDepthPerMessage() : void
