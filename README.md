@@ -169,7 +169,8 @@ $value = $unpacker->unpack(256);
 ```
 
 If the packed data is received in chunks (e.g. when reading from a stream), use the `tryUnpack` method, which attempts
-to unpack the data and returns an array of unpacked messages (if any) instead of throwing an `InsufficientDataException`:
+to unpack the data and returns an array of unpacked messages (if any) when the buffer ends partway through a message.
+Malformed data and other unpacking failures still throw exceptions:
 
 ```php
 while ($chunk = ...) {
