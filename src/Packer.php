@@ -149,7 +149,7 @@ class Packer
     }
 
     /**
-     * @param string $bool
+     * @param bool $bool
      *
      * @return string
      */
