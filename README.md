@@ -31,6 +31,7 @@ A pure PHP implementation of the [MessagePack](https://msgpack.org/) serializati
    * [Extensions](#extensions)
      * [Timestamp](#timestamp)
      * [Application-specific extensions](#application-specific-extensions)
+     * [Objects](#objects)
  * [Exceptions](#exceptions)
  * [Tests](#tests)
     * [Fuzzing](#fuzzing)
@@ -332,11 +333,8 @@ for handling `Timestamp` objects, which represent the number of seconds and an o
 ```php
 $timestampExtension = new TimestampExtension();
 
-$packer = new Packer();
-$packer = $packer->extendWith($timestampExtension);
-
-$unpacker = new BufferUnpacker();
-$unpacker = $unpacker->extendWith($timestampExtension);
+$packer = (new Packer())->extendWith($timestampExtension);
+$unpacker = (new BufferUnpacker())->extendWith($timestampExtension);
 
 $packedTimestamp = $packer->pack(Timestamp::now());
 $timestamp = $unpacker->reset($packedTimestamp)->unpack();
@@ -357,6 +355,24 @@ $timestamp = MessagePack::unpack($packedTimestamp);
 In addition, the format can be extended with your own types. For example, to make the built-in PHP `DateTime` objects 
 first-class citizens in your code, you can create a corresponding extension, as shown in the [example](examples/MessagePack/DateTimeExtension.php).
 Please note that custom extensions must be registered with a unique extension ID (an integer from `0` to `127`).
+
+###### Objects
+
+The library also provides `ObjectExtension` for round-trip serialization of PHP objects and enums:
+
+```php
+$objectExtension = new ObjectExtension(1, [MyDto::class]);
+
+$packer = (new Packer())->extendWith($objectExtension);
+$unpacker = (new BufferUnpacker())->extendWith($objectExtension);
+
+$packed = $packer->pack(new MyDto('Alice'));
+$dto = $unpacker->reset($packed)->unpack();
+```
+
+`ObjectExtension` respects `__serialize()` and `__unserialize()`, falling back to public properties. Pass an `$allowedClasses` allowlist as the second argument when unpacking untrusted data (`stdClass` is always allowed). When combining with other object transformers or extensions, register `ObjectExtension` last so more specific handlers run first.
+
+> *See [examples/object.php](examples/object.php) for a runnable example.*
 
 > *More extension examples can be found in the [examples/MessagePack](examples/MessagePack) directory.*
 

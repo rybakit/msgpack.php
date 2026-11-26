@@ -21,6 +21,9 @@ final class TextExtension implements Extension
         private readonly int $type,
         private readonly int $minLength = 100,
     ) {
+        if ($type < 0 || $type > 127) {
+            throw new \InvalidArgumentException(\sprintf('Extension type must be between 0 and 127, %d given', $type));
+        }
     }
 
     #[\Override]
