@@ -12,6 +12,7 @@
 namespace MessagePack\Tests\Unit\Extension;
 
 use MessagePack\BufferUnpacker;
+use MessagePack\Exception\PackingFailedException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension\ObjectExtension;
 use MessagePack\Packer;
@@ -259,6 +260,24 @@ final class ObjectExtensionTest extends TestCase
         self::assertNull($ext->pack($packer, 42));
         self::assertNull($ext->pack($packer, ['a' => 1]));
         self::assertNull($ext->pack($packer, null));
+    }
+
+    /**
+     * @dataProvider provideUnsupportedObjects
+     */
+    public function testUnsupportedObjectsThrowOnPack(object $obj) : void
+    {
+        $this->expectException(PackingFailedException::class);
+        $this->packer->pack($obj);
+    }
+
+    public static function provideUnsupportedObjects() : iterable
+    {
+        yield 'closure' => [static function () : void {}];
+        yield 'generator' => [(static function () : \Generator { yield 1; })()];
+        yield 'anonymous class' => [new class {
+            public int $x = 1;
+        }];
     }
 
     public function testRoundTripUnbackedEnum() : void

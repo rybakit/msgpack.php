@@ -12,6 +12,7 @@
 namespace MessagePack\Extension;
 
 use MessagePack\BufferUnpacker;
+use MessagePack\Exception\PackingFailedException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension;
 use MessagePack\Packer;
@@ -48,11 +49,15 @@ use MessagePack\Packer;
  */
 final class ObjectExtension implements Extension
 {
+    private const PACK_UNSUPPORTED = 0;
+    private const PACK_PROPS = 1;
+    private const PACK_SERIALIZE = 2;
+
     /** @var array<string, int>|null */
     private ?array $allowedClasses;
 
-    /** @var array<string, bool> */
-    private array $serializeCache = [];
+    /** @var array<string, self::PACK_*> */
+    private array $packCache = [];
 
     /** @var array<string, array{\ReflectionClass<object>, ?\Closure(object, array): void}> */
     private array $unpackCache = [];
@@ -112,8 +117,13 @@ final class ObjectExtension implements Extension
         }
 
         $className = $value::class;
-        $hasSerialize = $this->serializeCache[$className] ??= \method_exists($value, '__serialize');
-        $data = $hasSerialize ? $value->__serialize() : \get_object_vars($value);
+        $mode = $this->packCache[$className] ??= $this->resolvePackMode($value);
+
+        if (self::PACK_UNSUPPORTED === $mode) {
+            throw PackingFailedException::unsupportedType($value);
+        }
+
+        $data = self::PACK_SERIALIZE === $mode ? $value->__serialize() : \get_object_vars($value);
 
         return $packer->packExt($this->type,
             $packer->packStr($className).$packer->packMap($data),
@@ -176,6 +186,25 @@ final class ObjectExtension implements Extension
         }
 
         return $obj;
+    }
+
+    /**
+     * @return self::PACK_*
+     */
+    private function resolvePackMode(object $value) : int
+    {
+        if ($value instanceof \Closure || $value instanceof \Generator) {
+            return self::PACK_UNSUPPORTED;
+        }
+
+        $ref = new \ReflectionClass($value);
+        if ($ref->isAnonymous() || !$ref->isInstantiable()) {
+            return self::PACK_UNSUPPORTED;
+        }
+
+        return \method_exists($value, '__serialize')
+            ? self::PACK_SERIALIZE
+            : self::PACK_PROPS;
     }
 
     private function unpackEnum(string $className, string $caseName) : \UnitEnum
