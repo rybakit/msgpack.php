@@ -370,7 +370,7 @@ $packed = $packer->pack(new MyDto('Alice'));
 $dto = $unpacker->reset($packed)->unpack();
 ```
 
-`ObjectExtension` respects `__serialize()` and `__unserialize()`, falling back to public properties. Pass an `$allowedClasses` allowlist as the second argument when unpacking untrusted data (`stdClass` is always allowed). When combining with other object transformers or extensions, register `ObjectExtension` last so more specific handlers run first.
+`ObjectExtension` respects `__serialize()` and `__unserialize()`, falling back to public properties. By default, only `stdClass` is allowed when unpacking. Pass an allowlist of class names as the second constructor argument, or use `ObjectExtension::allowAll()` for trusted payloads. When combining with other object transformers or extensions, register `ObjectExtension` last so more specific handlers run first.
 
 > *See [examples/object.php](examples/object.php) for a runnable example.*
 

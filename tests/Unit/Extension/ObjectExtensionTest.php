@@ -32,7 +32,7 @@ final class ObjectExtensionTest extends TestCase
 
     protected function setUp() : void
     {
-        $ext = new ObjectExtension(self::EXT_TYPE);
+        $ext = ObjectExtension::allowAll(self::EXT_TYPE);
         $this->packer = (new Packer())->extendWith($ext);
         $this->unpacker = (new BufferUnpacker())->extendWith($ext);
     }
@@ -126,10 +126,9 @@ final class ObjectExtensionTest extends TestCase
         self::assertSame(1, $result->child->age);
     }
 
-    public function testAllowedClassesNull() : void
+    public function testAllowedClassesAllowAll() : void
     {
-        // null = allow all (default)
-        $ext = new ObjectExtension(self::EXT_TYPE, null);
+        $ext = ObjectExtension::allowAll(self::EXT_TYPE);
         $packer = (new Packer())->extendWith($ext);
         $unpacker = (new BufferUnpacker())->extendWith($ext);
 
@@ -138,6 +137,18 @@ final class ObjectExtensionTest extends TestCase
         $result = $unpacker->reset($packed)->unpack();
 
         self::assertInstanceOf(SimpleDto::class, $result);
+    }
+
+    public function testDefaultDisallowsCustomClasses() : void
+    {
+        $packed = $this->packer->pack(new SimpleDto('test', 1));
+
+        // Default ($allowedClasses = []) allows stdClass only
+        $unpacker = (new BufferUnpacker())->extendWith(new ObjectExtension(self::EXT_TYPE));
+
+        $this->expectException(UnpackingFailedException::class);
+        $this->expectExceptionMessage('is not in the allowed classes list');
+        $unpacker->reset($packed)->unpack();
     }
 
     public function testAllowedClassesRestrictedThrows() : void

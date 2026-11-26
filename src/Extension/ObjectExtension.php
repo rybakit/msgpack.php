@@ -33,14 +33,12 @@ use MessagePack\Packer;
  *     UnpackingFailedException is thrown
  *
  * Security:
- *   The $allowedClasses constructor parameter controls which classes (and enums)
- *   may be instantiated during unpacking:
- *     - null (default): all classes are allowed
- *     - ['Foo', 'Bar']: only Foo and Bar may be instantiated
- *     - []: no classes allowed (only stdClass will work)
+ *   By default, only stdClass is allowed when unpacking. Pass an explicit
+ *   allowlist of class/enum names as the second constructor argument, or use
+ *   ObjectExtension::allowAll() for trusted payloads only.
  *
  * Usage:
- *   $ext = new ObjectExtension(2);
+ *   $ext = new ObjectExtension(2, [MyDto::class]);
  *   $packer = (new Packer())->extendWith($ext);
  *   $unpacker = (new BufferUnpacker())->extendWith($ext);
  *
@@ -64,17 +62,25 @@ final class ObjectExtension implements Extension
 
     /**
      * @param int $type ext type ID (0-127)
-     * @param list<string>|null $allowedClasses null=allow all, []=none, ['A','B']=allowlist
+     * @param list<string> $allowedClasses Allowed classes/enums (default [] = stdClass only)
      */
     public function __construct(
         private readonly int $type,
-        ?array $allowedClasses = null,
+        array $allowedClasses = [],
     ) {
         if ($type < 0 || $type > 127) {
             throw new \InvalidArgumentException(\sprintf('Extension type must be between 0 and 127, %d given', $type));
         }
 
-        $this->allowedClasses = null === $allowedClasses ? null : \array_flip($allowedClasses);
+        $this->allowedClasses = \array_flip($allowedClasses);
+    }
+
+    public static function allowAll(int $type) : self
+    {
+        $ext = new self($type);
+        $ext->allowedClasses = null;
+
+        return $ext;
     }
 
     #[\Override]
