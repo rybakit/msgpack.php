@@ -110,7 +110,7 @@ final class ObjectExtension implements Extension
             );
         }
 
-        if ($value instanceof \stdClass) {
+        if (\stdClass::class === $value::class) {
             return $packer->packExt($this->type,
                 $packer->packStr('').$packer->packMap(\get_object_vars($value)),
             );

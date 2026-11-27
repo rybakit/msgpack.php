@@ -20,6 +20,7 @@ use MessagePack\Tests\Unit\Extension\Fixtures\PrivatePropsDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyAndUninitializedDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\SerializableDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\SimpleDto;
+use MessagePack\Tests\Unit\Extension\Fixtures\StdClassSubclass;
 use MessagePack\Tests\Unit\Extension\Fixtures\StringBackedEnum;
 use MessagePack\Tests\Unit\Extension\Fixtures\UnbackedEnum;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +59,17 @@ final class ObjectExtensionTest extends TestCase
         self::assertInstanceOf(\stdClass::class, $result);
         self::assertNotSame($obj, $result);
         self::assertEquals($obj, $result);
+    }
+
+    public function testRoundTripStdClassSubclassUsesSerializeMethods() : void
+    {
+        $obj = new StdClassSubclass();
+        $obj->value = 'Alice';
+
+        $result = $this->packAndUnpack($obj);
+
+        self::assertInstanceOf(StdClassSubclass::class, $result);
+        self::assertSame('alice', $result->value);
     }
 
     public function testRoundTripNestedStdClass() : void
