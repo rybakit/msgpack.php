@@ -17,6 +17,7 @@ use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension\ObjectExtension;
 use MessagePack\Packer;
 use MessagePack\Tests\Unit\Extension\Fixtures\PrivatePropsDto;
+use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyChildDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyAndUninitializedDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\SerializableDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\SimpleDto;
@@ -243,6 +244,18 @@ final class ObjectExtensionTest extends TestCase
         self::assertInstanceOf(ReadonlyAndUninitializedDto::class, $result);
         self::assertSame(42, $result->id);
         self::assertFalse(isset($result->uninitialized));
+    }
+
+    public function testRoundTripReadonlySubclassOfClassWithPrivateParentProperty() : void
+    {
+        $obj = new ReadonlyChildDto(42);
+        (new \ReflectionProperty(PrivatePropsDto::class, 'priv'))->setValue($obj, 'changed');
+
+        $result = $this->packAndUnpack($obj);
+
+        self::assertInstanceOf(ReadonlyChildDto::class, $result);
+        self::assertSame(42, $result->id);
+        self::assertSame('private', $result->getPriv());
     }
 
     public function testRepeatedRoundTripUsesCachedMetadata() : void
