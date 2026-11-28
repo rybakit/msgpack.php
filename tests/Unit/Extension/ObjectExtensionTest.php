@@ -157,6 +157,29 @@ final class ObjectExtensionTest extends TestCase
         self::assertSame(1, $result->child->age);
     }
 
+    public function testRoundTripReadonlyAndUninitializedProperties() : void
+    {
+        $obj = new ReadonlyAndUninitializedDto(42);
+
+        $result = $this->packAndUnpack($obj);
+
+        self::assertInstanceOf(ReadonlyAndUninitializedDto::class, $result);
+        self::assertSame(42, $result->id);
+        self::assertFalse(isset($result->uninitialized));
+    }
+
+    public function testRoundTripReadonlyChildResetsInheritedPrivateState() : void
+    {
+        $obj = new ReadonlyChildDto(42);
+        (new \ReflectionProperty(PrivatePropsDto::class, 'priv'))->setValue($obj, 'changed');
+
+        $result = $this->packAndUnpack($obj);
+
+        self::assertInstanceOf(ReadonlyChildDto::class, $result);
+        self::assertSame(42, $result->id);
+        self::assertSame('private', $result->getPriv());
+    }
+
     public function testAllowedClassesAllowAll() : void
     {
         $ext = ObjectExtension::allowAll(self::EXT_TYPE);
@@ -250,29 +273,6 @@ final class ObjectExtensionTest extends TestCase
         $this->expectException(UnpackingFailedException::class);
         $this->expectExceptionMessage('does not exist');
         $this->unpacker->reset($packed)->unpack();
-    }
-
-    public function testRoundTripReadonlyAndUninitializedProperties() : void
-    {
-        $obj = new ReadonlyAndUninitializedDto(42);
-
-        $result = $this->packAndUnpack($obj);
-
-        self::assertInstanceOf(ReadonlyAndUninitializedDto::class, $result);
-        self::assertSame(42, $result->id);
-        self::assertFalse(isset($result->uninitialized));
-    }
-
-    public function testRoundTripReadonlyChildResetsInheritedPrivateState() : void
-    {
-        $obj = new ReadonlyChildDto(42);
-        (new \ReflectionProperty(PrivatePropsDto::class, 'priv'))->setValue($obj, 'changed');
-
-        $result = $this->packAndUnpack($obj);
-
-        self::assertInstanceOf(ReadonlyChildDto::class, $result);
-        self::assertSame(42, $result->id);
-        self::assertSame('private', $result->getPriv());
     }
 
     public function testRepeatedRoundTripUsesCachedMetadata() : void
