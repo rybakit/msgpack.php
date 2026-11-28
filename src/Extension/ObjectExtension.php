@@ -80,6 +80,10 @@ final class ObjectExtension implements Extension
         $this->allowedClasses = \array_flip($allowedClasses);
     }
 
+    /**
+     * Allows all classes and enums during unpacking.
+     * Never use with untrusted data.
+     */
     public static function allowAll(int $type) : self
     {
         $ext = new self($type);
@@ -198,8 +202,16 @@ final class ObjectExtension implements Extension
         }
 
         $ref = new \ReflectionClass($value);
-        if ($ref->isAnonymous() || !$ref->isInstantiable()) {
+        if ($ref->isAnonymous()) {
             return self::PACK_UNSUPPORTED;
+        }
+
+        if ($ref->isInternal() && $ref->isFinal()) {
+            try {
+                $ref->newInstanceWithoutConstructor();
+            } catch (\Throwable) {
+                return self::PACK_UNSUPPORTED;
+            }
         }
 
         return \method_exists($value, '__serialize')

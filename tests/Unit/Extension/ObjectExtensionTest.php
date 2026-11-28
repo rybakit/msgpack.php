@@ -17,9 +17,10 @@ use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension\ObjectExtension;
 use MessagePack\Packer;
 use MessagePack\Tests\Unit\Extension\Fixtures\InvalidSerializableDto;
+use MessagePack\Tests\Unit\Extension\Fixtures\PrivateConstructorDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\PrivatePropsDto;
-use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyChildDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyAndUninitializedDto;
+use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyChildDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\SerializableDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\SimpleDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\StdClassSubclass;
@@ -98,6 +99,14 @@ final class ObjectExtensionTest extends TestCase
         self::assertInstanceOf(SimpleDto::class, $result);
         self::assertSame('Alice', $result->name);
         self::assertSame(30, $result->age);
+    }
+
+    public function testRoundTripDtoWithPrivateConstructor() : void
+    {
+        $result = $this->packAndUnpack(PrivateConstructorDto::create('factory value'));
+
+        self::assertInstanceOf(PrivateConstructorDto::class, $result);
+        self::assertSame('factory value', $result->value);
     }
 
     public function testRoundTripWithSerialize() : void
@@ -254,7 +263,7 @@ final class ObjectExtensionTest extends TestCase
         self::assertFalse(isset($result->uninitialized));
     }
 
-    public function testRoundTripReadonlySubclassOfClassWithPrivateParentProperty() : void
+    public function testRoundTripReadonlyChildResetsInheritedPrivateState() : void
     {
         $obj = new ReadonlyChildDto(42);
         (new \ReflectionProperty(PrivatePropsDto::class, 'priv'))->setValue($obj, 'changed');
