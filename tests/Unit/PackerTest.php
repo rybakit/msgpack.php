@@ -11,6 +11,7 @@
 
 namespace MessagePack\Tests\Unit;
 
+use MessagePack\CanBePacked;
 use MessagePack\CanPack;
 use MessagePack\Exception\InvalidOptionException;
 use MessagePack\Exception\PackingFailedException;
@@ -186,6 +187,22 @@ final class PackerTest extends TestCase
         );
 
         $packer->pack($obj);
+    }
+
+    public function testCanBePackedTakesPrecedenceOverTransformers() : void
+    {
+        $packed = "\xc4\x03abc";
+        $obj = $this->createMock(CanBePacked::class);
+        $obj->expects(self::once())->method('pack')
+            ->with(self::isInstanceOf(Packer::class))
+            ->willReturn($packed);
+
+        $transformer = $this->createMock(CanPack::class);
+        $transformer->expects(self::never())->method('pack');
+
+        $packer = $this->packer->extendWith($transformer);
+
+        self::assertSame($packed, $packer->pack($obj));
     }
 
     /**
