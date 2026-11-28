@@ -16,6 +16,7 @@ use MessagePack\Exception\PackingFailedException;
 use MessagePack\Exception\UnpackingFailedException;
 use MessagePack\Extension\ObjectExtension;
 use MessagePack\Packer;
+use MessagePack\Tests\Unit\Extension\Fixtures\InvalidSerializableDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\PrivatePropsDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyChildDto;
 use MessagePack\Tests\Unit\Extension\Fixtures\ReadonlyAndUninitializedDto;
@@ -110,6 +111,13 @@ final class ObjectExtensionTest extends TestCase
         self::assertSame(30, $result->age);
         // __unserialize rebuilds the computed field
         self::assertSame('Alice (30)', $result->computed);
+    }
+
+    public function testSerializeReturningNonArrayThrows() : void
+    {
+        $this->expectException(\TypeError::class);
+
+        $this->packer->pack(new InvalidSerializableDto());
     }
 
     public function testPublicPropsOnlyWithoutSerialize() : void
